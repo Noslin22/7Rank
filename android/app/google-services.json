@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "776069113661",
+    "firebase_url": "https://igreja-4019a.firebaseio.com",
+    "project_id": "igreja-4019a",
+    "storage_bucket": "igreja-4019a.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:776069113661:android:03501fb333b0d687268754",
+        "android_client_info": {
+          "package_name": "com.example.remessa"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "776069113661-orkfirnf2o7cthfd713s1jije6dde60g.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD8Z3HmPdHt5Xfu3840UBRpGtDeNUMU-p8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "776069113661-orkfirnf2o7cthfd713s1jije6dde60g.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
