@@ -36,7 +36,7 @@ formatDate({String date, bool dateTime = true, bool dataAtual = false}) {
 
 actions(String gerenciador, BuildContext context, String tela, {auth, Function setDistrito, distrito}) {
   return [
-    tela == 'app'
+    tela == 'home'
         ? gerenciador == "gerenciador"
             ? Tooltip(
                 message: 'Limpar o mapa',
@@ -96,7 +96,7 @@ actions(String gerenciador, BuildContext context, String tela, {auth, Function s
               )
             : Container()
         : Container(),
-    tela == 'app'
+    tela == 'home'
         ? Tooltip(
             message: 'Sair',
             child: IconButton(

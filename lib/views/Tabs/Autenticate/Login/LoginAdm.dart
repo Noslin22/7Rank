@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:remessa/models/Auth.dart';
 import 'package:remessa/models/widgets/consts.dart';
 
+import '../../../Home.dart';
+
 class LoginAdm extends StatefulWidget {
   final Function carregar;
   LoginAdm(this.carregar);
@@ -68,15 +70,16 @@ class _LoginAdmState extends State<LoginAdm> {
                   widget.carregar(true);
                   dynamic result = await _auth.signIn(
                       email: nome, senha: senha, tipo: "adm");
-                  Timer(Duration(seconds: 3), () {
+                  Timer(Duration(seconds: 5), () {
                     if (result == null) {
                       widget.carregar(false);
                     }
-                  });
-                  Timer(Duration(seconds: 2), () {
                     if (result != null) {
+                      widget.carregar(false);
                       Navigator.of(navigatorKey.currentContext)
-                          .pushReplacementNamed('home');
+                          .pushReplacement(MaterialPageRoute(
+                      builder: (context) => Home(),
+                    ),);
                     }
                   });
                 }

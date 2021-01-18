@@ -90,7 +90,7 @@ class _HomeState extends State<Home> {
       appBar: AppBar(
         title: Text("$usuario"),
         actions:
-            kIsWeb ? actions(currentUser(), context, 'home', auth: _auth) : actions(currentUser(), context, 'app', auth: _auth),
+            kIsWeb ? actions(currentUser(), context, 'home', auth: _auth) : null,
       ),
       drawer: kIsWeb ? null : drawer(currentUser(), context, 'home'),
       body: Form(
@@ -271,10 +271,12 @@ class _HomeState extends State<Home> {
                         return Container();
                       },
                     )
-                  : Image.asset(
+                  : Container(
+                    child: Image.asset(
                         'assets/logo_app.png',
-                        fit: BoxFit.fitHeight,
                       ),
+                      constraints: BoxConstraints(maxWidth: 500, maxHeight: 444),
+                  )
                     
             ],
           ),
