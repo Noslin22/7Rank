@@ -34,6 +34,10 @@ class _AdicionarState extends State<Adicionar> {
     setState(() {
       igreja = !igreja;
     });
+  }
+
+  void setAtualizar(){
+    setDistrito();
     listScreens = igreja
         ? [
             AdicionarIgreja(),
@@ -70,8 +74,41 @@ class _AdicionarState extends State<Adicionar> {
       appBar: AppBar(
         title: Text(listNames[tabIndex]),
         centerTitle: true,
-        actions: actions(widget.gerenciador, context, 'adicionar',
-                distrito: setDistrito, kisWeb: kIsWeb),
+        actions: kIsWeb
+            ? actions(widget.gerenciador, context, 'adicionar',
+                distrito: setAtualizar, kisWeb: kIsWeb)
+            : [
+              Tooltip(
+            message: igreja ? 'Igreja' : 'Distrito',
+            child: IconButton(
+                icon: Icon(igreja ? Icons.account_balance : Icons.business),
+                onPressed: () {
+                  setDistrito();
+                  listScreens = igreja
+        ? [
+            AdicionarIgreja(),
+            AtualizarIgreja(),
+            DeletarIgreja(),
+          ]
+        : [
+            AdicionarDistrito(),
+            AtualizarDistrito(),
+            DeletarDistrito(),
+          ];
+    listNames = igreja
+        ? [
+            'Adicionar Igreja',
+            'Atualizar Igreja',
+            'Deletar Igreja',
+          ]
+        : [
+            'Adicionar Distrito',
+            'Atualizar Distrito',
+            'Deletar Distrito',
+          ];
+                }),
+          )
+            ],
       ),
       drawer: kIsWeb ? null : drawer(widget.gerenciador, context, 'adicionar'),
       bottomNavigationBar: BottomNavigator(
