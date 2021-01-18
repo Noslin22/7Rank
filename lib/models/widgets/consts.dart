@@ -34,7 +34,7 @@ formatDate({String date, bool dateTime = true, bool dataAtual = false}) {
           : _dataPronta;
 }
 
-actions(String gerenciador, BuildContext context, String tela, {auth, Function setDistrito, distrito}) {
+actions(String gerenciador, BuildContext context, String tela, {auth, Function setDistrito, distrito, kisWeb}) {
   return [
     tela == 'home'
         ? gerenciador == "gerenciador"
@@ -112,7 +112,7 @@ actions(String gerenciador, BuildContext context, String tela, {auth, Function s
                 }),
           )
         : Container(),
-    tela == 'adicionar' && tela != 'app'
+    tela == 'adicionar'
         ? Tooltip(
             message: distrito ? 'Igreja' : 'Distrito',
             child: IconButton(
@@ -122,7 +122,7 @@ actions(String gerenciador, BuildContext context, String tela, {auth, Function s
                 }),
           )
         : Container(),
-    tela != 'home' && tela != 'app'
+    tela != 'home' && kisWeb
         ? Tooltip(
             message: '7Rank',
             child: IconButton(
@@ -137,7 +137,7 @@ actions(String gerenciador, BuildContext context, String tela, {auth, Function s
                 }),
           )
         : Container(),
-    tela != 'coelba' && tela != 'app'
+    tela != 'coelba' && kisWeb
         ? gerenciador == 'gerenciador'
             ? Tooltip(
                 message: 'Coelba/Embasa',
@@ -156,7 +156,7 @@ actions(String gerenciador, BuildContext context, String tela, {auth, Function s
               )
             : Container()
         : Container(),
-    tela != 'registrar' && tela != 'app'
+    tela != 'registrar' && kisWeb
         ? gerenciador == 'gerenciador'
             ? Tooltip(
                 message: 'Registrar',
@@ -174,7 +174,7 @@ actions(String gerenciador, BuildContext context, String tela, {auth, Function s
               )
             : Container()
         : Container(),
-    tela != 'adicionar' && tela != 'app'
+    tela != 'adicionar' && kisWeb
         ? gerenciador == 'gerenciador'
             ? Tooltip(
                 message: 'Adicionar',

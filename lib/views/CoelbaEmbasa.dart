@@ -75,7 +75,7 @@ class _CoelbaEmbasaState extends State<CoelbaEmbasa> {
       appBar: AppBar(
         title: Text("Coelba/Embasa"),
         centerTitle: true,
-        actions: kIsWeb ? actions(widget.gerenciador, context, 'coelba') : [],
+        actions: actions(widget.gerenciador, context, 'coelba', kisWeb: kIsWeb),
       ),
       drawer: kIsWeb ? null : drawer(widget.gerenciador, context, 'coelba'),
       body: SingleChildScrollView(

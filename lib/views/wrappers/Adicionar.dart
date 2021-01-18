@@ -34,31 +34,7 @@ class _AdicionarState extends State<Adicionar> {
     setState(() {
       igreja = !igreja;
     });
-  }
-
-  void setIndex(value) {
-    setState(() {
-      tabIndex = value;
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(listNames[tabIndex]),
-        centerTitle: true,
-        actions: kIsWeb
-            ? actions(widget.gerenciador, context, 'adicionar',
-                distrito: setDistrito)
-            : [
-              Tooltip(
-            message: igreja ? 'Igreja' : 'Distrito',
-            child: IconButton(
-                icon: Icon(igreja ? Icons.account_balance : Icons.business),
-                onPressed: () {
-                  setDistrito();
-                  listScreens = igreja
+    listScreens = igreja
         ? [
             AdicionarIgreja(),
             AtualizarIgreja(),
@@ -80,9 +56,22 @@ class _AdicionarState extends State<Adicionar> {
             'Atualizar Distrito',
             'Deletar Distrito',
           ];
-                }),
-          )
-            ],
+  }
+
+  void setIndex(value) {
+    setState(() {
+      tabIndex = value;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(listNames[tabIndex]),
+        centerTitle: true,
+        actions: actions(widget.gerenciador, context, 'adicionar',
+                distrito: setDistrito, kisWeb: kIsWeb),
       ),
       drawer: kIsWeb ? null : drawer(widget.gerenciador, context, 'adicionar'),
       bottomNavigationBar: BottomNavigator(

@@ -89,8 +89,7 @@ class _HomeState extends State<Home> {
     return Scaffold(
       appBar: AppBar(
         title: Text("$usuario"),
-        actions:
-            kIsWeb ? actions(currentUser(), context, 'home', auth: _auth) : null,
+        actions: actions(currentUser(), context, 'home', auth: _auth, kisWeb: kIsWeb),
       ),
       drawer: kIsWeb ? null : drawer(currentUser(), context, 'home'),
       body: Form(

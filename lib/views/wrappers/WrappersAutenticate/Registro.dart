@@ -52,7 +52,7 @@ class _RegistroState extends State<Registro> {
             appBar: AppBar(
               title: Text("Resgistro"),
               centerTitle: true,
-              actions: kIsWeb ? actions(widget.gerenciador, context, 'registrar') : [],
+              actions: actions(widget.gerenciador, context, 'registrar', kisWeb: kIsWeb),
             ),
             drawer: kIsWeb ? null : drawer(widget.gerenciador, context, 'registrar'),
             body: SingleChildScrollView(
