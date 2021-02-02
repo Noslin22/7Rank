@@ -8,7 +8,7 @@ import 'package:remessa/models/widgets/consts.dart';
 class CheckBoxTile extends StatefulWidget {
   const CheckBoxTile(this.item, this.doc, this.pastor);
 
-  final Igreja item;
+  final IgrejaFB item;
   final DocumentSnapshot doc;
   final String pastor;
 
@@ -38,7 +38,7 @@ class _CheckboxTileState extends State<CheckBoxTile> {
                   ? DateFormat("dd/MM/yyyy").format(_dateTime)
                   : null;
         });
-        Igreja.save("data", widget.item);
+        IgrejaFB.save("data", widget.item);
       }
     }
 
@@ -57,7 +57,7 @@ class _CheckboxTileState extends State<CheckBoxTile> {
                       setState(() {
                         widget.item.marcado = value;
                       });
-                      Igreja.save(
+                      IgrejaFB.save(
                         "marcado",
                         widget.item,
                       );

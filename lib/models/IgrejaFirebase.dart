@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:remessa/models/widgets/consts.dart';
 
-class Igreja {
+class IgrejaFB {
   bool marcado = false;
   String distrito;
   String nome;
@@ -9,9 +9,9 @@ class Igreja {
   String id;
   int faltam;
 
-  Igreja();
+  IgrejaFB();
 
-  Igreja.toCheckBoxModel(DocumentSnapshot documentSnapshot) {
+  IgrejaFB.toCheckBoxModel(DocumentSnapshot documentSnapshot) {
     this.nome = documentSnapshot["nome"];
     this.marcado = documentSnapshot["marcado"];
     this.data = documentSnapshot["data"];
@@ -19,7 +19,7 @@ class Igreja {
     this.id = documentSnapshot.id;
   }
 
-  Igreja.save(String campo, Igreja item, {String dataPronta}) {
+  IgrejaFB.save(String campo, IgrejaFB item, {String dataPronta}) {
     db.collection("igrejas").doc(item.id).update({
       "marcado": campo == "data" ? true : item.marcado,
       "data": campo == "data"

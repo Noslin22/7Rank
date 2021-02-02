@@ -47,7 +47,7 @@ Future<Uint8List> buildPdf(PdfPageFormat format, List<Distrito> distritos,
                   children: [
                     pw.Text(
                       'Rank Atualizado $date',
-                      style: pw.TextStyle(color: PdfColors.black, fontSize: 16),
+                      style: pw.TextStyle(color: PdfColors.black, fontSize: 14),
                     ),
                   ],
                 ),
@@ -61,7 +61,7 @@ Future<Uint8List> buildPdf(PdfPageFormat format, List<Distrito> distritos,
                         const pw.BorderRadius.all(pw.Radius.circular(2)),
                     color: baseColor,
                   ),
-                  headerHeight: 25,
+                  headerHeight: 20,
                   cellHeight: 11,
                   cellPadding: pw.EdgeInsets.all(2),
                   oddRowDecoration: pw.BoxDecoration(color: PdfColors.grey400),
@@ -98,7 +98,7 @@ Future<Uint8List> buildPdf(PdfPageFormat format, List<Distrito> distritos,
                 ),
               ),
               pw.Container(
-                height: 40,
+                height: 20,
                 child: pw.Center(
                   child: pw.Text(
                     "Total:   $total",

@@ -253,7 +253,7 @@ class _HomeState extends State<Home> {
                                           querySnapshot.docs.toList();
                                       DocumentSnapshot documentSnapshot =
                                           igrejas[index];
-                                      Igreja igreja = Igreja.toCheckBoxModel(
+                                      IgrejaFB igreja = IgrejaFB.toCheckBoxModel(
                                         documentSnapshot,
                                       );
                                       return Card(

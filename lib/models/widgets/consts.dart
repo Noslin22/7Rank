@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:remessa/views/CoelbaEmbasa.dart';
 import 'package:remessa/views/Home.dart';
+import 'package:remessa/views/LicaoPreview.dart';
 import 'package:remessa/views/wrappers/Adicionar.dart';
 import 'package:remessa/views/wrappers/WrappersAutenticate/Login.dart';
 import 'package:remessa/views/wrappers/WrappersAutenticate/Registro.dart';
@@ -137,6 +138,19 @@ actions(String gerenciador, BuildContext context, String tela, {auth, Function s
                 }),
           )
         : Container(),
+        Tooltip(
+            message: 'Lição',
+            child: IconButton(
+                icon: Icon(Icons.menu_book),
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => LicaoPreview(),
+                    ),
+                  );
+                }),
+          ),
     tela != 'coelba' && kisWeb
         ? gerenciador == 'gerenciador'
             ? Tooltip(
