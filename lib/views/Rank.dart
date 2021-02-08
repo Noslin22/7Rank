@@ -11,8 +11,9 @@ import 'package:remessa/models/RankPdf.dart';
 import 'package:share/share.dart';
 
 class Rank extends StatefulWidget {
-  const Rank(this.date);
+  const Rank(this.date, this.user);
   final String date;
+  final String user;
 
   @override
   _RankState createState() => _RankState();
@@ -56,6 +57,58 @@ class _RankState extends State<Rank> {
     Share.shareFile(file);
   }
 
+  void func() {
+    Printing.sharePdf(
+      bytes: pdf(),
+      filename: 'Rank Atualizado.pdf',
+    );
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text("Confirmar"),
+          content: Text("Você deseja fechar o mapa?"),
+          actions: [
+            FlatButton(
+              child: new Text("Não"),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            FlatButton(
+              child: new Text("Sim"),
+              onPressed: () {
+                db.collection("distritos").get().then((value) {
+                  value.docs.forEach((element) async {
+                    db
+                        .collection("igrejas")
+                        .where("distrito", isEqualTo: element.id)
+                        .get()
+                        .then((value) {
+                      db
+                          .collection("distritos")
+                          .doc(element.id)
+                          .update({"faltam": value.docs.length});
+                    });
+                  });
+                });
+                db.collection("igrejas").get().then((value) {
+                  value.docs.forEach((element) {
+                    db
+                        .collection("igrejas")
+                        .doc(element.id)
+                        .update({"marcado": false, "data": null});
+                  });
+                });
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -69,23 +122,11 @@ class _RankState extends State<Rank> {
         actions: [
           Row(
             children: [
-              IconButton(
+              widget.user == 'gerenciador' ? IconButton(
                   icon: Icon(!kIsWeb ? Icons.share : Icons.save),
                   onPressed: () {
-                    kIsWeb
-                        ? Printing.sharePdf(
-                            bytes: pdf(),
-                            filename: 'Rank Atualizado.pdf',
-                          )
-                        : _shareFile();
-                  }),
-              IconButton(
-                  icon: Icon(Icons.camera_alt),
-                  onPressed: () {
-                    setState(() {
-                      _print = !_print;
-                    });
-                  }),
+                    kIsWeb ? func() : _shareFile();
+                  }) : Container(),
               IconButton(
                   icon: Icon(Icons.print),
                   onPressed: () {

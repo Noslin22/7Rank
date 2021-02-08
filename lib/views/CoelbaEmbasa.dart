@@ -173,7 +173,6 @@ class _CoelbaEmbasaState extends State<CoelbaEmbasa> {
                       setState(() {
                         mostrar2 = true;
                       });
-                      print(mostrar2);
                     },
                     child: Text(
                       "Pesquisar",

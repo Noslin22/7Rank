@@ -48,10 +48,16 @@ Future<Uint8List> generatePdf(PdfPageFormat format, String title) async {
                 Random().nextInt(520).toString(),
                 '__________________'),
           );
+          print(igrejas);
         },
       );
     },
   );
+
+  List<List<String>> list = [];
+  for (int i = 0; i < 10; i++) {
+    list.add(['Ordem $i', 'Distrito $i', 'Cod $i', 'Nome $i', '_____________________']);
+  }
 
   pdf.addPage(
     pw.MultiPage(
@@ -69,17 +75,15 @@ Future<Uint8List> generatePdf(PdfPageFormat format, String title) async {
         return [
           pw.ListView.builder(
               itemBuilder: (context, index) {
-                print(
-                    '${igrejas[index].ordem}, ${igrejas[index].distrito}, ${igrejas[index].cod}, ${igrejas[index].nome}, ${igrejas[index].ass}');
                 return pw.Row(children: [
-                  pw.Text(igrejas[index].ordem),
-                  pw.Text(igrejas[index].distrito),
-                  pw.Text(igrejas[index].cod),
-                  pw.Text(igrejas[index].nome),
-                  pw.Text(igrejas[index].ass),
-                ]);
+                  pw.Text(list[index][0]),
+                  pw.Text(list[index][1]),
+                  pw.Text(list[index][2]),
+                  pw.Text(list[index][3]),
+                  pw.Text(list[index][4]),
+                ], mainAxisAlignment: pw.MainAxisAlignment.spaceAround);
               },
-              itemCount: igrejas.length)
+              itemCount: list.length)
         ];
       },
     ),

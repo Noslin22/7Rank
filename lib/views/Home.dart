@@ -216,7 +216,7 @@ class _HomeState extends State<Home> {
                       context,
                       MaterialPageRoute(
                         builder: (context) => Rank(
-                            DateFormat("dd/MM/yyyy").format(DateTime.now())),
+                            DateFormat("dd/MM/yyyy").format(DateTime.now()), currentUser()),
                       ));
                 },
                 child: Text(

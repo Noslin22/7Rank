@@ -38,66 +38,6 @@ formatDate({String date, bool dateTime = true, bool dataAtual = false}) {
 actions(String gerenciador, BuildContext context, String tela, {auth, Function setDistrito, distrito, kisWeb}) {
   return [
     tela == 'home'
-        ? gerenciador == "gerenciador"
-            ? Tooltip(
-                message: 'Limpar o mapa',
-                child: IconButton(
-                  icon: Icon(Icons.close),
-                  onPressed: () {
-                    showDialog(
-                      context: context,
-                      builder: (context) {
-                        return AlertDialog(
-                          title: Text("Confirmar"),
-                          content: Text("Você deseja fechar o mapa?"),
-                          actions: [
-                            FlatButton(
-                              child: new Text("Não"),
-                              onPressed: () {
-                                Navigator.of(context).pop();
-                              },
-                            ),
-                            FlatButton(
-                              child: new Text("Sim"),
-                              onPressed: () {
-                                db.collection("distritos").get().then((value) {
-                                  value.docs.forEach((element) async {
-                                    db
-                                        .collection("igrejas")
-                                        .where("distrito",
-                                            isEqualTo: element.id)
-                                        .get()
-                                        .then((value) {
-                                      db
-                                          .collection("distritos")
-                                          .doc(element.id)
-                                          .update(
-                                              {"faltam": value.docs.length});
-                                    });
-                                  });
-                                });
-                                db.collection("igrejas").get().then((value) {
-                                  value.docs.forEach((element) {
-                                    db
-                                        .collection("igrejas")
-                                        .doc(element.id)
-                                        .update(
-                                            {"marcado": false, "data": null});
-                                  });
-                                });
-                                Navigator.of(context).pop();
-                              },
-                            ),
-                          ],
-                        );
-                      },
-                    );
-                  },
-                ),
-              )
-            : Container()
-        : Container(),
-    tela == 'home'
         ? Tooltip(
             message: 'Sair',
             child: IconButton(
@@ -138,7 +78,7 @@ actions(String gerenciador, BuildContext context, String tela, {auth, Function s
                 }),
           )
         : Container(),
-        Tooltip(
+        tela == 'nada' ? Tooltip(
             message: 'Lição',
             child: IconButton(
                 icon: Icon(Icons.menu_book),
@@ -150,7 +90,7 @@ actions(String gerenciador, BuildContext context, String tela, {auth, Function s
                     ),
                   );
                 }),
-          ),
+          ) : Container(),
     tela != 'coelba' && kisWeb
         ? gerenciador == 'gerenciador'
             ? Tooltip(
