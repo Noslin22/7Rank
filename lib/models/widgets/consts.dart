@@ -78,7 +78,7 @@ actions(String gerenciador, BuildContext context, String tela, {auth, Function s
                 }),
           )
         : Container(),
-        tela != tela ? 
+        tela != 'nada' ? 
         Tooltip(
             message: 'Lição',
             child: IconButton(
