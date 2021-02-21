@@ -5,6 +5,7 @@ import 'package:pdf/widgets.dart' as pw;
 class Distrito {
   const Distrito(
     this.nome,
+    this.pastor,
     this.faltam,
     this.data,
   );
@@ -12,6 +13,7 @@ class Distrito {
   final String nome;
   final String faltam;
   final String data;
+  final String pastor;
 
   String getIndex(int index) {
     switch (index) {
@@ -21,19 +23,21 @@ class Distrito {
         return faltam;
       case 2:
         return data;
+      case 3:
+        return pastor;
     }
     return '';
   }
 }
 
 Future<Uint8List> buildPdf(PdfPageFormat format, List<Distrito> distritos,
-    int total, String date) async {
+    int total, String date, bool simples) async {
   final pw.Document doc = pw.Document();
   final baseColor = PdfColors.blue;
   const _darkColor = PdfColors.blueGrey800;
 
   PdfColor _baseTextColor = PdfColors.white;
-  final List<String> headers = ['Distrito', 'Faltam', 'Data'];
+  final List<String> headers = simples ? ['Distrito', 'Faltam', 'Data'] : ['Distrito', 'Faltam', 'Data', 'Pastor'];
 
   doc.addPage(
     pw.Page(
@@ -65,10 +69,15 @@ Future<Uint8List> buildPdf(PdfPageFormat format, List<Distrito> distritos,
                   cellHeight: 11,
                   cellPadding: pw.EdgeInsets.all(2),
                   oddRowDecoration: pw.BoxDecoration(color: PdfColors.grey400),
-                  cellAlignments: {
+                  cellAlignments: simples ? {
                     0: pw.Alignment.centerLeft,
                     1: pw.Alignment.center,
                     2: pw.Alignment.centerRight,
+                  } : {
+                    0: pw.Alignment.centerLeft,
+                    1: pw.Alignment.center,
+                    2: pw.Alignment.centerRight,
+                    3: pw.Alignment.centerRight,
                   },
                   headerStyle: pw.TextStyle(
                     color: _baseTextColor,

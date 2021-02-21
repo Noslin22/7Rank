@@ -81,7 +81,7 @@ class _AtualizarIgrejaState extends State<AtualizarIgreja> {
                           }
                           return null;
                         },
-                            decoration: inputDecoration,
+                            decoration: inputDecoration.copyWith(labelText: "Antigo Nome"),
                             onChanged: (value) {
                               setState(() {
                                 antigoNome = value;
@@ -101,53 +101,13 @@ class _AtualizarIgrejaState extends State<AtualizarIgreja> {
                     height: 14,
                   ),
                   TextFormField(
+                    controller: TextEditingController(text: novoNome),
                     onChanged: (newValue) {
                       setState(() => novoNome = newValue);
                     },
                     decoration:
                         inputDecoration.copyWith(labelText: "Novo Nome"),
                   ),
-                  SizedBox(
-                    height: 14,
-                  ),
-                  StreamBuilder(
-                      stream: _controllerDistritos.stream,
-                      builder: (context, snapshot) {
-                        if (snapshot.hasData) {
-                          List<DropdownMenuItem> distritos = [
-                            DropdownMenuItem(
-                              child: Text(
-                                "Antigo Distrito",
-                              ),
-                            ),
-                          ];
-                          for (var i = 0; i < snapshot.data.docs.length; i++) {
-                            distritos.add(
-                              DropdownMenuItem(
-                                value: snapshot.data.docs[i].id,
-                                child: Text(
-                                  snapshot.data.docs[i].id,
-                                ),
-                              ),
-                            );
-                          }
-                          return DropdownButtonFormField(
-                            decoration: inputDecoration,
-                            onChanged: (value) {
-                              setState(() {
-                                antigoDistrito = value;
-                              });
-                            },
-                            hint: Text("Antigo Distrito"),
-                            onSaved: (newValue) {
-                              antigoDistrito = newValue;
-                            },
-                            items: distritos,
-                            value: antigoDistrito,
-                          );
-                        }
-                        return Container();
-                      }),
                   SizedBox(
                     height: 14,
                   ),

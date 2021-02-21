@@ -23,12 +23,13 @@ class _RankState extends State<Rank> {
   final _controller = StreamController.broadcast();
   PdfPageFormat format;
   bool _buildFeita = false;
+  bool _simples = true;
   List<Distrito> distritos = [];
   bool _print = false;
   int _total = 0;
 
   pdf() {
-    return buildPdf(format, distritos, _total, widget.date);
+    return buildPdf(format, distritos, _total, widget.date, _simples);
   }
 
   Stream<QuerySnapshot> _rank() {
@@ -122,11 +123,22 @@ class _RankState extends State<Rank> {
         actions: [
           Row(
             children: [
-              widget.user == 'gerenciador' ? IconButton(
-                  icon: Icon(!kIsWeb ? Icons.share : Icons.save),
-                  onPressed: () {
-                    kIsWeb ? func() : _shareFile();
-                  }) : Container(),
+              widget.user == 'gerenciador'
+                  ? IconButton(
+                      icon: Icon(!kIsWeb ? Icons.share : Icons.save),
+                      onPressed: () {
+                        kIsWeb ? func() : _shareFile();
+                      })
+                  : Container(),
+              widget.user == 'gerenciador'
+                  ? IconButton(
+                      icon: Icon(Icons.people),
+                      onPressed: () {
+                        setState(() {
+                          _simples = !_simples;
+                        });
+                      })
+                  : Container(),
               IconButton(
                   icon: Icon(Icons.print),
                   onPressed: () {
@@ -153,6 +165,7 @@ class _RankState extends State<Rank> {
                   distritos.add(
                     Distrito(
                       querySnapshot.docs[i].id,
+                      querySnapshot.docs[i]["pastor"],
                       querySnapshot.docs[i]["faltam"].toString(),
                       querySnapshot.docs[i]["faltam"] == 0
                           ? querySnapshot.docs[i]["data"]
@@ -190,6 +203,15 @@ class _RankState extends State<Rank> {
                                   style: TextStyle(fontSize: _print ? 10 : 16),
                                 ),
                               ),
+                              !_simples
+                                  ? Expanded(
+                                      child: Text(
+                                        documentSnapshot["pastor"],
+                                        style: TextStyle(
+                                            fontSize: _print ? 10 : 16),
+                                      ),
+                                    )
+                                  : Container(),
                               Align(
                                 alignment: FractionalOffset.centerRight,
                                 child: Text(
