@@ -7,7 +7,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:pdf/pdf.dart';
 import 'package:printing/printing.dart';
 import 'package:remessa/models/widgets/consts.dart';
-import 'package:remessa/models/RankPdf.dart';
+import 'package:remessa/models/pdf/RankPdf.dart';
 import 'package:share/share.dart';
 
 class Rank extends StatefulWidget {
@@ -24,12 +24,15 @@ class _RankState extends State<Rank> {
   PdfPageFormat format;
   bool _buildFeita = false;
   bool _simples = true;
+  List<IgrejaModel> igrejas = [];
   List<Distrito> distritos = [];
   bool _print = false;
   int _total = 0;
 
-  pdf() {
-    return buildPdf(format, distritos, _total, widget.date, _simples);
+  pdf({bool rank = true}) {
+    return rank
+        ? buildPdf(distritos, _total, widget.date, _simples)
+        : igrejas.isNotEmpty ? buildPdf2(igrejas, widget.date) : null;
   }
 
   Stream<QuerySnapshot> _rank() {
@@ -42,6 +45,20 @@ class _RankState extends State<Rank> {
     distritos.listen((event) {
       _controller.add(event);
     });
+
+    db
+        .collection("igrejas")
+        .where("marcado", isEqualTo: false)
+        .get()
+        .then((value) {
+      value.docs.forEach((element) {
+        igrejas.add(IgrejaModel(
+          element['nome'],
+          element['distrito'],
+        ));
+      });
+    });
+
     return null;
   }
 
@@ -62,6 +79,12 @@ class _RankState extends State<Rank> {
     Printing.sharePdf(
       bytes: pdf(),
       filename: 'Rank Atualizado.pdf',
+    );
+    Printing.layoutPdf(
+      name: 'Faltas Rank',
+      onLayout: (PdfPageFormat format) {
+        return pdf(rank: false);
+      },
     );
     showDialog(
       context: context,
@@ -125,7 +148,7 @@ class _RankState extends State<Rank> {
             children: [
               widget.user == 'gerenciador'
                   ? IconButton(
-                      icon: Icon(!kIsWeb ? Icons.share : Icons.save),
+                      icon: Icon(kIsWeb ? Icons.close_rounded : Icons.share),
                       onPressed: () {
                         kIsWeb ? func() : _shareFile();
                       })
@@ -143,7 +166,7 @@ class _RankState extends State<Rank> {
                   icon: Icon(Icons.print),
                   onPressed: () {
                     Printing.layoutPdf(
-                      name: 'Rank Atualizado ${widget.date} ',
+                      name: 'Rank Atualizado ${widget.date}',
                       onLayout: (PdfPageFormat format) {
                         return pdf();
                       },

@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:pdf/pdf.dart';
 import 'package:printing/printing.dart';
 import 'package:remessa/models/widgets/consts.dart';
-import '../models/LicaoPdf.dart';
+import '../models/pdf/LicaoPdf.dart';
 
 class LicaoPreview extends StatefulWidget {
   @override

@@ -78,7 +78,7 @@ actions(String gerenciador, BuildContext context, String tela, {auth, Function s
                 }),
           )
         : Container(),
-        tela != 'nada' ? 
+        /*tela != 'nada' ? 
         Tooltip(
             message: 'Lição',
             child: IconButton(
@@ -91,7 +91,7 @@ actions(String gerenciador, BuildContext context, String tela, {auth, Function s
                     ),
                   );
                 }),
-          ) : Container(),
+          ) : Container(),*/
     tela != 'coelba' && kisWeb
         ? gerenciador == 'gerenciador'
             ? Tooltip(

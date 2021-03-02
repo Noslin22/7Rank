@@ -1,7 +1,9 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:printing/printing.dart';
 import 'package:remessa/models/Auth.dart';
 import 'package:remessa/models/IgrejaFirebase.dart';
+import 'package:remessa/models/pdf/DistritoPdf.dart';
 import 'package:remessa/models/widgets/CheckBoxTile.dart';
 import 'package:remessa/models/widgets/consts.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -21,6 +23,8 @@ class _HomeState extends State<Home> {
   final _controllerRank = StreamController.broadcast();
   FirebaseAuth auth = FirebaseAuth.instance;
   final _formKey = GlobalKey<FormState>();
+  List<IgrejaPdf> igrejas = [];
+  String _data = DateFormat("dd/MM/yyyy").format(DateTime.now());
   bool _distrito = false;
   Auth _auth = Auth();
   String escolhido;
@@ -34,11 +38,34 @@ class _HomeState extends State<Home> {
   }
 
   Stream<QuerySnapshot> _pegarDados() {
-    Stream<QuerySnapshot> stream = db
+    igrejas = [];
+    Query query = db
         .collection("igrejas")
         .where("distrito", isEqualTo: escolhido)
+        .orderBy('nome');
+
+    Stream<QuerySnapshot> stream = query.snapshots();
+
+    db
+        .collection("igrejas")
+        .where("distrito", isEqualTo: escolhido)
+        .orderBy('data')
         .orderBy('nome')
-        .snapshots();
+        .get()
+        .then(
+      (value) {
+        value.docs.forEach(
+          (element) {
+            igrejas.add(
+              IgrejaPdf(
+                element["nome"].toString(),
+                element["data"] != null ? element["data"].toString() : "Falta",
+              ),
+            );
+          },
+        );
+      },
+    );
 
     Stream<QuerySnapshot> rank = db
         .collectionGroup("igrejas")
@@ -89,7 +116,8 @@ class _HomeState extends State<Home> {
     return Scaffold(
       appBar: AppBar(
         title: Text("$usuario"),
-        actions: actions(currentUser(), context, 'home', auth: _auth, kisWeb: kIsWeb),
+        actions: actions(currentUser(), context, 'home',
+            auth: _auth, kisWeb: kIsWeb),
       ),
       drawer: kIsWeb ? null : drawer(currentUser(), context, 'home'),
       body: Form(
@@ -209,21 +237,47 @@ class _HomeState extends State<Home> {
               SizedBox(
                 height: 10,
               ),
-              RaisedButton(
-                padding: EdgeInsets.all(10),
-                onPressed: () {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => Rank(
-                            DateFormat("dd/MM/yyyy").format(DateTime.now()), currentUser()),
-                      ));
-                },
-                child: Text(
-                  "Rank",
-                  style: TextStyle(color: Colors.white),
-                ),
-                color: Colors.blue,
+              Row(
+                children: [
+                  Expanded(
+                    child: RaisedButton(
+                      padding: EdgeInsets.all(10),
+                      onPressed: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => Rank(_data, currentUser()),
+                            ));
+                      },
+                      child: Text(
+                        "Rank",
+                        style: TextStyle(color: Colors.white),
+                      ),
+                      color: Colors.blue,
+                    ),
+                    flex: 3,
+                  ),
+                  _distrito
+                      ? Expanded(
+                          child: RaisedButton(
+                            padding: EdgeInsets.all(10),
+                            onPressed: () {
+                              Printing.layoutPdf(
+                                name: 'Distrito $escolhido Dia $_data',
+                                onLayout: (format) {
+                                  return buildPdfDistrito(igrejas, 'Distrito $escolhido Dia $_data');
+                                },
+                              );
+                            },
+                            child: Text(
+                              "Listar",
+                              style: TextStyle(color: Colors.white),
+                            ),
+                            color: Colors.blue,
+                          ),
+                          flex: 2)
+                      : Container()
+                ],
               ),
               SizedBox(
                 height: 20,
@@ -253,7 +307,8 @@ class _HomeState extends State<Home> {
                                           querySnapshot.docs.toList();
                                       DocumentSnapshot documentSnapshot =
                                           igrejas[index];
-                                      IgrejaFB igreja = IgrejaFB.toCheckBoxModel(
+                                      IgrejaFB igreja =
+                                          IgrejaFB.toCheckBoxModel(
                                         documentSnapshot,
                                       );
                                       return Card(
@@ -271,12 +326,12 @@ class _HomeState extends State<Home> {
                       },
                     )
                   : Container(
-                    child: Image.asset(
+                      child: Image.asset(
                         'assets/logo_app.png',
                       ),
-                      constraints: BoxConstraints(maxWidth: 500, maxHeight: 444),
-                  )
-                    
+                      constraints:
+                          BoxConstraints(maxWidth: 500, maxHeight: 444),
+                    )
             ],
           ),
         ),
