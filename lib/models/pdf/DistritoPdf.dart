@@ -23,7 +23,7 @@ class IgrejaPdf {
   }
 }
 
-Future<Uint8List> buildPdfDistrito(List<IgrejaPdf> igrejas, String titulo) async {
+Future<Uint8List> buildPdfDistrito(List<IgrejaPdf> igrejas, String distrito, String data) async {
   final Document doc = Document();
   final baseColor = PdfColors.blue;
   const _darkColor = PdfColors.blueGrey800;
@@ -41,9 +41,14 @@ Future<Uint8List> buildPdfDistrito(List<IgrejaPdf> igrejas, String titulo) async
             children: [
               Container(
                 child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      titulo,
+                      "Distrito: $distrito",
+                      style: TextStyle(color: PdfColors.black, fontSize: 14),
+                    ),
+                    Text(
+                      data,
                       style: TextStyle(color: PdfColors.black, fontSize: 14),
                     ),
                   ],

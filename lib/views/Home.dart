@@ -265,7 +265,7 @@ class _HomeState extends State<Home> {
                               Printing.layoutPdf(
                                 name: 'Distrito $escolhido Dia $_data',
                                 onLayout: (format) {
-                                  return buildPdfDistrito(igrejas, 'Distrito $escolhido Dia $_data');
+                                  return buildPdfDistrito(igrejas, escolhido, _data);
                                 },
                               );
                             },
