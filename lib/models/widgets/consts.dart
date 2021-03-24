@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import 'package:remessa/views/CoelbaEmbasa.dart';
 import 'package:remessa/views/Home.dart';
 import 'package:remessa/views/LicaoPreview.dart';
+import 'package:remessa/views/depositos.dart';
 import 'package:remessa/views/wrappers/Adicionar.dart';
 import 'package:remessa/views/wrappers/WrappersAutenticate/Login.dart';
 import 'package:remessa/views/wrappers/WrappersAutenticate/Registro.dart';
@@ -105,6 +106,23 @@ actions(String gerenciador, BuildContext context, String tela, {auth, Function s
                           builder: (context) => CoelbaEmbasa(
                             gerenciador,
                           ),
+                        ),
+                      );
+                    }),
+              )
+            : Container()
+        : Container(),
+    tela == 'home' && kisWeb
+        ? gerenciador == 'gerenciador'
+            ? Tooltip(
+                message: 'Depositos Manuais',
+                child: IconButton(
+                    icon: Icon(Icons.monetization_on_sharp),
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => Deposito(),
                         ),
                       );
                     }),

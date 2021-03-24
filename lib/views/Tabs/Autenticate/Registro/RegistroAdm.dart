@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:remessa/models/Auth.dart';
 import 'package:remessa/models/widgets/consts.dart';
 
+import '../../../Home.dart';
+
 class RegistroAdm extends StatefulWidget {
   final Function carregar;
   RegistroAdm(this.carregar);
@@ -12,10 +14,12 @@ class RegistroAdm extends StatefulWidget {
 
 class _RegistroAdmState extends State<RegistroAdm> {
   final _formKey = GlobalKey<FormState>();
+  FocusNode myFocusNode;
   Auth _auth = Auth();
   String nome = '';
   String senha = '';
   String erro = '';
+  int focus = 0;
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -35,6 +39,14 @@ class _RegistroAdmState extends State<RegistroAdm> {
                 }
                 return null;
               },
+              focusNode: focus == 0 ? myFocusNode : null,
+              onFieldSubmitted: (value) {
+                setState(() {
+                  focus++;
+                });
+                myFocusNode = FocusNode();
+                myFocusNode.requestFocus();
+              },
               onChanged: (newValue) {
                 setState(() => nome = _auth.removerAcentos(newValue));
               },
@@ -52,6 +64,28 @@ class _RegistroAdmState extends State<RegistroAdm> {
               },
               onChanged: (newValue) {
                 setState(() => senha = newValue);
+              },
+              focusNode: focus == 1 ? myFocusNode : null,
+              onFieldSubmitted: (value) async {
+                if (_formKey.currentState != null &&
+                    _formKey.currentState.validate()) {
+                  widget.carregar(true);
+                  dynamic result = await _auth.signIn(
+                      email: nome, senha: senha, tipo: "adm");
+                  Timer(Duration(seconds: 5), () {
+                    if (result == null) {
+                      widget.carregar(false);
+                    }
+                    if (result != null) {
+                      widget.carregar(false);
+                      Navigator.of(navigatorKey.currentContext).pushReplacement(
+                        MaterialPageRoute(
+                          builder: (context) => Home(),
+                        ),
+                      );
+                    }
+                  });
+                }
               },
               obscureText: true,
               decoration: inputDecoration.copyWith(

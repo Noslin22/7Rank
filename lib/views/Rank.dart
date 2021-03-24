@@ -148,7 +148,7 @@ class _RankState extends State<Rank> {
             children: [
               widget.user == 'gerenciador'
                   ? IconButton(
-                      icon: Icon(kIsWeb ? Icons.close_rounded : Icons.share),
+                      icon: Icon(kIsWeb ? Icons.close : Icons.share),
                       onPressed: () {
                         kIsWeb ? func() : _shareFile();
                       })

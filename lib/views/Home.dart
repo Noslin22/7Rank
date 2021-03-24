@@ -84,7 +84,8 @@ class _HomeState extends State<Home> {
   }
 
   String currentUser() {
-    String nome = auth.currentUser.email.contains("pastor")
+    String nome;
+    nome = auth.currentUser.email.contains("pastor")
         ? "pastor"
         : auth.currentUser.email.contains("adm")
             ? "adm"
@@ -265,7 +266,8 @@ class _HomeState extends State<Home> {
                               Printing.layoutPdf(
                                 name: 'Distrito $escolhido Dia $_data',
                                 onLayout: (format) {
-                                  return buildPdfDistrito(igrejas, escolhido, _data);
+                                  return buildPdfDistrito(
+                                      igrejas, escolhido, _data);
                                 },
                               );
                             },

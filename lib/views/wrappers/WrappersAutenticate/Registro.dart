@@ -6,9 +6,6 @@ import 'package:remessa/models/widgets/consts.dart';
 import 'package:remessa/views/Tabs/Autenticate/Registro/RegistroAdm.dart';
 import 'package:remessa/views/Tabs/Autenticate/Registro/RegistroGerenciador.dart';
 import 'package:remessa/views/Tabs/Autenticate/Registro/RegistroPastor.dart';
-import 'package:remessa/views/wrappers/Adicionar.dart';
-import '../../CoelbaEmbasa.dart';
-import '../../Home.dart';
 
 class Registro extends StatefulWidget {
   final String gerenciador;
