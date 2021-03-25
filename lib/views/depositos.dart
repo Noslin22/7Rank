@@ -186,10 +186,8 @@ class _DepositoState extends State<Deposito> {
                             myFocusNode = FocusNode();
                             myFocusNode.requestFocus();
                           },
-                          decoration: InputDecoration(
-                            border: OutlineInputBorder(),
-                            labelText: title,
-                          ),
+                          decoration:
+                              inputDecoration.copyWith(labelText: title),
                         ),
                       ),
                       SizedBox(
@@ -207,10 +205,8 @@ class _DepositoState extends State<Deposito> {
                             myFocusNode = FocusNode();
                             myFocusNode.requestFocus();
                           },
-                          decoration: InputDecoration(
-                            border: OutlineInputBorder(),
-                            labelText: 'Data',
-                          ),
+                          decoration:
+                              inputDecoration.copyWith(labelText: "Data"),
                         ),
                       ),
                     ],
@@ -232,10 +228,8 @@ class _DepositoState extends State<Deposito> {
                             myFocusNode = FocusNode();
                             myFocusNode.requestFocus();
                           },
-                          decoration: InputDecoration(
-                            border: OutlineInputBorder(),
-                            labelText: 'Remessa',
-                          ),
+                          decoration:
+                              inputDecoration.copyWith(labelText: "Remessa"),
                         ),
                       ),
                       SizedBox(
@@ -252,10 +246,8 @@ class _DepositoState extends State<Deposito> {
                             myFocusNode = FocusNode();
                             myFocusNode.requestFocus();
                           },
-                          decoration: InputDecoration(
-                            border: OutlineInputBorder(),
-                            labelText: 'Documento',
-                          ),
+                          decoration:
+                              inputDecoration.copyWith(labelText: "Documento"),
                         ),
                       ),
                     ],
@@ -275,10 +267,10 @@ class _DepositoState extends State<Deposito> {
                         duration: const Duration(milliseconds: 300),
                       );
                       setState(() {
-                        depositos.add(
+                        depositos.insert(0,
                             "${date[0]}	${date[1]}	${date[2]}	Deposito em ${controllerDate.text} - RM ${controllerRM.text} - ${controllerDc.text}	${controllerCod.text}	${controllerDc.text}	$vl");
                         amostra.insert(0,
-                            "${igrejas[controllerCod.text]} - ${controllerDate.text} - Remessa ${controllerRM.text} - Doc ${controllerDc.text} - R\$ ${controllerVl.text}");
+                            "${igrejas[controllerCod.text]} - ${controllerCod.text} - ${controllerDate.text} - Remessa ${controllerRM.text} - Doc ${controllerDc.text} - R\$ ${controllerVl.text}");
                         controllerCod.text = '';
                         controllerDate.text = '';
                         controllerRM.text = '';
@@ -289,10 +281,7 @@ class _DepositoState extends State<Deposito> {
                       myFocusNode = FocusNode();
                       myFocusNode.requestFocus();
                     },
-                    decoration: InputDecoration(
-                      border: OutlineInputBorder(),
-                      labelText: 'Valor',
-                    ),
+                    decoration: inputDecoration.copyWith(labelText: "Valor"),
                   ),
                   SizedBox(
                     height: 15,
@@ -333,6 +322,7 @@ class _DepositoState extends State<Deposito> {
                             onPressed: () {
                               setState(() {
                                 depositos = [];
+                                amostra = [];
                                 controllerCod.text = '';
                                 controllerDate.text = '';
                                 controllerRM.text = '';
@@ -355,18 +345,58 @@ class _DepositoState extends State<Deposito> {
                         itemBuilder: (context, index) {
                           return ListTile(
                             title: Text(amostra[index]),
-                            trailing: FlatButton(
-                              child: Icon(
-                                Icons.delete,
-                                color: Colors.white,
-                              ),
-                              color: Colors.red,
-                              onPressed: () {
-                                setState(() {
-                                  amostra.removeAt(index);
-                                  depositos.removeAt(index);
-                                });
-                              },
+                            trailing: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                FlatButton(
+                                  child: Icon(
+                                    Icons.delete,
+                                    color: Colors.white,
+                                  ),
+                                  color: Colors.red,
+                                  onPressed: () {
+                                    setState(() {
+                                      amostra.removeAt(index);
+                                      depositos.removeAt(index);
+                                    });
+                                  },
+                                ),
+                                SizedBox(
+                                  width: 10,
+                                ),
+                                FlatButton(
+                                  child: Icon(
+                                    Icons.edit,
+                                    color: Colors.white,
+                                  ),
+                                  color: Colors.orange,
+                                  onPressed: () {
+                                    List<String> text =
+                                        amostra[index].split("-");
+                                    setState(() {
+                                      amostra.removeAt(index);
+                                      depositos.removeAt(index);
+                                      title =
+                                          igrejas[text[1].replaceAll(" ", "")];
+                                      controllerCod.text =
+                                          text[1].replaceAll(" ", "");
+                                      controllerDate.text =
+                                          text[2].replaceAll(" ", "");
+                                      controllerRM.text = text[3]
+                                          .replaceAll(" ", "")
+                                          .split("a")[1];
+                                      controllerDc.text = text[4]
+                                          .replaceAll(" ", "")
+                                          .split("c")[1];
+                                      controllerVl.text = text[5]
+                                          .replaceAll(" ", "")
+                                          .split("\$")[1];
+                                    });
+                                    print(
+                                        "Igreja: ${text[0].replaceAll(" ", "")} - Cod: ${text[1].replaceAll(" ", "")} - Data: ${text[2].replaceAll(" ", "")} - Rm: ${text[3].replaceAll(" ", "").split("a")[1]} - Dc: ${text[4].replaceAll(" ", "").split("c")[1]} - R\$: ${text[5].replaceAll(" ", "").split("\$")[1]}");
+                                  },
+                                ),
+                              ],
                             ),
                           );
                         }),

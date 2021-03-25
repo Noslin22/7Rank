@@ -5,6 +5,7 @@ import 'package:remessa/views/CoelbaEmbasa.dart';
 import 'package:remessa/views/Home.dart';
 import 'package:remessa/views/LicaoPreview.dart';
 import 'package:remessa/views/depositos.dart';
+import 'package:remessa/views/dinheiro.dart';
 import 'package:remessa/views/wrappers/Adicionar.dart';
 import 'package:remessa/views/wrappers/WrappersAutenticate/Login.dart';
 import 'package:remessa/views/wrappers/WrappersAutenticate/Registro.dart';
@@ -36,7 +37,8 @@ formatDate({String date, bool dateTime = true, bool dataAtual = false}) {
           : _dataPronta;
 }
 
-actions(String gerenciador, BuildContext context, String tela, {auth, Function setDistrito, distrito, kisWeb}) {
+actions(String gerenciador, BuildContext context, String tela,
+    {auth, Function setDistrito, distrito, kisWeb}) {
   return [
     tela == 'home'
         ? Tooltip(
@@ -79,7 +81,7 @@ actions(String gerenciador, BuildContext context, String tela, {auth, Function s
                 }),
           )
         : Container(),
-        /*tela != 'nada' ? 
+    /*tela != 'nada' ? 
         Tooltip(
             message: 'Lição',
             child: IconButton(
@@ -129,6 +131,23 @@ actions(String gerenciador, BuildContext context, String tela, {auth, Function s
               )
             : Container()
         : Container(),
+    // tela == 'home' && kisWeb
+    //     ? gerenciador == 'gerenciador'
+    //         ? Tooltip(
+    //             message: 'Dinheiro',
+    //             child: IconButton(
+    //                 icon: Icon(Icons.calculate),
+    //                 onPressed: () {
+    //                   Navigator.push(
+    //                     context,
+    //                     MaterialPageRoute(
+    //                       builder: (context) => Dinheiro(),
+    //                     ),
+    //                   );
+    //                 }),
+    //           )
+    //         : Container()
+    //     : Container(),
     tela != 'registrar' && kisWeb
         ? gerenciador == 'gerenciador'
             ? Tooltip(

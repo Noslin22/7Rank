@@ -60,70 +60,74 @@ Future<Uint8List> buildPdf2(List<IgrejaModel> igrejas, String data) async {
 
   PdfPageFormat format;
   doc.addPage(
-    pw.Page(
-      pageFormat: format,
+    pw.MultiPage(
       build: (pw.Context context) {
-        return pw.Container(
-          child: pw.Column(
-            children: [
-              pw.Container(
-                child: pw.Row(
-                  children: [
-                    pw.Text(
-                      'Rank Atualizado $data',
-                      style: pw.TextStyle(color: PdfColors.black, fontSize: 14),
-                    ),
-                  ],
+        return [
+          pw.Container(
+            child: pw.Column(
+              children: [
+                pw.Container(
+                  child: pw.Row(
+                    children: [
+                      pw.Text(
+                        'Rank Atualizado $data',
+                        style:
+                            pw.TextStyle(color: PdfColors.black, fontSize: 14),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-              pw.Expanded(
-                child: pw.Table.fromTextArray(
-                  border: null,
-                  cellAlignment: pw.Alignment.centerLeft,
-                  headerDecoration: pw.BoxDecoration(
-                    borderRadius:
-                        const pw.BorderRadius.all(pw.Radius.circular(2)),
-                    color: baseColor,
-                  ),
-                  headerHeight: 20,
-                  cellHeight: 11,
-                  cellPadding: pw.EdgeInsets.all(2),
-                  oddRowDecoration: pw.BoxDecoration(color: PdfColors.grey400),
-                  cellAlignments: {
-                          0: pw.Alignment.centerLeft,
-                          1: pw.Alignment.centerRight,
-                        },
-                  headerStyle: pw.TextStyle(
-                    color: _baseTextColor,
-                    fontSize: 18,
-                    fontWeight: pw.FontWeight.bold,
-                  ),
-                  cellStyle: const pw.TextStyle(
-                    color: _darkColor,
-                    fontSize: 14,
-                  ),
-                  rowDecoration: pw.BoxDecoration(
-                    border: pw.Border(
-                      bottom: pw.BorderSide(
-                        color: PdfColors.blueGrey900,
-                        width: .5,
+                pw.Expanded(
+                  child: pw.Table.fromTextArray(
+                    border: null,
+                    cellAlignment: pw.Alignment.centerLeft,
+                    headerDecoration: pw.BoxDecoration(
+                      borderRadius:
+                          const pw.BorderRadius.all(pw.Radius.circular(2)),
+                      color: baseColor,
+                    ),
+                    headerHeight: 20,
+                    cellHeight: 11,
+                    cellPadding: pw.EdgeInsets.all(2),
+                    oddRowDecoration:
+                        pw.BoxDecoration(color: PdfColors.grey400),
+                    cellAlignments: {
+                      0: pw.Alignment.centerLeft,
+                      1: pw.Alignment.centerRight,
+                    },
+                    headerStyle: pw.TextStyle(
+                      color: _baseTextColor,
+                      fontSize: 18,
+                      fontWeight: pw.FontWeight.bold,
+                    ),
+                    cellStyle: const pw.TextStyle(
+                      color: _darkColor,
+                      fontSize: 14,
+                    ),
+                    rowDecoration: pw.BoxDecoration(
+                      border: pw.Border(
+                        bottom: pw.BorderSide(
+                          color: PdfColors.blueGrey900,
+                          width: .5,
+                        ),
+                      ),
+                    ),
+                    headers: headers,
+                    data: List<List<String>>.generate(
+                      igrejas.length,
+                      (row) => List<String>.generate(
+                        headers.length,
+                        (col) => igrejas[row].getIndex(col),
                       ),
                     ),
                   ),
-                  headers: headers,
-                  data: List<List<String>>.generate(
-                    igrejas.length,
-                    (row) => List<String>.generate(
-                      headers.length,
-                      (col) => igrejas[row].getIndex(col),
-                    ),
-                  ),
                 ),
-              ),
-            ]
-          )
-        );
+              ],
+            ),
+          ),
+        ];
       },
+      pageFormat: format,
     ),
   );
   return await doc.save();

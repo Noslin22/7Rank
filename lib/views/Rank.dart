@@ -32,7 +32,9 @@ class _RankState extends State<Rank> {
   pdf({bool rank = true}) {
     return rank
         ? buildPdf(distritos, _total, widget.date, _simples)
-        : igrejas.isNotEmpty ? buildPdf2(igrejas, widget.date) : null;
+        : igrejas.isNotEmpty
+            ? buildPdf2(igrejas, widget.date)
+            : null;
   }
 
   Stream<QuerySnapshot> _rank() {
@@ -49,6 +51,7 @@ class _RankState extends State<Rank> {
     db
         .collection("igrejas")
         .where("marcado", isEqualTo: false)
+        .orderBy("distrito")
         .get()
         .then((value) {
       value.docs.forEach((element) {
