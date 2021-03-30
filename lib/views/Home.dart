@@ -267,7 +267,10 @@ class _HomeState extends State<Home> {
                                 name: 'Distrito $escolhido Dia $_data',
                                 onLayout: (format) {
                                   return buildPdfDistrito(
-                                      igrejas, escolhido, _data);
+                                    igrejas: igrejas,
+                                    distrito: escolhido,
+                                    data: _data,
+                                  );
                                 },
                               );
                             },

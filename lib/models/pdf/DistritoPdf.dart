@@ -23,84 +23,116 @@ class IgrejaPdf {
   }
 }
 
-Future<Uint8List> buildPdfDistrito(List<IgrejaPdf> igrejas, String distrito, String data) async {
+Future<Uint8List> buildPdfDistrito(
+    {List<List<String>> protocolos,
+    List<IgrejaPdf> igrejas,
+    String data,
+    bool protocolo = false,
+    String distrito}) async {
   final Document doc = Document();
   final baseColor = PdfColors.blue;
   const _darkColor = PdfColors.blueGrey800;
 
   PdfColor _baseTextColor = PdfColors.white;
-  final List<String> headers = ['Igreja', 'Data'];
+  final List<String> headers =
+      protocolo ? ['Código', 'Igreja', 'Valor'] : ['Igreja', 'Data'];
 
   PdfPageFormat format;
   doc.addPage(
-    Page(
+    MultiPage(
       pageFormat: format,
       build: (Context context) {
-        return Container(
-          child: Column(
+        return [
+          ListView(
             children: [
               Container(
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      "Distrito: $distrito",
-                      style: TextStyle(color: PdfColors.black, fontSize: 14),
+                child: Column(children: [
+                  Container(
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          protocolo ? "Protocolo Caixa" : "Distrito: $distrito",
+                          style:
+                              TextStyle(color: PdfColors.black, fontSize: 14),
+                        ),
+                        !protocolo
+                            ? Text(
+                                data,
+                                style: TextStyle(
+                                    color: PdfColors.black, fontSize: 14),
+                              )
+                            : Container(),
+                      ],
                     ),
-                    Text(
-                      data,
-                      style: TextStyle(color: PdfColors.black, fontSize: 14),
-                    ),
-                  ],
-                ),
-              ),
-              Expanded(
-                child: Table.fromTextArray(
-                  border: null,
-                  cellAlignment: Alignment.centerLeft,
-                  headerDecoration: BoxDecoration(
-                    borderRadius:
-                        const BorderRadius.all(Radius.circular(2)),
-                    color: baseColor,
                   ),
-                  headerHeight: 20,
-                  cellHeight: 11,
-                  cellPadding: EdgeInsets.all(2),
-                  oddRowDecoration: BoxDecoration(color: PdfColors.grey400),
-                  cellAlignments: {
-                          0: Alignment.centerLeft,
-                          1: Alignment.centerRight,
-                        },
-                  headerStyle: TextStyle(
-                    color: _baseTextColor,
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
-                  cellStyle: const TextStyle(
-                    color: _darkColor,
-                    fontSize: 14,
-                  ),
-                  rowDecoration: BoxDecoration(
-                    border: Border(
-                      bottom: BorderSide(
-                        color: PdfColors.blueGrey900,
-                        width: .5,
+                  Expanded(
+                    child: Table.fromTextArray(
+                      border: null,
+                      cellAlignment: Alignment.centerLeft,
+                      headerDecoration: BoxDecoration(
+                        borderRadius:
+                            const BorderRadius.all(Radius.circular(2)),
+                        color: baseColor,
                       ),
+                      headerHeight: 20,
+                      cellHeight: 11,
+                      cellPadding: EdgeInsets.all(2),
+                      oddRowDecoration: BoxDecoration(color: PdfColors.grey400),
+                      headerAlignments: protocolo
+                          ? {
+                              0: Alignment.centerLeft,
+                              1: Alignment.centerLeft,
+                              2: Alignment.centerRight,
+                            }
+                          : {
+                              0: Alignment.centerLeft,
+                              1: Alignment.centerRight,
+                            },
+                      cellAlignments: protocolo
+                          ? {
+                              0: Alignment.centerLeft,
+                              1: Alignment.centerLeft,
+                              2: Alignment.centerRight,
+                            }
+                          : {
+                              0: Alignment.centerLeft,
+                              1: Alignment.centerRight,
+                            },
+                      headerStyle: TextStyle(
+                        color: _baseTextColor,
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      cellStyle: const TextStyle(
+                        color: _darkColor,
+                        fontSize: 14,
+                      ),
+                      rowDecoration: BoxDecoration(
+                        border: Border(
+                          bottom: BorderSide(
+                            color: PdfColors.blueGrey900,
+                            width: .5,
+                          ),
+                        ),
+                      ),
+                      headers: headers,
+                      data: protocolo
+                          ? protocolos
+                          : List<List<String>>.generate(
+                              igrejas.length,
+                              (row) => List<String>.generate(
+                                headers.length,
+                                (col) => igrejas[row].getIndex(col),
+                              ),
+                            ),
                     ),
                   ),
-                  headers: headers,
-                  data: List<List<String>>.generate(
-                    igrejas.length,
-                    (row) => List<String>.generate(
-                      headers.length,
-                      (col) => igrejas[row].getIndex(col),
-                    ),
-                  ),
-                ),
+                ]),
               ),
-            ]
+            ],
           ),
-        );
+        ];
       },
     ),
   );

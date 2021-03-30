@@ -19,8 +19,8 @@ class CheckBoxTile extends StatefulWidget {
 class _CheckboxTileState extends State<CheckBoxTile> {
   @override
   Widget build(BuildContext context) {
-    String _dataPronta = formatDate(date: widget.item.data, dateTime: false);
-    DateTime _dateTime = formatDate(date: widget.item.data);
+    String _dataPronta = currentDate(date: widget.item.data, dateTime: false);
+    DateTime _dateTime = currentDate(date: widget.item.data);
     Future<void> _selectDate(BuildContext context) async {
       final DateTime picked = await showDatePicker(
         context: context,

@@ -1,5 +1,3 @@
-import 'package:flutter/services.dart';
-import 'package:intl/intl.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 import 'package:remessa/models/widgets/consts.dart';
 import "package:flutter/material.dart";
@@ -33,6 +31,7 @@ class _DepositoState extends State<Deposito> {
   List<String> amostra = [];
   FocusNode myFocusNode;
   String conta = "128076-7";
+  bool caixa = false;
   String cod = "";
   int focus = 0;
 
@@ -56,7 +55,9 @@ class _DepositoState extends State<Deposito> {
     anchor = html.document.createElement('a') as html.AnchorElement
       ..href = url
       ..style.display = 'none'
-      ..download = '$conta.txt';
+      ..download = caixa
+          ? "Recibo Caixa - ${currentDate(dataAtual: true)}"
+          : '$conta.txt';
     html.document.body.children.add(anchor);
 
     // download
@@ -108,6 +109,7 @@ class _DepositoState extends State<Deposito> {
                               onChanged: (text) {
                                 setState(() {
                                   conta = text;
+                                  caixa = false;
                                 });
                               }),
                           Text("128076-7"),
@@ -121,6 +123,7 @@ class _DepositoState extends State<Deposito> {
                               onChanged: (text) {
                                 setState(() {
                                   conta = text;
+                                  caixa = false;
                                 });
                               }),
                           Text("41500-6"),
@@ -134,6 +137,7 @@ class _DepositoState extends State<Deposito> {
                               onChanged: (text) {
                                 setState(() {
                                   conta = text;
+                                  caixa = false;
                                 });
                               }),
                           Text("43266-0"),
@@ -147,6 +151,7 @@ class _DepositoState extends State<Deposito> {
                               onChanged: (text) {
                                 setState(() {
                                   conta = text;
+                                  caixa = false;
                                 });
                               }),
                           Text("136385-1"),
@@ -160,12 +165,30 @@ class _DepositoState extends State<Deposito> {
                               onChanged: (text) {
                                 setState(() {
                                   conta = text;
+                                  caixa = false;
                                 });
                               }),
                           Text("342-5"),
                         ],
                       ),
+                      Row(
+                        children: [
+                          Radio(
+                              value: "Recibo Caixa",
+                              groupValue: conta,
+                              onChanged: (text) {
+                                setState(() {
+                                  conta = text;
+                                  caixa = true;
+                                });
+                              }),
+                          Text("Recibo Caixa"),
+                        ],
+                      ),
                     ],
+                  ),
+                  SizedBox(
+                    height: 20,
                   ),
                   Row(
                     children: [
@@ -267,15 +290,17 @@ class _DepositoState extends State<Deposito> {
                         duration: const Duration(milliseconds: 300),
                       );
                       setState(() {
-                        depositos.insert(0,
-                            "${date[0]}	${date[1]}	${date[2]}	Deposito em ${controllerDate.text} - RM ${controllerRM.text} - ${controllerDc.text}	${controllerCod.text}	${controllerDc.text}	$vl");
+                        depositos.insert(
+                            0,
+                            caixa
+                                ? "${date[0]}	${date[1]}	${date[2]}	Recibo Caixa ${controllerDc.text} - Rm ${controllerRM.text}	${controllerCod.text}	${controllerDc.text}	$vl"
+                                : "${date[0]}	${date[1]}	${date[2]}	Deposito em ${controllerDate.text} - Rm ${controllerRM.text} - ${controllerDc.text}	${controllerCod.text}	${controllerDc.text}	$vl");
                         amostra.insert(0,
                             "${igrejas[controllerCod.text]} - ${controllerCod.text} - ${controllerDate.text} - Remessa ${controllerRM.text} - Doc ${controllerDc.text} - R\$ ${controllerVl.text}");
                         controllerCod.text = '';
-                        controllerDate.text = '';
-                        controllerRM.text = '';
                         controllerDc.text = '';
                         controllerVl.text = '';
+                        title = "Código da Igreja";
                         focus = 0;
                       });
                       myFocusNode = FocusNode();

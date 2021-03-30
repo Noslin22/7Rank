@@ -21,7 +21,7 @@ final navigatorKey = GlobalKey<NavigatorState>();
 
 final FirebaseFirestore db = FirebaseFirestore.instance;
 
-formatDate({String date, bool dateTime = true, bool dataAtual = false}) {
+currentDate({String date, bool dateTime = true, bool dataAtual = false}) {
   List _listaData = date != null ? date.split("/").toList() : null;
   String _dataFormatada = _listaData != null
       ? "${_listaData[2]}-${_listaData[1]}-${_listaData[0]}"
@@ -131,23 +131,23 @@ actions(String gerenciador, BuildContext context, String tela,
               )
             : Container()
         : Container(),
-    // tela == 'home' && kisWeb
-    //     ? gerenciador == 'gerenciador'
-    //         ? Tooltip(
-    //             message: 'Dinheiro',
-    //             child: IconButton(
-    //                 icon: Icon(Icons.calculate),
-    //                 onPressed: () {
-    //                   Navigator.push(
-    //                     context,
-    //                     MaterialPageRoute(
-    //                       builder: (context) => Dinheiro(),
-    //                     ),
-    //                   );
-    //                 }),
-    //           )
-    //         : Container()
-    //     : Container(),
+    tela == 'home' && kisWeb
+        ? gerenciador == 'gerenciador'
+            ? Tooltip(
+                message: 'Protocolo Caixa',
+                child: IconButton(
+                    icon: Icon(Icons.calculate),
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => Dinheiro(),
+                        ),
+                      );
+                    }),
+              )
+            : Container()
+        : Container(),
     tela != 'registrar' && kisWeb
         ? gerenciador == 'gerenciador'
             ? Tooltip(

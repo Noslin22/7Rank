@@ -9,12 +9,12 @@ const RESOURCES = {
 "assets/assets/logo_app.png": "723ab2053e578c8cf693e72459eeab9c",
 "assets/FontManifest.json": "7b2a36307916a9721811788013e65289",
 "assets/fonts/MaterialIcons-Regular.otf": "1288c9e28052e028aba623321f7826ac",
-"assets/NOTICES": "b1ef55b4fc564efa366d0cb4304a1226",
+"assets/NOTICES": "dd7685d3f333bc5538c1e04fa2ef267b",
 "icons/Icon-192.png": "ac9a721a12bbc803b44f645561ecb1e1",
 "icons/Icon-512.png": "96e752610906ba2a93c65f8abe1645f1",
-"index.html": "955fd0e90fd69cac5a3c5d14e58d0260",
-"/": "955fd0e90fd69cac5a3c5d14e58d0260",
-"main.dart.js": "740913e8986e7c81f8a8a323ed4c1f0b",
+"index.html": "9b2331987bd634aa854ae5cdb6fa1824",
+"/": "9b2331987bd634aa854ae5cdb6fa1824",
+"main.dart.js": "67554eb98dd6392e1476a763da456710",
 "manifest.json": "1726bc90bb76dd3cecf06dc8c35b881c",
 "version.json": "4639302361f56de9af8af6013d368ab3"
 };
