@@ -139,6 +139,7 @@ class _DinheiroState extends State<Dinheiro> {
     controller05.text = "";
     controller5.text = "";
     controller2.text = "";
+    controller1.text = "";
     controllerCheque1.text = "";
     controllerCheque2.text = "";
     controllerCheque3.text = "";
