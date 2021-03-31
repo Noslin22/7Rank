@@ -147,6 +147,29 @@ class _DinheiroState extends State<Dinheiro> {
     controllerCheque5.text = "";
     cod = "";
     rem = "";
+    datas = [
+      "",
+      "",
+      rem,
+      "0",
+      "0",
+      "0",
+      "0",
+      "0",
+      "0",
+      "0",
+      "0",
+      "0",
+      "0",
+      "0",
+      "0",
+      "R\$ 0,00",
+      "",
+      "",
+      "",
+      "",
+      "",
+    ];
   }
 
   @override
