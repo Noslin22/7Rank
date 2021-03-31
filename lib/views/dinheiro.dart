@@ -123,6 +123,11 @@ class _DinheiroState extends State<Dinheiro> {
     text5 = 0.0;
     text2 = 0.0;
     text1 = 0.0;
+    cheque1 = 0.0;
+    cheque2 = 0.0;
+    cheque3 = 0.0;
+    cheque4 = 0.0;
+    cheque5 = 0.0;
     controller200.text = "";
     controller100.text = "";
     controller050.text = "";
@@ -134,7 +139,11 @@ class _DinheiroState extends State<Dinheiro> {
     controller05.text = "";
     controller5.text = "";
     controller2.text = "";
-    controller1.text = "";
+    controllerCheque1.text = "";
+    controllerCheque2.text = "";
+    controllerCheque3.text = "";
+    controllerCheque4.text = "";
+    controllerCheque5.text = "";
     cod = "";
     rem = "";
   }
