@@ -24,6 +24,11 @@ class _DinheiroState extends State<Dinheiro> {
   TextEditingController controller5 = TextEditingController();
   TextEditingController controller2 = TextEditingController();
   TextEditingController controller1 = TextEditingController();
+  TextEditingController controllerCheque1 = TextEditingController();
+  TextEditingController controllerCheque2 = TextEditingController();
+  TextEditingController controllerCheque3 = TextEditingController();
+  TextEditingController controllerCheque4 = TextEditingController();
+  TextEditingController controllerCheque5 = TextEditingController();
   var formatRm = new MaskTextInputFormatter(
     mask: '##/####',
     filter: {"#": RegExp(r'[0-9]')},
@@ -62,6 +67,11 @@ class _DinheiroState extends State<Dinheiro> {
   double text5 = 0.0;
   double text2 = 0.0;
   double text1 = 0.0;
+  double cheque1 = 0.0;
+  double cheque2 = 0.0;
+  double cheque3 = 0.0;
+  double cheque4 = 0.0;
+  double cheque5 = 0.0;
   String cod = "";
   String rem = "";
   int focus;
@@ -83,7 +93,12 @@ class _DinheiroState extends State<Dinheiro> {
         text050 +
         text025 +
         text010 +
-        text05);
+        text05 +
+        cheque1 +
+        cheque2 +
+        cheque3 +
+        cheque4 +
+        cheque5);
   }
 
   _pegarDados() {
@@ -615,7 +630,7 @@ class _DinheiroState extends State<Dinheiro> {
                                 onSubmitted: (text) {
                                   setState(() {
                                     text05 = (int.parse(text) * 0.05);
-                                    focus = 0;
+                                    focus = 14;
                                     total = _format(_value());
                                     datas[15] = total;
                                     datas[14] = text;
@@ -725,49 +740,254 @@ class _DinheiroState extends State<Dinheiro> {
                     ),
                     flex: 1,
                   ),
-                  SizedBox(
-                    width: 25,
-                  ),
-                  Container(
-                    decoration: BoxDecoration(
-                      border: Border.all(color: Colors.black),
+                  Expanded(
+                    child: Column(
+                      children: [
+                        Row(
+                          children: [
+                            Text("Cheques"),
+                            SizedBox(
+                              width: 40,
+                            )
+                          ],
+                        ),
+                        SizedBox(
+                          height: 20,
+                        ),
+                        Row(
+                          children: [
+                            Text("1º"),
+                            SizedBox(
+                              width: 10,
+                            ),
+                            SizedBox(
+                              width: 100,
+                              child: TextField(
+                                style: TextStyle(color: Colors.red),
+                                onSubmitted: (text) {
+                                  setState(() {
+                                    cheque1 = (double.parse(
+                                      text.replaceAll(
+                                        ",",
+                                        ".",
+                                      ),
+                                    ));
+                                    focus = 15;
+                                    total = _format(_value());
+                                    datas[15] = total;
+                                    datas[16] = text;
+                                  });
+                                  myFocusNode = FocusNode();
+                                  myFocusNode.requestFocus();
+                                },
+                                textAlign: TextAlign.center,
+                                controller: controllerCheque1,
+                                focusNode: focus == 14 ? myFocusNode : null,
+                                decoration: inputDecoration,
+                              ),
+                            ),
+                          ],
+                        ),
+                        SizedBox(
+                          height: 20,
+                        ),
+                        Row(
+                          children: [
+                            Text("2º"),
+                            SizedBox(
+                              width: 10,
+                            ),
+                            SizedBox(
+                              width: 100,
+                              child: TextField(
+                                style: TextStyle(color: Colors.red),
+                                onSubmitted: (text) {
+                                  setState(() {
+                                    cheque2 = (double.parse(
+                                      text.replaceAll(
+                                        ",",
+                                        ".",
+                                      ),
+                                    ));
+                                    focus = 16;
+                                    total = _format(_value());
+                                    datas[15] = total;
+                                    datas[17] = text;
+                                  });
+                                  myFocusNode = FocusNode();
+                                  myFocusNode.requestFocus();
+                                },
+                                textAlign: TextAlign.center,
+                                controller: controllerCheque2,
+                                focusNode: focus == 15 ? myFocusNode : null,
+                                decoration: inputDecoration,
+                              ),
+                            ),
+                          ],
+                        ),
+                        SizedBox(
+                          height: 20,
+                        ),
+                        Row(
+                          children: [
+                            Text("3º"),
+                            SizedBox(
+                              width: 10,
+                            ),
+                            SizedBox(
+                              width: 100,
+                              child: TextField(
+                                style: TextStyle(color: Colors.red),
+                                onSubmitted: (text) {
+                                  setState(() {
+                                    cheque3 = (double.parse(
+                                      text.replaceAll(
+                                        ",",
+                                        ".",
+                                      ),
+                                    ));
+                                    focus = 17;
+                                    total = _format(_value());
+                                    datas[15] = total;
+                                    datas[18] = text;
+                                  });
+                                  myFocusNode = FocusNode();
+                                  myFocusNode.requestFocus();
+                                },
+                                textAlign: TextAlign.center,
+                                controller: controllerCheque3,
+                                focusNode: focus == 16 ? myFocusNode : null,
+                                decoration: inputDecoration,
+                              ),
+                            ),
+                          ],
+                        ),
+                        SizedBox(
+                          height: 20,
+                        ),
+                        Row(
+                          children: [
+                            Text("4º"),
+                            SizedBox(
+                              width: 10,
+                            ),
+                            SizedBox(
+                              width: 100,
+                              child: TextField(
+                                style: TextStyle(color: Colors.red),
+                                onSubmitted: (text) {
+                                  setState(() {
+                                    cheque4 = (double.parse(
+                                      text.replaceAll(
+                                        ",",
+                                        ".",
+                                      ),
+                                    ));
+                                    focus = 18;
+                                    total = _format(_value());
+                                    datas[15] = total;
+                                    datas[19] = text;
+                                  });
+                                  myFocusNode = FocusNode();
+                                  myFocusNode.requestFocus();
+                                },
+                                textAlign: TextAlign.center,
+                                controller: controllerCheque4,
+                                focusNode: focus == 17 ? myFocusNode : null,
+                                decoration: inputDecoration,
+                              ),
+                            ),
+                          ],
+                        ),
+                        SizedBox(
+                          height: 20,
+                        ),
+                        Row(
+                          children: [
+                            Text("5º"),
+                            SizedBox(
+                              width: 10,
+                            ),
+                            SizedBox(
+                              width: 100,
+                              child: TextField(
+                                style: TextStyle(color: Colors.red),
+                                onSubmitted: (text) {
+                                  setState(() {
+                                    cheque5 = (double.parse(
+                                      text.replaceAll(
+                                        ",",
+                                        ".",
+                                      ),
+                                    ));
+                                    focus = 0;
+                                    total = _format(_value());
+                                    datas[15] = total;
+                                    datas[20] = text;
+                                  });
+                                  myFocusNode = FocusNode();
+                                  myFocusNode.requestFocus();
+                                },
+                                textAlign: TextAlign.center,
+                                controller: controllerCheque5,
+                                focusNode: focus == 18 ? myFocusNode : null,
+                                decoration: inputDecoration,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
                     ),
+                    flex: 1,
                   ),
                   SizedBox(
-                    width: 25,
+                    width: 48,
                   ),
                   Expanded(
                     child: Column(
                       children: [
                         Container(
+                          color: Colors.blue,
                           height: 60.0,
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceAround,
                             children: <Widget>[
                               Container(
+                                color: Colors.blue,
                                 padding: EdgeInsets.all(4.0),
                                 width: 100.0,
                                 child: Text(
                                   "Cod",
-                                  style: TextStyle(fontSize: 21),
+                                  style: TextStyle(
+                                    fontSize: 21,
+                                    color: Colors.white,
+                                  ),
                                   textAlign: TextAlign.center,
                                 ),
                               ),
                               Container(
+                                color: Colors.blue,
                                 padding: EdgeInsets.all(4.0),
                                 width: 100.0,
                                 child: Text(
                                   "Igreja",
-                                  style: TextStyle(fontSize: 21),
+                                  style: TextStyle(
+                                    fontSize: 21,
+                                    color: Colors.white,
+                                  ),
                                   textAlign: TextAlign.center,
                                 ),
                               ),
                               Container(
+                                color: Colors.blue,
                                 padding: EdgeInsets.all(4.0),
                                 width: 100.0,
                                 child: Text(
                                   "Valor",
-                                  style: TextStyle(fontSize: 21),
+                                  style: TextStyle(
+                                    fontSize: 21,
+                                    color: Colors.white,
+                                  ),
                                   textAlign: TextAlign.center,
                                 ),
                               ),
@@ -778,45 +998,54 @@ class _DinheiroState extends State<Dinheiro> {
                           child: ListView.builder(
                             itemCount: protocolo.length,
                             itemBuilder: (context, index) {
-                              return Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceAround,
-                                children: <Widget>[
-                                  Container(
-                                    padding: EdgeInsets.all(4.0),
-                                    width: 100.0,
-                                    child: Text(
-                                      protocolo[index][0],
-                                      style: TextStyle(fontSize: 20),
-                                      textAlign: TextAlign.center,
+                              return Container(
+                                decoration: BoxDecoration(
+                                  border: Border(
+                                    bottom: BorderSide(
+                                      color: Colors.black,
                                     ),
                                   ),
-                                  Container(
-                                    padding: EdgeInsets.all(4.0),
-                                    width: 300.0,
-                                    child: Text(
-                                      protocolo[index][1],
-                                      style: TextStyle(fontSize: 16),
-                                      textAlign: TextAlign.center,
+                                ),
+                                child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceAround,
+                                  children: <Widget>[
+                                    Container(
+                                      padding: EdgeInsets.all(4.0),
+                                      width: 100.0,
+                                      child: Text(
+                                        protocolo[index][0],
+                                        style: TextStyle(fontSize: 20),
+                                        textAlign: TextAlign.center,
+                                      ),
                                     ),
-                                  ),
-                                  Container(
-                                    padding: EdgeInsets.all(4.0),
-                                    width: 150.0,
-                                    child: Text(
-                                      protocolo[index][2],
-                                      style: TextStyle(fontSize: 20),
-                                      textAlign: TextAlign.center,
+                                    Container(
+                                      padding: EdgeInsets.all(4.0),
+                                      width: 300.0,
+                                      child: Text(
+                                        protocolo[index][1],
+                                        style: TextStyle(fontSize: 16),
+                                        textAlign: TextAlign.center,
+                                      ),
                                     ),
-                                  )
-                                ],
+                                    Container(
+                                      padding: EdgeInsets.all(4.0),
+                                      width: 150.0,
+                                      child: Text(
+                                        protocolo[index][2],
+                                        style: TextStyle(fontSize: 20),
+                                        textAlign: TextAlign.center,
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               );
                             },
                           ),
                         ),
                       ],
                     ),
-                    flex: 2,
+                    flex: 3,
                   ),
                 ],
               ),
