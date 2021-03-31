@@ -981,7 +981,7 @@ class _DinheiroState extends State<Dinheiro> {
                       children: [
                         Container(
                           color: Colors.blue,
-                          height: 60.0,
+                          height: 35.0,
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceAround,
                             children: <Widget>[
