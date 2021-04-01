@@ -48,7 +48,7 @@ class _DepositoState extends State<Deposito> {
     var url;
     // prepare
     String text =
-        "Day	Month	Year	Description	Church Code	Document	Value\n${list.join("\n")}";
+        "Day	Month	Year	Description	Church Code	Document	Value\n${list.reversed.join("\n")}";
     final bytes = utf8.encode(text);
     final blob = html.Blob([bytes]);
     url = html.Url.createObjectUrlFromBlob(blob);
