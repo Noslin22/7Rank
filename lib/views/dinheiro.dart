@@ -1,3 +1,4 @@
+import 'package:dcache/dcache.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
@@ -7,6 +8,8 @@ import 'package:remessa/models/pdf/MalotePdf.dart';
 import 'package:remessa/models/widgets/consts.dart';
 
 class Dinheiro extends StatefulWidget {
+  final Cache<String, List<List<String>>> cache;
+  Dinheiro(this.cache);
   @override
   _DinheiroState createState() => _DinheiroState();
 }
@@ -29,6 +32,7 @@ class _DinheiroState extends State<Dinheiro> {
   TextEditingController controllerCheque3 = TextEditingController();
   TextEditingController controllerCheque4 = TextEditingController();
   TextEditingController controllerCheque5 = TextEditingController();
+
   var formatRm = new MaskTextInputFormatter(
     mask: '##/####',
     filter: {"#": RegExp(r'[0-9]')},
@@ -107,6 +111,10 @@ class _DinheiroState extends State<Dinheiro> {
         igrejas[doc["cod"].toString()] = doc['nome'].toString();
       });
     });
+    if (widget.cache.get("protocolo") != null) {
+      print("trueeeeeeeee");
+      protocolo = widget.cache.get("protocolo");
+    }
   }
 
   _clearForm() {
@@ -197,53 +205,70 @@ class _DinheiroState extends State<Dinheiro> {
           children: [
             Row(
               children: [
-                SizedBox(
-                  width: 150,
-                ),
-                Container(
-                  child: TextField(
-                    onSubmitted: (value) {
-                      setState(() {
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Container(
+                      child: TextField(
+                        onSubmitted: (value) {
+                          setState(() {
+                            _clearForm();
+                            cod = value;
+                            focus = 1;
+                            datas[0] = value;
+                            datas[1] = igrejas[value];
+                          });
+                          myFocusNode = FocusNode();
+                          myFocusNode.requestFocus();
+                        },
+                        focusNode: focus == 0 ? myFocusNode : null,
+                        textAlign: TextAlign.center,
+                        decoration: inputDecoration.copyWith(
+                            labelText: "Código da Igreja"),
+                      ),
+                      width: 180,
+                    ),
+                    SizedBox(
+                      width: 30,
+                    ),
+                    Text(cod != "" ? igrejas[cod] : "Nome da Igreja"),
+                    SizedBox(
+                      width: 70,
+                    ),
+                    Container(
+                      child: TextField(
+                        onSubmitted: (value) {
+                          setState(() {
+                            rem = value;
+                            focus = 2;
+                            datas[2] = value;
+                          });
+                          myFocusNode = FocusNode();
+                          myFocusNode.requestFocus();
+                        },
+                        focusNode: focus == 1 ? myFocusNode : null,
+                        textAlign: TextAlign.center,
+                        inputFormatters: [formatRm],
+                        decoration:
+                            inputDecoration.copyWith(labelText: "Remessa"),
+                      ),
+                      width: 130,
+                    ),
+                    RaisedButton(
+                      onPressed: () {
                         _clearForm();
-                        cod = value;
-                        focus = 1;
-                        datas[0] = value;
-                        datas[1] = igrejas[value];
-                      });
-                      myFocusNode = FocusNode();
-                      myFocusNode.requestFocus();
-                    },
-                    focusNode: focus == 0 ? myFocusNode : null,
-                    textAlign: TextAlign.center,
-                    decoration:
-                        inputDecoration.copyWith(labelText: "Código da Igreja"),
-                  ),
-                  width: 180,
-                ),
-                SizedBox(
-                  width: 30,
-                ),
-                Text(cod != "" ? igrejas[cod] : "Nome da Igreja"),
-                SizedBox(
-                  width: 70,
-                ),
-                Container(
-                  child: TextField(
-                    onSubmitted: (value) {
-                      setState(() {
-                        rem = value;
-                        focus = 2;
-                        datas[2] = value;
-                      });
-                      myFocusNode = FocusNode();
-                      myFocusNode.requestFocus();
-                    },
-                    focusNode: focus == 1 ? myFocusNode : null,
-                    textAlign: TextAlign.center,
-                    inputFormatters: [formatRm],
-                    decoration: inputDecoration.copyWith(labelText: "Remessa"),
-                  ),
-                  width: 130,
+                        widget.cache.clear();
+                        setState(() {
+                          protocolo = [];
+                        });
+                      },
+                      child: Text(
+                        "Novo Protocolo",
+                        style: TextStyle(color: Colors.white),
+                      ),
+                      color: Colors.yellow[700],
+                    ),
+                  ],
                 ),
               ],
             ),
@@ -711,6 +736,7 @@ class _DinheiroState extends State<Dinheiro> {
                               onPressed: () {
                                 setState(() {
                                   protocolo.add([cod, igrejas[cod], total]);
+                                  widget.cache.set("protocolo", protocolo);
                                 });
                               },
                               child: Text(
@@ -724,21 +750,6 @@ class _DinheiroState extends State<Dinheiro> {
                                 Printing.layoutPdf(
                                   name: 'Malote',
                                   onLayout: (format) {
-                                    print(datas[0]);
-                                    print(datas[1]);
-                                    print(datas[2]);
-                                    print(datas[3]);
-                                    print(datas[4]);
-                                    print(datas[5]);
-                                    print(datas[6]);
-                                    print(datas[7]);
-                                    print(datas[8]);
-                                    print(datas[9]);
-                                    print(datas[10]);
-                                    print(datas[11]);
-                                    print(datas[12]);
-                                    print(datas[13]);
-                                    print(datas[14]);
                                     return buildPdfMalote(datas);
                                   },
                                 );

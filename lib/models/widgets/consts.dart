@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:dcache/dcache.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:remessa/views/CoelbaEmbasa.dart';
@@ -16,6 +17,11 @@ var inputDecoration = InputDecoration(
     borderRadius: BorderRadius.circular(10),
   ),
 );
+
+Cache<String, List<List<String>>> c =
+      new SimpleCache<String, List<List<String>>>(
+    storage: InMemoryStorage(1),
+  );
 
 final navigatorKey = GlobalKey<NavigatorState>();
 
@@ -141,7 +147,7 @@ actions(String gerenciador, BuildContext context, String tela,
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => Dinheiro(),
+                          builder: (context) => Dinheiro(c),
                         ),
                       );
                     }),
