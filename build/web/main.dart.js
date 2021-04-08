@@ -81431,7 +81431,7 @@ q=T.X(a2,a2,70)
 p=a1.aR===1?a1.k4:a2
 o=H.a([a1.go],t.a8)
 n=t.t
-o=T.aX(H.a([T.aX(H.a([a7,s,r,q,M.ac(a2,Z.d_(!0,a2,!1,a2,a2,a2,a2,a2,2,$.aZ().bW("Remessa"),!0,!0,a2,!1,p,o,a2,a2,a2,!0,a2,1,a2,!1,a3,a2,a2,new X.akm(a1),a2,!1,a2,C.a5,a2,a2,a2,a2,a2,a2,a2,C.Z,a2,C.a8,a2,a2,a2),C.h,a2,a2,a2,a2,a2,a2,a2,a2,a2,130),D.di(L.Q("Novo Protocolo",a2,a2,a2,A.aM(a2,a2,C.l,a2,a2,a2,a2,a2,a2,a2,a2,a2,a2,a2,a2,a2,!0,a2,a2,a2,a2,a2,a2,a2),a2,a2),C.SU.h(0,700),a2,new X.akn(a1),a2)],n),C.r,C.cH,C.o)],n),C.r,C.p,C.o)
+o=T.aX(H.a([T.aX(H.a([a7,s,r,q,M.ac(a2,Z.d_(!0,a2,!1,a2,a2,a2,a2,a2,2,$.aZ().bW("Remessa"),!0,!0,a2,!1,p,o,a2,a2,a2,!0,a2,1,a2,!1,a3,a2,a2,new X.akm(a1),a2,!1,a2,C.a5,a2,a2,a2,a2,a2,a2,a2,C.Z,a2,C.a8,a2,a2,a2),C.h,a2,a2,a2,a2,a2,a2,a2,a2,a2,130)],n),C.r,C.p,C.o),D.di(L.Q("Novo Protocolo",a2,a2,a2,A.aM(a2,a2,C.l,a2,a2,a2,a2,a2,a2,a2,a2,a2,a2,a2,a2,a2,!0,a2,a2,a2,a2,a2,a2,a2),a2,a2),C.SU.h(0,700),a2,new X.akn(a1),a2)],n),C.r,C.cH,C.o)
 p=T.X(a2,35,a2)
 q=T.X(a2,a2,70)
 r=T.aX(H.a([L.Q("C\xe9dulas",a2,a2,a2,a2,a2,a2),T.X(a2,a2,40)],n),C.r,C.p,C.o)

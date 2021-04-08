@@ -204,9 +204,9 @@ class _DinheiroState extends State<Dinheiro> {
         child: Column(
           children: [
             Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Container(
                       child: TextField(
@@ -254,21 +254,21 @@ class _DinheiroState extends State<Dinheiro> {
                       ),
                       width: 130,
                     ),
-                    RaisedButton(
-                      onPressed: () {
-                        _clearForm();
-                        widget.cache.clear();
-                        setState(() {
-                          protocolo = [];
-                        });
-                      },
-                      child: Text(
-                        "Novo Protocolo",
-                        style: TextStyle(color: Colors.white),
-                      ),
-                      color: Colors.yellow[700],
-                    ),
                   ],
+                ),
+                RaisedButton(
+                  onPressed: () {
+                    _clearForm();
+                    widget.cache.clear();
+                    setState(() {
+                      protocolo = [];
+                    });
+                  },
+                  child: Text(
+                    "Novo Protocolo",
+                    style: TextStyle(color: Colors.white),
+                  ),
+                  color: Colors.yellow[700],
                 ),
               ],
             ),
