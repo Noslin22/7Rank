@@ -112,7 +112,6 @@ class _DinheiroState extends State<Dinheiro> {
       });
     });
     if (widget.cache.get("protocolo") != null) {
-      print("trueeeeeeeee");
       protocolo = widget.cache.get("protocolo");
     }
   }
@@ -259,10 +258,11 @@ class _DinheiroState extends State<Dinheiro> {
                 RaisedButton(
                   onPressed: () {
                     _clearForm();
-                    widget.cache.clear();
+                    widget.cache.get("protocolo").clear();
                     setState(() {
                       protocolo = [];
                     });
+                    widget.cache.set("protocolo", protocolo);
                   },
                   child: Text(
                     "Novo Protocolo",

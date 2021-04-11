@@ -2,6 +2,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dcache/dcache.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:printing/printing.dart';
+import 'package:remessa/models/pdf/EtiquetaPdf.dart';
 import 'package:remessa/views/CoelbaEmbasa.dart';
 import 'package:remessa/views/Home.dart';
 import 'package:remessa/views/LicaoPreview.dart';
@@ -11,6 +13,8 @@ import 'package:remessa/views/wrappers/Adicionar.dart';
 import 'package:remessa/views/wrappers/WrappersAutenticate/Login.dart';
 import 'package:remessa/views/wrappers/WrappersAutenticate/Registro.dart';
 
+final FirebaseFirestore db = FirebaseFirestore.instance;
+
 var inputDecoration = InputDecoration(
   border: OutlineInputBorder(
     borderSide: BorderSide(color: Colors.blue, width: 3),
@@ -18,14 +22,12 @@ var inputDecoration = InputDecoration(
   ),
 );
 
-Cache<String, List<List<String>>> c =
-      new SimpleCache<String, List<List<String>>>(
-    storage: InMemoryStorage(1),
-  );
+Cache<String, List> c =
+    new SimpleCache<String, List<List<String>>>(
+  storage: InMemoryStorage(3),
+);
 
 final navigatorKey = GlobalKey<NavigatorState>();
-
-final FirebaseFirestore db = FirebaseFirestore.instance;
 
 currentDate({String date, bool dateTime = true, bool dataAtual = false}) {
   List _listaData = date != null ? date.split("/").toList() : null;
@@ -45,6 +47,18 @@ currentDate({String date, bool dateTime = true, bool dataAtual = false}) {
 
 actions(String gerenciador, BuildContext context, String tela,
     {auth, Function setDistrito, distrito, kisWeb}) {
+  List<DropdownMenuItem> distritos = [];
+  String distritoEtiqueta;
+  db.collection("distritos").get().then((value) {
+    value.docs.forEach((element) {
+      distritos.add(
+        DropdownMenuItem(
+          child: Text(element.id),
+          value: element.id,
+        ),
+      );
+    });
+  });
   return [
     tela == 'home'
         ? Tooltip(
@@ -58,6 +72,57 @@ actions(String gerenciador, BuildContext context, String tela,
                     MaterialPageRoute(
                       builder: (context) => Login(),
                     ),
+                  );
+                }),
+          )
+        : Container(),
+    tela == 'home'
+        ? Tooltip(
+            message: 'Etiqueta',
+            child: IconButton(
+                icon: Icon(Icons.local_offer),
+                onPressed: () {
+                  showDialog(
+                    context: context,
+                    builder: (context) {
+                      return AlertDialog(
+                        title: Text("Escolha um distrito"),
+                        content: DropdownButtonFormField(
+                          onChanged: (value) {
+                            distritoEtiqueta = value;
+                          },
+                          onSaved: (value) {
+                            distritoEtiqueta = value;
+                          },
+                          hint: Text("Distritos"),
+                          items: distritos,
+                          value: distritoEtiqueta,
+                        ),
+                        actions: [
+                          FlatButton(
+                            child: Text("Gerar"),
+                            onPressed: () {
+                              Printing.layoutPdf(
+                                onLayout: (format) {
+                                  return buildPdfEtiqueta(
+                                    distritoEtiqueta,
+                                    currentDate(dataAtual: true).split("/")[2],
+                                  );
+                                },
+                              );
+                              distritoEtiqueta = "";
+                              Navigator.of(context).pop();
+                            },
+                          ),
+                          FlatButton(
+                            child: Text("Cancelar"),
+                            onPressed: () {
+                              Navigator.of(context).pop();
+                            },
+                          ),
+                        ],
+                      );
+                    },
                   );
                 }),
           )
@@ -130,7 +195,7 @@ actions(String gerenciador, BuildContext context, String tela,
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => Deposito(),
+                          builder: (context) => Deposito(c),
                         ),
                       );
                     }),

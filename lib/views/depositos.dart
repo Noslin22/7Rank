@@ -1,3 +1,4 @@
+import 'package:dcache/dcache.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 import 'package:remessa/models/widgets/consts.dart';
 import "package:flutter/material.dart";
@@ -6,6 +7,8 @@ import 'dart:convert';
 import 'dart:html' as html;
 
 class Deposito extends StatefulWidget {
+  final Cache<String, List<String>> cache;
+  Deposito(this.cache);
   @override
   _DepositoState createState() => _DepositoState();
 }
@@ -41,6 +44,12 @@ class _DepositoState extends State<Deposito> {
         igrejas[doc["cod"].toString()] = doc['nome'].toString();
       });
     });
+    if (widget.cache.get("depositos") != null) {
+      depositos = widget.cache.get("depositos");
+    }
+    if (widget.cache.get("amostra") != null) {
+      amostra = widget.cache.get("amostra");
+    }
   }
 
   _write(List<String> list) async {
@@ -289,6 +298,8 @@ class _DepositoState extends State<Deposito> {
                         curve: Curves.easeOut,
                         duration: const Duration(milliseconds: 300),
                       );
+                      widget.cache.set("depositos", depositos);
+                      widget.cache.set("amostra", amostra);
                       setState(() {
                         depositos.insert(
                             0,
@@ -345,6 +356,8 @@ class _DepositoState extends State<Deposito> {
                               style: TextStyle(color: Colors.white),
                             ),
                             onPressed: () {
+                              widget.cache.get("depositos").clear();
+                              widget.cache.get("amostra").clear();
                               setState(() {
                                 depositos = [];
                                 amostra = [];
@@ -354,6 +367,8 @@ class _DepositoState extends State<Deposito> {
                                 controllerDc.text = '';
                                 focus = 0;
                               });
+                              widget.cache.set("depositos", depositos);
+                              widget.cache.set("amostra", amostra);
                             }),
                       ),
                     ],
@@ -417,8 +432,6 @@ class _DepositoState extends State<Deposito> {
                                           .replaceAll(" ", "")
                                           .split("\$")[1];
                                     });
-                                    print(
-                                        "Igreja: ${text[0].replaceAll(" ", "")} - Cod: ${text[1].replaceAll(" ", "")} - Data: ${text[2].replaceAll(" ", "")} - Rm: ${text[3].replaceAll(" ", "").split("a")[1]} - Dc: ${text[4].replaceAll(" ", "").split("c")[1]} - R\$: ${text[5].replaceAll(" ", "").split("\$")[1]}");
                                   },
                                 ),
                               ],
