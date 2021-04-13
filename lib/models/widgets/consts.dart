@@ -1,4 +1,9 @@
+import 'dart:convert';
+import 'dart:io';
+import 'dart:typed_data';
+import 'dart:html' as html;
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:csv/csv.dart';
 import 'package:dcache/dcache.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -12,6 +17,7 @@ import 'package:remessa/views/dinheiro.dart';
 import 'package:remessa/views/wrappers/Adicionar.dart';
 import 'package:remessa/views/wrappers/WrappersAutenticate/Login.dart';
 import 'package:remessa/views/wrappers/WrappersAutenticate/Registro.dart';
+import 'package:file_picker/file_picker.dart';
 
 final FirebaseFirestore db = FirebaseFirestore.instance;
 
@@ -22,8 +28,7 @@ var inputDecoration = InputDecoration(
   ),
 );
 
-Cache<String, List> c =
-    new SimpleCache<String, List<List<String>>>(
+Cache<String, List> c = new SimpleCache<String, List<List<String>>>(
   storage: InMemoryStorage(3),
 );
 
@@ -124,6 +129,117 @@ actions(String gerenciador, BuildContext context, String tela,
                       );
                     },
                   );
+                }),
+          )
+        : Container(),
+    tela == 'home'
+        ? Tooltip(
+            message: 'Conciliação Bancária',
+            child: IconButton(
+                icon: Icon(Icons.insert_drive_file_rounded),
+                onPressed: () async {
+                  FilePickerResult result = await FilePicker.platform.pickFiles(
+                    type: FileType.custom,
+                    allowMultiple: true,
+                    allowedExtensions: [
+                      'csv',
+                    ],
+                  );
+                  if (result != null) {
+                    List<PlatformFile> files = result.files;
+                    showDialog(
+                      context: context,
+                      builder: (context) {
+                        return AlertDialog(
+                          title: Text("Confirme o(s) arquivo(s)"),
+                          content: Text("${files[0].name} e outros"),
+                          actions: [
+                            FlatButton(
+                              child: Text("Gerar"),
+                              onPressed: () async {
+                                List<Csv> csvList = [];
+                                for (var file in files) {
+                                  String csvData =
+                                      File.fromRawPath(file.bytes).path;
+                                  List<String> datas = csvData.split("\r");
+                                  datas[0] = datas[0].replaceFirst("\n", "");
+                                  String conta =
+                                      datas.first.split(" ")[6].split("-")[0];
+                                  datas.removeRange(0, 3);
+                                  String part;
+                                  for (var element in datas) {
+                                    if (element.split(";")[0] != "Total") {
+                                      List<String> list = element.split(";");
+                                      csvList.add(
+                                        Csv(
+                                          conta,
+                                          list[0],
+                                          list[1],
+                                          list[2],
+                                          list[3] != ""
+                                              ? list[3] != null
+                                                  ? list[3]
+                                                      .replaceAll(".", "")
+                                                      .replaceAll(",", "")
+                                                  : list[4]
+                                                      .replaceAll(".", "")
+                                                      .replaceAll(",", "")
+                                              : list[4]
+                                                  .replaceAll(".", "")
+                                                  .replaceAll(",", ""),
+                                        ),
+                                      );
+                                    } else {
+                                      part = element;
+                                      break;
+                                    }
+                                  }
+                                  datas.removeRange(
+                                      datas.indexOf(part), datas.length);
+                                }
+                                String jsonCsvEncoded = jsonEncode(csvList);
+                                List<Map<String, String>> jsonCsvDecoded =
+                                    jsonDecode(jsonCsvEncoded);
+                                List<String> text = [
+                                  "Bank          	              BankAccountNumber           	              Date          	              Description   	              Value"
+                                ];
+                                jsonCsvDecoded.forEach((element) {
+                                  text.add(
+                                      " 237          	               ${element["conta"]}          	              ${element["data"]}    	              ${element["lancamento"]} - ${element["doc"]}           	               ${element["valor"]}");
+                                });
+                                var anchor;
+                                var url;
+                                // prepare
+                                final bytes = utf8.encode(text.join("\n"));
+                                final blob = html.Blob([bytes]);
+                                url = html.Url.createObjectUrlFromBlob(blob);
+                                anchor = html.document.createElement('a')
+                                    as html.AnchorElement
+                                  ..href = url
+                                  ..style.display = 'none'
+                                  ..download = 'Conciliacao.txt';
+                                html.document.body.children.add(anchor);
+
+                                // download
+                                anchor.click();
+
+                                // cleanup
+                                html.document.body.children.remove(anchor);
+                                html.Url.revokeObjectUrl(url);
+                                Navigator.of(context).pop();
+                              },
+                            ),
+                            FlatButton(
+                              child: Text("Cancelar"),
+                              onPressed: () {
+                                Navigator.of(context).pop();
+                              },
+                            ),
+                          ],
+                        );
+                      },
+                    );
+                  }
                 }),
           )
         : Container(),
@@ -334,4 +450,21 @@ drawer(String gerenciador, BuildContext context, String tela) {
       ],
     ),
   );
+}
+
+class Csv {
+  final String conta;
+  final String data;
+  final String lancamento;
+  final String documento;
+  final String valor;
+
+  Csv(this.conta, this.data, this.lancamento, this.documento, this.valor);
+  Map toJson() => {
+        'conta': conta,
+        'data': data,
+        'lancamento': lancamento,
+        'doc': documento,
+        'valor': valor,
+      };
 }
