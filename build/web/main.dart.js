@@ -25842,7 +25842,7 @@ o=p!=null?A.JK(m,n).bo(p):n
 if(a)s=A.JK(m,n).bo(new P.aB(Date.now(),!1))
 else s=c?p:o
 return s},
-awG:function(a,b,c,d,e,f){var s,r,q,p,o,n,m,l,k,j=null,i={},h=H.a([],t._T)
+awG:function(a,b,c,d,e,f,g){var s,r,q,p,o,n,m,l,k,j=null,i={},h=H.a([],t._T)
 i.a=null
 s=$.cu()
 O.c5(s,s.gbL().cd(0,"distritos")).en(0).bq(0,new K.awZ(h),t.P)
@@ -25852,7 +25852,7 @@ i=s?S.jg(B.dW(j,L.dC(C.DN,j),new K.ax0(i,b,h),j),j,"Etiqueta",j,j):M.ab(j,j,C.h,
 q=s?S.jg(B.dW(j,L.dC(C.DX,j),new K.ax1(b),j),j,"Concilia\xe7\xe3o Banc\xe1ria",j,j):M.ab(j,j,C.h,j,j,j,j,j,j,j,j,j,j)
 p=c==="adicionar"
 if(p){o=e?"Igreja":"Distrito"
-o=S.jg(B.dW(j,L.dC(e?C.DC:C.DF,j),new K.ax2(j),j),j,o,j,j)}else o=M.ab(j,j,C.h,j,j,j,j,j,j,j,j,j,j)
+o=S.jg(B.dW(j,L.dC(e?C.DC:C.DF,j),new K.ax2(g),j),j,o,j,j)}else o=M.ab(j,j,C.h,j,j,j,j,j,j,j,j,j,j)
 n=!s&&!0?S.jg(B.dW(j,L.dC(C.DM,j),new K.ax3(b),j),j,"7Rank",j,j):M.ab(j,j,C.h,j,j,j,j,j,j,j,j,j,j)
 if(c!=="coelba"&&!0)m=a==="gerenciador"?S.jg(B.dW(j,L.dC(C.DK,j),new K.ax4(b,a),j),j,"Coelba/Embasa",j,j):M.ab(j,j,C.h,j,j,j,j,j,j,j,j,j,j)
 else m=M.ab(j,j,C.h,j,j,j,j,j,j,j,j,j,j)
@@ -88730,7 +88730,7 @@ return null},
 aw:function(){this.adN()
 this.b6()},
 L:function(a,b){var s,r,q,p,o,n,m,l,k,j,i,h,g,f=this,e=null,d="Pesquisar",c=L.P("Coelba/Embasa",e,e,e,e,e,e)
-c=E.oP(K.awG(f.a.c,b,"coelba",e,e,!0),!0,c)
+c=E.oP(K.awG(f.a.c,b,"coelba",e,e,!0,e),!0,c)
 s=t.u
 r=N.iH(T.bX(H.a([L.dC(C.DV,f.Q?C.O:C.B),L.P("Coelba",e,e,e,e,e,e)],s),C.r,C.p,C.o),e,new S.alR(f))
 r=T.b1(H.a([r,N.iH(T.bX(H.a([L.dC(C.DU,!f.Q?C.O:C.B),L.P("Embasa",e,e,e,e,e,e)],s),C.r,C.p,C.o),e,new S.alS(f))],s),C.r,C.i9,C.o)
@@ -88917,7 +88917,7 @@ return s},
 aw:function(){this.ze(0)
 this.b6()},
 L:function(a,b){var s,r,q,p,o,n,m,l,k,j=this,i=null,h=L.P(H.e(j.cy),i,i,i,i,i,i)
-h=E.oP(K.awG(j.ze(0),b,"home",j.ch,i,!0),i,h)
+h=E.oP(K.awG(j.ze(0),b,"home",j.ch,i,!0,i),i,h)
 s=j.d
 r=t.z
 s=B.i7(new D.apF(j),new P.bJ(s,H.A(s).j("bJ<1>")),r)
@@ -91075,7 +91075,7 @@ s=t.V
 r.r=r.d?H.a(["Adicionar Igreja","Atualizar Igreja","Deletar Igreja"],s):H.a(["Adicionar Distrito","Atualizar Distrito","Deletar Distrito"],s)},
 rq:function(a){this.H(new E.ajw(this,a))},
 L:function(a,b){var s,r,q=this,p=null,o=L.P(q.r[q.e],p,p,p,p,p,p),n=q.a
-n=K.awG(n.c,b,"adicionar",p,q.gZ5(),!0)
+n=K.awG(n.c,b,"adicionar",p,q.d,!0,q.gZ5())
 o=E.oP(n,!0,o)
 n=q.e
 s=H.a(["Adicionar","Atualizar","Deletar"],t.V)
@@ -91128,7 +91128,7 @@ rq:function(a){this.H(new S.atn(this,a))},
 L:function(a,b){var s,r,q,p=this,o=null
 if(p.f)s=new M.A6(o)
 else{s=L.P("Resgistro",o,o,o,o,o,o)
-s=E.oP(K.awG(p.a.c,b,"registrar",o,o,!0),!0,s)
+s=E.oP(K.awG(p.a.c,b,"registrar",o,o,!0,o),!0,s)
 r=p.e
 q=p.d
 q=M.qr(s,E.R6(r[q]),new L.t0(q,p.grp(),H.a(["Pastor","Gerenciador","Adm"],t.V),H.a([C.ke,C.nY,C.o1],t.bY),o),o)

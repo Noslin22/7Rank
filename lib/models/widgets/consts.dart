@@ -51,7 +51,7 @@ currentDate({String date, bool dateTime = true, bool dataAtual = false}) {
 }
 
 actions(String gerenciador, BuildContext context, String tela,
-    {auth, Function setDistrito, distrito, kisWeb}) {
+    {auth, Function setDistrito, bool igreja, kisWeb}) {
   List<DropdownMenuItem> distritos = [];
   String distritoEtiqueta;
   db.collection("distritos").get().then((value) {
@@ -245,9 +245,9 @@ actions(String gerenciador, BuildContext context, String tela,
         : Container(),
     tela == 'adicionar'
         ? Tooltip(
-            message: distrito ? 'Igreja' : 'Distrito',
+            message: igreja ? 'Igreja' : 'Distrito',
             child: IconButton(
-                icon: Icon(distrito ? Icons.account_balance : Icons.business),
+                icon: Icon(igreja ? Icons.account_balance : Icons.business),
                 onPressed: () {
                   setDistrito();
                 }),

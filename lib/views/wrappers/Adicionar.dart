@@ -20,10 +20,10 @@ class _AdicionarState extends State<Adicionar> {
   bool igreja = true;
   int tabIndex = 0;
   List<Widget> listScreens = [
-            AdicionarIgreja(),
-            AtualizarIgreja(),
-            DeletarIgreja(),
-          ];
+    AdicionarIgreja(),
+    AtualizarIgreja(),
+    DeletarIgreja(),
+  ];
   List<String> listNames = [
     'Adicionar Igreja',
     'Atualizar Igreja',
@@ -36,7 +36,7 @@ class _AdicionarState extends State<Adicionar> {
     });
   }
 
-  void setAtualizar(){
+  void setAtualizar() {
     setDistrito();
     listScreens = igreja
         ? [
@@ -76,39 +76,40 @@ class _AdicionarState extends State<Adicionar> {
         centerTitle: true,
         actions: kIsWeb
             ? actions(widget.gerenciador, context, 'adicionar',
-                distrito: setAtualizar, kisWeb: kIsWeb)
+                setDistrito: setAtualizar, igreja: igreja, kisWeb: kIsWeb)
             : [
-              Tooltip(
-            message: igreja ? 'Igreja' : 'Distrito',
-            child: IconButton(
-                icon: Icon(igreja ? Icons.account_balance : Icons.business),
-                onPressed: () {
-                  setDistrito();
-                  listScreens = igreja
-        ? [
-            AdicionarIgreja(),
-            AtualizarIgreja(),
-            DeletarIgreja(),
-          ]
-        : [
-            AdicionarDistrito(),
-            AtualizarDistrito(),
-            DeletarDistrito(),
-          ];
-    listNames = igreja
-        ? [
-            'Adicionar Igreja',
-            'Atualizar Igreja',
-            'Deletar Igreja',
-          ]
-        : [
-            'Adicionar Distrito',
-            'Atualizar Distrito',
-            'Deletar Distrito',
-          ];
-                }),
-          )
-            ],
+                Tooltip(
+                  message: igreja ? 'Igreja' : 'Distrito',
+                  child: IconButton(
+                      icon:
+                          Icon(igreja ? Icons.account_balance : Icons.business),
+                      onPressed: () {
+                        setDistrito();
+                        listScreens = igreja
+                            ? [
+                                AdicionarIgreja(),
+                                AtualizarIgreja(),
+                                DeletarIgreja(),
+                              ]
+                            : [
+                                AdicionarDistrito(),
+                                AtualizarDistrito(),
+                                DeletarDistrito(),
+                              ];
+                        listNames = igreja
+                            ? [
+                                'Adicionar Igreja',
+                                'Atualizar Igreja',
+                                'Deletar Igreja',
+                              ]
+                            : [
+                                'Adicionar Distrito',
+                                'Atualizar Distrito',
+                                'Deletar Distrito',
+                              ];
+                      }),
+                )
+              ],
       ),
       drawer: kIsWeb ? null : drawer(widget.gerenciador, context, 'adicionar'),
       bottomNavigationBar: BottomNavigator(
