@@ -1,3 +1,7 @@
+import 'dart:convert';
+import 'dart:io';
+import 'dart:html' as html;
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:printing/printing.dart';
@@ -29,6 +33,7 @@ class _HomeState extends State<Home> {
   Auth _auth = Auth();
   String escolhido;
   String usuario;
+  bool n = false;
 
   save() {
     if (_formKey.currentState != null && _formKey.currentState.validate()) {
@@ -112,13 +117,166 @@ class _HomeState extends State<Home> {
     super.initState();
   }
 
+  List<Widget> action = [];
+
   @override
   Widget build(BuildContext context) {
+    action =
+        actions(currentUser(), context, 'home', auth: _auth, kisWeb: kIsWeb);
+    action.add(
+      Tooltip(
+        message: 'Conciliação Bancária',
+        child: IconButton(
+            icon: Icon(Icons.insert_drive_file_rounded),
+            onPressed: () async {
+              FilePickerResult result = await FilePicker.platform.pickFiles(
+                type: FileType.custom,
+                allowMultiple: true,
+                allowedExtensions: [
+                  'csv',
+                ],
+              );
+              if (result != null) {
+                List<PlatformFile> files = result.files;
+                showDialog(
+                  context: context,
+                  builder: (context) {
+                    return StatefulBuilder(
+                      builder: (context, setState) {
+                        return AlertDialog(
+                          title: Text("Confirme o(s) arquivo(s)"),
+                          content: Text("${files[0].name} e outros"),
+                          actions: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                FlatButton(
+                                  onPressed: () {
+                                    setState(() {
+                                      n = !n;
+                                    });
+                                  },
+                                  child: Text(
+                                    n ? "Poupança" : "Corrente",
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                  color: Colors.amber,
+                                ),
+                                FlatButton(
+                                  color: Colors.lightGreen,
+                                  child: Text(
+                                    "Gerar",
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                  onPressed: () async {
+                                    List<Csv> csvList = [];
+                                    for (var file in files) {
+                                      String csvData =
+                                          File.fromRawPath(file.bytes).path;
+                                      List<String> datas = csvData.split("\r");
+                                      datas[0] =
+                                          datas[0].replaceFirst("\n", "");
+                                      String conta = datas.first
+                                          .split(" ")[6]
+                                          .split("-")[0];
+                                      datas.removeRange(0, 3);
+                                      String part;
+                                      for (var element in datas) {
+                                        if (element.split(";")[0] != "Total") {
+                                          List<String> list =
+                                              element.split(";");
+                                          csvList.add(
+                                            Csv(
+                                              conta,
+                                              list[0],
+                                              list[1],
+                                              list[2],
+                                              list[3] != ""
+                                                  ? list[3] != null
+                                                      ? list[3]
+                                                          .replaceAll(".", "")
+                                                          .replaceAll(",", "")
+                                                      : list[4]
+                                                          .replaceAll(".", "")
+                                                          .replaceAll(",", "")
+                                                  : list[4]
+                                                      .replaceAll(".", "")
+                                                      .replaceAll(",", ""),
+                                            ),
+                                          );
+                                        } else {
+                                          part = element;
+                                          break;
+                                        }
+                                      }
+                                      datas.removeRange(
+                                          datas.indexOf(part), datas.length);
+                                    }
+                                    String jsonCsvEncoded = jsonEncode(csvList);
+                                    List<Map<String, String>> jsonCsvDecoded =
+                                        jsonDecode(jsonCsvEncoded);
+                                    List<String> text = [
+                                      "Bank          	              BankAccountNumber           	              Date          	              Description   	              Value"
+                                    ];
+                                    jsonCsvDecoded.forEach((element) {
+                                      text.add(
+                                          " 237          	               ${element["conta"]}${n ? "1" : ""}          	              ${element["data"]}    	              ${element["lancamento"]} - ${element["doc"]}           	               ${element["valor"]}");
+                                    });
+                                    var anchor;
+                                    var url;
+                                    // prepare
+                                    final bytes = utf8.encode(text.join("\n"));
+                                    final blob = html.Blob([bytes]);
+                                    url =
+                                        html.Url.createObjectUrlFromBlob(blob);
+                                    anchor = html.document.createElement('a')
+                                        as html.AnchorElement
+                                      ..href = url
+                                      ..style.display = 'none'
+                                      ..download = 'Conciliacao.txt';
+                                    html.document.body.children.add(anchor);
+
+                                    // download
+                                    anchor.click();
+
+                                    // cleanup
+                                    html.document.body.children.remove(anchor);
+                                    html.Url.revokeObjectUrl(url);
+                                    Navigator.of(context).pop();
+                                  },
+                                ),
+                                FlatButton(
+                                  color: Colors.blue,
+                                  child: Text(
+                                    "Sair",
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                  onPressed: () {
+                                    Navigator.of(context).pop();
+                                  },
+                                ),
+                              ],
+                            )
+                          ],
+                        );
+                      },
+                    );
+                  },
+                );
+              }
+            }),
+      ),
+    );
     return Scaffold(
       appBar: AppBar(
         title: Text("$usuario"),
-        actions: actions(currentUser(), context, 'home',
-            auth: _auth, kisWeb: kIsWeb),
+        actions: action,
       ),
       drawer: kIsWeb ? null : drawer(currentUser(), context, 'home'),
       body: Form(

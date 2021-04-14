@@ -50,7 +50,7 @@ currentDate({String date, bool dateTime = true, bool dataAtual = false}) {
           : _dataPronta;
 }
 
-actions(String gerenciador, BuildContext context, String tela,
+List<Widget> actions(String gerenciador, BuildContext context, String tela,
     {auth, Function setDistrito, bool igreja, kisWeb}) {
   List<DropdownMenuItem> distritos = [];
   String distritoEtiqueta;
@@ -132,117 +132,141 @@ actions(String gerenciador, BuildContext context, String tela,
                 }),
           )
         : Container(),
-    tela == 'home'
-        ? Tooltip(
-            message: 'Conciliação Bancária',
-            child: IconButton(
-                icon: Icon(Icons.insert_drive_file_rounded),
-                onPressed: () async {
-                  FilePickerResult result = await FilePicker.platform.pickFiles(
-                    type: FileType.custom,
-                    allowMultiple: true,
-                    allowedExtensions: [
-                      'csv',
-                    ],
-                  );
-                  if (result != null) {
-                    List<PlatformFile> files = result.files;
-                    showDialog(
-                      context: context,
-                      builder: (context) {
-                        return AlertDialog(
-                          title: Text("Confirme o(s) arquivo(s)"),
-                          content: Text("${files[0].name} e outros"),
-                          actions: [
-                            FlatButton(
-                              child: Text("Gerar"),
-                              onPressed: () async {
-                                List<Csv> csvList = [];
-                                for (var file in files) {
-                                  String csvData =
-                                      File.fromRawPath(file.bytes).path;
-                                  List<String> datas = csvData.split("\r");
-                                  datas[0] = datas[0].replaceFirst("\n", "");
-                                  String conta =
-                                      datas.first.split(" ")[6].split("-")[0];
-                                  datas.removeRange(0, 3);
-                                  String part;
-                                  for (var element in datas) {
-                                    if (element.split(";")[0] != "Total") {
-                                      List<String> list = element.split(";");
-                                      csvList.add(
-                                        Csv(
-                                          conta,
-                                          list[0],
-                                          list[1],
-                                          list[2],
-                                          list[3] != ""
-                                              ? list[3] != null
-                                                  ? list[3]
-                                                      .replaceAll(".", "")
-                                                      .replaceAll(",", "")
-                                                  : list[4]
-                                                      .replaceAll(".", "")
-                                                      .replaceAll(",", "")
-                                              : list[4]
-                                                  .replaceAll(".", "")
-                                                  .replaceAll(",", ""),
-                                        ),
-                                      );
-                                    } else {
-                                      part = element;
-                                      break;
-                                    }
-                                  }
-                                  datas.removeRange(
-                                      datas.indexOf(part), datas.length);
-                                }
-                                String jsonCsvEncoded = jsonEncode(csvList);
-                                List<Map<String, String>> jsonCsvDecoded =
-                                    jsonDecode(jsonCsvEncoded);
-                                List<String> text = [
-                                  "Bank          	              BankAccountNumber           	              Date          	              Description   	              Value"
-                                ];
-                                jsonCsvDecoded.forEach((element) {
-                                  text.add(
-                                      " 237          	               ${element["conta"]}          	              ${element["data"]}    	              ${element["lancamento"]} - ${element["doc"]}           	               ${element["valor"]}");
-                                });
-                                var anchor;
-                                var url;
-                                // prepare
-                                final bytes = utf8.encode(text.join("\n"));
-                                final blob = html.Blob([bytes]);
-                                url = html.Url.createObjectUrlFromBlob(blob);
-                                anchor = html.document.createElement('a')
-                                    as html.AnchorElement
-                                  ..href = url
-                                  ..style.display = 'none'
-                                  ..download = 'Conciliacao.txt';
-                                html.document.body.children.add(anchor);
+    // tela == 'home'
+    //     ? Tooltip(
+    //         message: 'Conciliação Bancária',
+    //         child: IconButton(
+    //             icon: Icon(Icons.insert_drive_file_rounded),
+    //             onPressed: () async {
+    //               FilePickerResult result = await FilePicker.platform.pickFiles(
+    //                 type: FileType.custom,
+    //                 allowMultiple: true,
+    //                 allowedExtensions: [
+    //                   'csv',
+    //                 ],
+    //               );
+    //               if (result != null) {
+    //                 String n = "";
+    //                 List<PlatformFile> files = result.files;
+    //                 showDialog(
+    //                   context: context,
+    //                   builder: (context) {
+    //                     return AlertDialog(
+    //                       title: Text("Confirme o(s) arquivo(s)"),
+    //                       content: Text("${files[0].name} e outros"),
+    //                       actions: [
+    //                         Row(
+    //                           children: [
+    //                             Text("Corrente"),
+    //                             Radio(
+    //                               value: "",
+    //                               groupValue: n,
+    //                               onChanged: (value) => n = value,
+    //                             ),
+    //                             Text("Poupança"),
+    //                             Radio(
+    //                               value: "1",
+    //                               groupValue: n,
+    //                               onChanged: (value) => n = value,
+    //                             ),
+    //                             SizedBox(
+    //                               width: 30,
+    //                             ),
+    //                             FlatButton(
+    //                               child: Text("Gerar"),
+    //                               onPressed: () async {
+    //                                 List<Csv> csvList = [];
+    //                                 for (var file in files) {
+    //                                   String csvData =
+    //                                       File.fromRawPath(file.bytes).path;
+    //                                   List<String> datas = csvData.split("\r");
+    //                                   datas[0] =
+    //                                       datas[0].replaceFirst("\n", "");
+    //                                   String conta = datas.first
+    //                                       .split(" ")[6]
+    //                                       .split("-")[0];
+    //                                   datas.removeRange(0, 3);
+    //                                   String part;
+    //                                   for (var element in datas) {
+    //                                     if (element.split(";")[0] != "Total") {
+    //                                       List<String> list =
+    //                                           element.split(";");
+    //                                       csvList.add(
+    //                                         Csv(
+    //                                           conta,
+    //                                           list[0],
+    //                                           list[1],
+    //                                           list[2],
+    //                                           list[3] != ""
+    //                                               ? list[3] != null
+    //                                                   ? list[3]
+    //                                                       .replaceAll(".", "")
+    //                                                       .replaceAll(",", "")
+    //                                                   : list[4]
+    //                                                       .replaceAll(".", "")
+    //                                                       .replaceAll(",", "")
+    //                                               : list[4]
+    //                                                   .replaceAll(".", "")
+    //                                                   .replaceAll(",", ""),
+    //                                         ),
+    //                                       );
+    //                                     } else {
+    //                                       part = element;
+    //                                       break;
+    //                                     }
+    //                                   }
+    //                                   datas.removeRange(
+    //                                       datas.indexOf(part), datas.length);
+    //                                 }
+    //                                 String jsonCsvEncoded = jsonEncode(csvList);
+    //                                 List<Map<String, String>> jsonCsvDecoded =
+    //                                     jsonDecode(jsonCsvEncoded);
+    //                                 List<String> text = [
+    //                                   "Bank          	              BankAccountNumber           	              Date          	              Description   	              Value"
+    //                                 ];
+    //                                 jsonCsvDecoded.forEach((element) {
+    //                                   text.add(
+    //                                       " 237          	               ${element["conta"]}$n          	              ${element["data"]}    	              ${element["lancamento"]} - ${element["doc"]}           	               ${element["valor"]}");
+    //                                 });
+    //                                 var anchor;
+    //                                 var url;
+    //                                 // prepare
+    //                                 final bytes = utf8.encode(text.join("\n"));
+    //                                 final blob = html.Blob([bytes]);
+    //                                 url =
+    //                                     html.Url.createObjectUrlFromBlob(blob);
+    //                                 anchor = html.document.createElement('a')
+    //                                     as html.AnchorElement
+    //                                   ..href = url
+    //                                   ..style.display = 'none'
+    //                                   ..download = 'Conciliacao.txt';
+    //                                 html.document.body.children.add(anchor);
 
-                                // download
-                                anchor.click();
+    //                                 // download
+    //                                 anchor.click();
 
-                                // cleanup
-                                html.document.body.children.remove(anchor);
-                                html.Url.revokeObjectUrl(url);
-                                Navigator.of(context).pop();
-                              },
-                            ),
-                            FlatButton(
-                              child: Text("Cancelar"),
-                              onPressed: () {
-                                Navigator.of(context).pop();
-                              },
-                            ),
-                          ],
-                        );
-                      },
-                    );
-                  }
-                }),
-          )
-        : Container(),
+    //                                 // cleanup
+    //                                 html.document.body.children.remove(anchor);
+    //                                 html.Url.revokeObjectUrl(url);
+    //                                 Navigator.of(context).pop();
+    //                               },
+    //                             ),
+    //                             FlatButton(
+    //                               child: Text("Cancelar"),
+    //                               onPressed: () {
+    //                                 Navigator.of(context).pop();
+    //                               },
+    //                             ),
+    //                           ],
+    //                         )
+    //                       ],
+    //                     );
+    //                   },
+    //                 );
+    //               }
+    //             }),
+    //       )
+    //     : Container(),
     tela == 'adicionar'
         ? Tooltip(
             message: igreja ? 'Igreja' : 'Distrito',
