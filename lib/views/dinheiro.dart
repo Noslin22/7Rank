@@ -730,7 +730,6 @@ class _DinheiroState extends State<Dinheiro> {
                           height: 20,
                         ),
                         Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             RaisedButton(
                               onPressed: () {
@@ -745,6 +744,7 @@ class _DinheiroState extends State<Dinheiro> {
                               ),
                               color: Colors.deepOrange,
                             ),
+                            Spacer(),
                             RaisedButton(
                               onPressed: () {
                                 Printing.layoutPdf(
@@ -760,6 +760,7 @@ class _DinheiroState extends State<Dinheiro> {
                               ),
                               color: Colors.indigo,
                             ),
+                            Spacer(),
                             RaisedButton(
                               onPressed: () {
                                 Printing.layoutPdf(
