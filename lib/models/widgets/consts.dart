@@ -111,47 +111,50 @@ List<Widget> actions(String gerenciador, BuildContext context, String tela,
                             mainAxisSize: MainAxisSize.max,
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              TextButton(
-                                style: ButtonStyle(
-                                  backgroundColor: MaterialStateProperty.all(
-                                    Colors.lightGreen,
+                              Expanded(
+                                flex: 1,
+                                child: TextButton(
+                                  style: TextButton.styleFrom(
+                                    backgroundColor: Colors.lightGreen,
                                   ),
-                                ),
-                                child: Text(
-                                  "Gerar",
-                                  style: TextStyle(
-                                    color: Colors.white,
+                                  child: Text(
+                                    "Gerar",
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                    ),
                                   ),
+                                  onPressed: () {
+                                    Printing.layoutPdf(
+                                      onLayout: (format) {
+                                        return buildPdfEtiqueta(
+                                          distritoEtiqueta,
+                                          currentDate(dataAtual: true)
+                                              .split("/")[2],
+                                        );
+                                      },
+                                    );
+                                    distritoEtiqueta = "";
+                                    Navigator.of(context).pop();
+                                  },
                                 ),
-                                onPressed: () {
-                                  Printing.layoutPdf(
-                                    onLayout: (format) {
-                                      return buildPdfEtiqueta(
-                                        distritoEtiqueta,
-                                        currentDate(dataAtual: true)
-                                            .split("/")[2],
-                                      );
-                                    },
-                                  );
-                                  distritoEtiqueta = "";
-                                  Navigator.of(context).pop();
-                                },
                               ),
-                              TextButton(
-                                style: ButtonStyle(
-                                  backgroundColor: MaterialStateProperty.all(
-                                    Colors.blue,
+                              Spacer(),
+                              Expanded(
+                                flex: 1,
+                                child: TextButton(
+                                  style: TextButton.styleFrom(
+                                    backgroundColor: Colors.blue,
                                   ),
-                                ),
-                                child: Text(
-                                  "Cancelar",
-                                  style: TextStyle(
-                                    color: Colors.white,
+                                  child: Text(
+                                    "Cancelar",
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                    ),
                                   ),
+                                  onPressed: () {
+                                    Navigator.of(context).pop();
+                                  },
                                 ),
-                                onPressed: () {
-                                  Navigator.of(context).pop();
-                                },
                               ),
                             ],
                           )
@@ -190,151 +193,152 @@ List<Widget> actions(String gerenciador, BuildContext context, String tela,
                                   content: Text("${files[0].name} e outros"),
                                   actions: [
                                     Row(
-                                      mainAxisSize: MainAxisSize.max,
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
                                       children: [
-                                        TextButton(
-                                          style: ButtonStyle(
-                                            backgroundColor:
-                                                MaterialStateProperty.all(
-                                              Colors.orange,
+                                        Expanded(
+                                          flex: 1,
+                                          child: TextButton(
+                                            style: TextButton.styleFrom(
+                                              backgroundColor: Colors.orange,
                                             ),
-                                          ),
-                                          onPressed: () {
-                                            setState(() {
-                                              n = !n;
-                                            });
-                                          },
-                                          child: Text(
-                                            n ? "Poupança" : "Corrente",
-                                            style: TextStyle(
-                                              color: Colors.white,
+                                            onPressed: () {
+                                              setState(() {
+                                                n = !n;
+                                              });
+                                            },
+                                            child: Text(
+                                              n ? "Poupança" : "Corrente",
+                                              style: TextStyle(
+                                                color: Colors.white,
+                                              ),
                                             ),
                                           ),
                                         ),
-                                        TextButton(
-                                          style: ButtonStyle(
-                                            backgroundColor:
-                                                MaterialStateProperty.all(
-                                              Colors.lightGreen,
+                                        Spacer(),
+                                        Expanded(
+                                          flex: 1,
+                                          child: TextButton(
+                                            style: TextButton.styleFrom(
+                                              backgroundColor:
+                                                  Colors.lightGreen,
                                             ),
-                                          ),
-                                          child: Text(
-                                            "Gerar",
-                                            style: TextStyle(
-                                              color: Colors.white,
+                                            child: Text(
+                                              "Gerar",
+                                              style: TextStyle(
+                                                color: Colors.white,
+                                              ),
                                             ),
-                                          ),
-                                          onPressed: () async {
-                                            List<Conciliacao> csvList = [];
-                                            for (var file in files) {
-                                              String csvData =
-                                                  File.fromRawPath(file.bytes)
-                                                      .path;
-                                              List<String> datas =
-                                                  csvData.split("\r");
-                                              datas[0] = datas[0]
-                                                  .replaceFirst("\n", "");
-                                              String conta = datas.first
-                                                  .split(" ")[6]
-                                                  .split("-")[0];
-                                              datas.removeRange(0, 3);
-                                              String part;
-                                              for (var element in datas) {
-                                                if (element.split(";")[0] !=
-                                                    "Total") {
-                                                  List<String> list =
-                                                      element.split(";");
-                                                  csvList.add(
-                                                    Conciliacao(
-                                                      conta,
-                                                      list[0],
-                                                      list[1],
-                                                      list[2],
-                                                      list[3] != ""
-                                                          ? list[3] != null
-                                                              ? list[3]
-                                                                  .replaceAll(
-                                                                      ".", "")
-                                                                  .replaceAll(
-                                                                      ",", "")
-                                                              : list[4]
-                                                                  .replaceAll(
-                                                                      ".", "")
-                                                                  .replaceAll(
-                                                                      ",", "")
-                                                          : list[4]
-                                                              .replaceAll(
-                                                                  ".", "")
-                                                              .replaceAll(
-                                                                  ",", ""),
-                                                    ),
-                                                  );
-                                                } else {
-                                                  part = element;
-                                                  break;
+                                            onPressed: () async {
+                                              List<Conciliacao> csvList = [];
+                                              for (var file in files) {
+                                                String csvData =
+                                                    File.fromRawPath(file.bytes)
+                                                        .path;
+                                                List<String> datas =
+                                                    csvData.split("\r");
+                                                datas[0] = datas[0]
+                                                    .replaceFirst("\n", "");
+                                                String conta = datas.first
+                                                    .split(" ")[6]
+                                                    .split("-")[0];
+                                                datas.removeRange(0, 3);
+                                                String part;
+                                                for (var element in datas) {
+                                                  if (element.split(";")[0] !=
+                                                      "Total") {
+                                                    List<String> list =
+                                                        element.split(";");
+                                                    csvList.add(
+                                                      Conciliacao(
+                                                        conta,
+                                                        list[0],
+                                                        list[1],
+                                                        list[2],
+                                                        list[3] != ""
+                                                            ? list[3] != null
+                                                                ? list[3]
+                                                                    .replaceAll(
+                                                                        ".", "")
+                                                                    .replaceAll(
+                                                                        ",", "")
+                                                                : list[4]
+                                                                    .replaceAll(
+                                                                        ".", "")
+                                                                    .replaceAll(
+                                                                        ",", "")
+                                                            : list[4]
+                                                                .replaceAll(
+                                                                    ".", "")
+                                                                .replaceAll(
+                                                                    ",", ""),
+                                                      ),
+                                                    );
+                                                  } else {
+                                                    part = element;
+                                                    break;
+                                                  }
                                                 }
+                                                datas.removeRange(
+                                                    datas.indexOf(part),
+                                                    datas.length);
                                               }
-                                              datas.removeRange(
-                                                  datas.indexOf(part),
-                                                  datas.length);
-                                            }
-                                            String jsonCsvEncoded =
-                                                jsonEncode(csvList);
-                                            List<Map<String, String>>
-                                                jsonCsvDecoded =
-                                                jsonDecode(jsonCsvEncoded);
-                                            List<String> text = [
-                                              "Bank          	              BankAccountNumber           	              Date          	              Description   	              Value"
-                                            ];
-                                            jsonCsvDecoded.forEach((element) {
-                                              text.add(
-                                                  " 237          	               ${element["conta"]}${n ? "1" : ""}          	              ${element["data"]}    	              ${element["lancamento"]} - ${element["doc"]}           	               ${element["valor"]}");
-                                            });
-                                            var anchor;
-                                            var url;
-                                            // prepare
-                                            final bytes =
-                                                utf8.encode(text.join("\n"));
-                                            final blob = html.Blob([bytes]);
-                                            url = html.Url
-                                                .createObjectUrlFromBlob(blob);
-                                            anchor = html.document
-                                                    .createElement('a')
-                                                as html.AnchorElement
-                                              ..href = url
-                                              ..style.display = 'none'
-                                              ..download = 'Conciliacao.txt';
-                                            html.document.body.children
-                                                .add(anchor);
+                                              String jsonCsvEncoded =
+                                                  jsonEncode(csvList);
+                                              List<Map<String, String>>
+                                                  jsonCsvDecoded =
+                                                  jsonDecode(jsonCsvEncoded);
+                                              List<String> text = [
+                                                "Bank          	              BankAccountNumber           	              Date          	              Description   	              Value"
+                                              ];
+                                              jsonCsvDecoded.forEach((element) {
+                                                text.add(
+                                                    " 237          	               ${element["conta"]}${n ? "1" : ""}          	              ${element["data"]}    	              ${element["lancamento"]} - ${element["doc"]}           	               ${element["valor"]}");
+                                              });
+                                              var anchor;
+                                              var url;
+                                              // prepare
+                                              final bytes =
+                                                  utf8.encode(text.join("\n"));
+                                              final blob = html.Blob([bytes]);
+                                              url = html.Url
+                                                  .createObjectUrlFromBlob(
+                                                      blob);
+                                              anchor = html.document
+                                                      .createElement('a')
+                                                  as html.AnchorElement
+                                                ..href = url
+                                                ..style.display = 'none'
+                                                ..download = 'Conciliacao.txt';
+                                              html.document.body.children
+                                                  .add(anchor);
 
-                                            // download
-                                            anchor.click();
+                                              // download
+                                              anchor.click();
 
-                                            // cleanup
-                                            html.document.body.children
-                                                .remove(anchor);
-                                            html.Url.revokeObjectUrl(url);
-                                            Navigator.of(context).pop();
-                                          },
+                                              // cleanup
+                                              html.document.body.children
+                                                  .remove(anchor);
+                                              html.Url.revokeObjectUrl(url);
+                                              Navigator.of(context).pop();
+                                            },
+                                          ),
                                         ),
-                                        TextButton(
-                                          style: ButtonStyle(
-                                            backgroundColor:
-                                                MaterialStateProperty.all(
-                                              Colors.blue,
+                                        Spacer(),
+                                        Expanded(
+                                          flex: 1,
+                                          child: TextButton(
+                                            style: TextButton.styleFrom(
+                                              backgroundColor: Colors.blue,
                                             ),
-                                          ),
-                                          child: Text(
-                                            "Sair",
-                                            style: TextStyle(
-                                              color: Colors.white,
+                                            child: Text(
+                                              "Sair",
+                                              style: TextStyle(
+                                                color: Colors.white,
+                                              ),
                                             ),
+                                            onPressed: () {
+                                              Navigator.of(context).pop();
+                                            },
                                           ),
-                                          onPressed: () {
-                                            Navigator.of(context).pop();
-                                          },
                                         ),
                                       ],
                                     )
