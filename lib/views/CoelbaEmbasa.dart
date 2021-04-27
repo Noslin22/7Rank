@@ -73,7 +73,7 @@ class _CoelbaEmbasaState extends State<CoelbaEmbasa> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Coelba - Embasa"),
+        title: Text("Coelba/Embasa"),
         centerTitle: true,
         actions: actions(widget.gerenciador, context, 'coelba', kisWeb: kIsWeb),
       ),
