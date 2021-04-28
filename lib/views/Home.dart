@@ -189,7 +189,7 @@ class _HomeState extends State<Home> {
                         save();
                       },
                       child: Text(
-                        "Pesquisar",
+                        "Procurar",
                         style: TextStyle(color: Colors.white),
                       ),
                       disabledColor: Colors.green,
