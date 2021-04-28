@@ -290,7 +290,7 @@ class _HomeState extends State<Home> {
               ),
               _distrito
                   ? SizedBox(
-                      height: 20,
+                      height: 22,
                     )
                   : Container(),
               _distrito

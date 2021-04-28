@@ -38,15 +38,15 @@
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('flutter-first-frame', function () {
-        navigator.serviceWorker.register('flutter_service_worker.js?v=4126291325');
+        navigator.serviceWorker.register('flutter_service_worker.js?v=2812621142');
       });
     }
   </script>
-  <script src="https://www.gstatic.com/firebasejs/8.4.0/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.4.0/firebase-analytics.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.4.0/firebase-auth.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.4.0/firebase-firestore.js"></script>
-
+  <script src="https://www.gstatic.com/firebasejs/7.5.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/7.5.0/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/7.5.0/firebase-firestore.js"></script>
+  <script src="/__/firebase/8.4.2/firebase-analytics.js"></script>
+  <script src="/__/firebase/init.js"></script>
   <script>
     var firebaseConfig = {
       apiKey: "AIzaSyA7dyDfFXnNGnQIxH2vI_y91tSeGRWILnA",
@@ -58,6 +58,7 @@
       appId: "1:776069113661:web:541360069c876b03268754",
       measurementId: "G-P1RZDCB84R"
     };
+    // Initialize Firebase
     firebase.initializeApp(firebaseConfig);
     firebase.analytics();
   </script>
