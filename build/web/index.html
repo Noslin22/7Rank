@@ -36,7 +36,7 @@
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('flutter-first-frame', function () {
-        navigator.serviceWorker.register('flutter_service_worker.js?v=425560307');
+        navigator.serviceWorker.register('flutter_service_worker.js?v=1319978588');
       });
     }
   </script>
@@ -53,11 +53,13 @@
       projectId: "igreja-4019a",
       storageBucket: "igreja-4019a.appspot.com",
       messagingSenderId: "776069113661",
-      appId: "1:776069113661:web:a7cbb17ab6e04107268754",
-      measurementId: "G-ETTPLEKPJJ"
+      appId: "1:776069113661:web:9731214450e84af6268754",
+      measurementId: "G-11K3SFN8TQ"
     };
+    // Initialize Firebase
     firebase.initializeApp(firebaseConfig);
-    </script>
+    firebase.analytics();
+  </script>
     <script src="main.dart.js" type="application/javascript"></script>
 </body>
 </html>
