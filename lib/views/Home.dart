@@ -258,6 +258,9 @@ class _HomeState extends State<Home> {
                     ),
                     flex: 3,
                   ),
+                  SizedBox(
+                    width: 15,
+                  ),
                   _distrito
                       ? Expanded(
                           child: RaisedButton(
@@ -304,23 +307,28 @@ class _HomeState extends State<Home> {
                               if (snapshot.hasData) {
                                 QuerySnapshot querySnapshot = snapshot.data;
                                 return Expanded(
-                                  child: ListView.builder(
-                                    shrinkWrap: true,
-                                    itemCount: querySnapshot.docs.length,
-                                    itemBuilder: (context, index) {
-                                      List<DocumentSnapshot> igrejas =
-                                          querySnapshot.docs.toList();
-                                      DocumentSnapshot documentSnapshot =
-                                          igrejas[index];
-                                      IgrejaFB igreja =
-                                          IgrejaFB.toCheckBoxModel(
-                                        documentSnapshot,
-                                      );
-                                      return Card(
-                                        child: CheckBoxTile(igreja,
-                                            documentSnapshot, currentUser()),
-                                      );
-                                    },
+                                  child: Scrollbar(
+                                    controller: ScrollController(),
+                                    showTrackOnHover: true,
+                                    isAlwaysShown: true,
+                                    child: ListView.builder(
+                                      shrinkWrap: true,
+                                      itemCount: querySnapshot.docs.length,
+                                      itemBuilder: (context, index) {
+                                        List<DocumentSnapshot> igrejas =
+                                            querySnapshot.docs.toList();
+                                        DocumentSnapshot documentSnapshot =
+                                            igrejas[index];
+                                        IgrejaFB igreja =
+                                            IgrejaFB.toCheckBoxModel(
+                                          documentSnapshot,
+                                        );
+                                        return Card(
+                                          child: CheckBoxTile(igreja,
+                                              documentSnapshot, currentUser()),
+                                        );
+                                      },
+                                    ),
                                   ),
                                 );
                               }
