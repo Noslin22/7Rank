@@ -21,7 +21,7 @@ class _HomeState extends State<Home> {
   StreamController _controllerDistritos = StreamController.broadcast();
   StreamController _controllerIgrejas = StreamController.broadcast();
   StreamController _controllerRank = StreamController.broadcast();
-  ScrollController _controllerScroll;
+  ScrollController _controllerScroll = ScrollController();
   FirebaseAuth auth = FirebaseAuth.instance;
   final _formKey = GlobalKey<FormState>();
   List<IgrejaPdf> igrejas = [];
@@ -110,17 +110,7 @@ class _HomeState extends State<Home> {
   @override
   void initState() {
     currentUser();
-    _controllerScroll = ScrollController();
     super.initState();
-  }
-
-  @override
-  void dispose() {
-    _controllerScroll.dispose();
-    _controllerDistritos.close();
-    _controllerRank.close();
-    _controllerIgrejas.close();
-    super.dispose();
   }
 
   @override
@@ -298,9 +288,11 @@ class _HomeState extends State<Home> {
                       : Container()
                 ],
               ),
-              SizedBox(
-                height: 20,
-              ),
+              _distrito
+                  ? SizedBox(
+                      height: 20,
+                    )
+                  : Container(),
               _distrito
                   ? StreamBuilder(
                       stream: _controllerIgrejas.stream,
