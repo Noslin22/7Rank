@@ -259,9 +259,11 @@ class _HomeState extends State<Home> {
                     ),
                     flex: 3,
                   ),
-                  SizedBox(
-                    width: 15,
-                  ),
+                  _distrito
+                      ? SizedBox(
+                          width: 15,
+                        )
+                      : Container(),
                   _distrito
                       ? Expanded(
                           child: RaisedButton(
@@ -288,11 +290,6 @@ class _HomeState extends State<Home> {
                       : Container()
                 ],
               ),
-              _distrito
-                  ? SizedBox(
-                      height: 22,
-                    )
-                  : Container(),
               _distrito
                   ? StreamBuilder(
                       stream: _controllerIgrejas.stream,
