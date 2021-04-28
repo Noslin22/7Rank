@@ -89398,7 +89398,7 @@ o=T.b0(H.a([p,o],n),C.r,C.o,C.m)
 p=T.a_(i,10,i)
 m=T.bk(D.dt(L.N("Rank",i,i,i,A.aF(i,i,C.k,i,i,i,i,i,i,i,i,i,i,i,i,i,!0,i,i,i,i,i,i),i,i),C.H,i,new D.apB(j,b),new V.ah(10,10,10,10)),3)
 l=j.ch
-k=l?T.a_(i,i,15):M.a8(i,i,C.h,i,i,i,i,i,i,i,i,i,i)
+k=l?T.a_(i,i,20):M.a8(i,i,C.h,i,i,i,i,i,i,i,i,i,i)
 m=T.b0(H.a([m,k,l?T.bk(D.dt(L.N("Listar",i,i,i,A.aF(i,i,C.k,i,i,i,i,i,i,i,i,i,i,i,i,i,!0,i,i,i,i,i,i),i,i),C.H,i,new D.apC(j),new V.ah(10,10,10,10)),2):M.a8(i,i,C.h,i,i,i,i,i,i,i,i,i,i)],n),C.r,C.o,C.m)
 if(j.ch){l=j.e
 r=B.ia(new D.apD(j),new P.bN(l,H.C(l).j("bN<1>")),r)}else r=M.a8(i,new U.zD(M.aUd(i,i,new L.xN("assets/logo_app.png",i,i)),i),C.h,i,new S.aK(0,500,0,444),i,i,i,i,i,i,i,i)
