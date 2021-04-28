@@ -731,53 +731,62 @@ class _DinheiroState extends State<Dinheiro> {
                         ),
                         Row(
                           children: [
-                            RaisedButton(
-                              onPressed: () {
-                                setState(() {
-                                  protocolo.add([cod, igrejas[cod], total]);
-                                  widget.cache.set("protocolo", protocolo);
-                                });
-                              },
-                              child: Text(
-                                "Gravar",
-                                style: TextStyle(color: Colors.white),
+                            Expanded(
+                              flex: 1,
+                              child: RaisedButton(
+                                onPressed: () {
+                                  setState(() {
+                                    protocolo.add([cod, igrejas[cod], total]);
+                                    widget.cache.set("protocolo", protocolo);
+                                  });
+                                },
+                                child: Text(
+                                  "Gravar",
+                                  style: TextStyle(color: Colors.white),
+                                ),
+                                color: Colors.deepOrange,
                               ),
-                              color: Colors.deepOrange,
                             ),
                             Spacer(),
-                            RaisedButton(
-                              onPressed: () {
-                                Printing.layoutPdf(
-                                  name: 'Malote',
-                                  onLayout: (format) {
-                                    return buildPdfMalote(datas);
-                                  },
-                                );
-                              },
-                              child: Text(
-                                "Malote",
-                                style: TextStyle(color: Colors.white),
+                            Expanded(
+                              flex: 1,
+                              child: RaisedButton(
+                                onPressed: () {
+                                  Printing.layoutPdf(
+                                    name: 'Malote',
+                                    onLayout: (format) {
+                                      return buildPdfMalote(datas);
+                                    },
+                                  );
+                                },
+                                child: Text(
+                                  "Malote",
+                                  style: TextStyle(color: Colors.white),
+                                ),
+                                color: Colors.indigo,
                               ),
-                              color: Colors.indigo,
                             ),
                             Spacer(),
-                            RaisedButton(
-                              onPressed: () {
-                                Printing.layoutPdf(
-                                  name: 'Protocolo Caixa',
-                                  onLayout: (format) {
-                                    return buildPdfDistrito(
-                                      protocolos: protocolo,
-                                      protocolo: true,
-                                    );
-                                  },
-                                );
-                              },
-                              child: Text(
-                                "Imprimir",
-                                style: TextStyle(color: Colors.white),
+                            Expanded(
+                              flex: 1,
+                              child: RaisedButton(
+                                onPressed: () {
+                                  Printing.layoutPdf(
+                                    name: 'Protocolo Caixa',
+                                    onLayout: (format) {
+                                      return buildPdfDistrito(
+                                        protocolos: protocolo,
+                                        protocolo: true,
+                                      );
+                                    },
+                                  );
+                                },
+                                child: Text(
+                                  "Imprimir",
+                                  style: TextStyle(color: Colors.white),
+                                ),
+                                color: Colors.lightGreen,
                               ),
-                              color: Colors.lightGreen,
                             ),
                           ],
                         ),
