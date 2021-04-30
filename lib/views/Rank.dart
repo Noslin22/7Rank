@@ -28,6 +28,7 @@ class _RankState extends State<Rank> {
   List<Distrito> distritos = [];
   bool _print = false;
   int _total = 0;
+  int total = 0;
 
   pdf({bool rank = true}) {
     return rank
@@ -37,7 +38,7 @@ class _RankState extends State<Rank> {
             : null;
   }
 
-  Stream<QuerySnapshot> _rank() {
+  Future<Stream<QuerySnapshot>> _rank() async {
     Stream<QuerySnapshot> distritos = db
         .collection("distritos")
         .orderBy("faltam")
@@ -59,6 +60,12 @@ class _RankState extends State<Rank> {
           element['nome'],
           element['distrito'],
         ));
+      });
+    });
+
+    await db.collection("igrejas").get().then((value) {
+      setState(() {
+        total = value.docs.length;
       });
     });
 
@@ -268,7 +275,7 @@ class _RankState extends State<Rank> {
                     height: 30,
                     child: Center(
                       child: Text(
-                        "Total:   $_total",
+                        "Total:  $_total  de  $total",
                         style: TextStyle(fontSize: 20, color: Colors.white),
                       ),
                     ),

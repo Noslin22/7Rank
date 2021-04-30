@@ -1,89 +1,138 @@
-import 'dart:math';
 import 'dart:typed_data';
+import 'package:flutter/services.dart';
 import 'package:pdf/pdf.dart';
-import 'package:pdf/widgets.dart' as pw;
+import 'package:pdf/widgets.dart';
 import 'package:remessa/models/widgets/consts.dart';
 
 final baseColor = PdfColors.blue;
 final List<String> headers = ['Ord.', 'Distrito', 'Cod.', 'Igreja', 'Ass.'];
 
-class Igreja {
-  const Igreja(this.nome, this.cod, this.distrito, this.ordem, this.ass);
-
-  final String ordem;
-  final String distrito;
-  final String cod;
-  final String nome;
-  final String ass;
-
-  String getIndex(int index) {
-    switch (index) {
-      case 0:
-        return ordem;
-      case 1:
-        return distrito;
-      case 2:
-        return cod;
-      case 3:
-        return nome;
-      case 4:
-        return ass;
-    }
-    return '';
-  }
-}
-
-Future<Uint8List> generatePdf(PdfPageFormat format, String title) async {
-  final pdf = pw.Document();
-  List<Igreja> igrejas = [];
-  db.collection('igrejas').orderBy('nome').get().then(
+Future<Uint8List> generateLicaoPdf(PdfPageFormat format, String title) async {
+  final pdf = Document();
+  final baseColor = PdfColors.blue;
+  const _darkColor = PdfColors.blueGrey800;
+  PdfColor _baseTextColor = PdfColors.white;
+  ByteData image = await rootBundle.load("assets/Ess_logo.png");
+  List<List<String>> igrejas = [];
+  await db.collection('igrejas').orderBy('distrito').orderBy("nome").get().then(
     (value) {
-      value.docs.forEach(
-        (element) {
-          igrejas.add(
-            Igreja(
-                element['nome'],
-                Random().nextInt(520).toString(),
-                element['distrito'],
-                Random().nextInt(520).toString(),
-                '__________________'),
-          );
-          print(igrejas);
-        },
-      );
+      String distrito = "Alagoinhas";
+      int ord = 1;
+      for (var element in value.docs) {
+        if (distrito != element["distrito"]) {
+          distrito = element["distrito"];
+          ord = 1;
+        }
+        if (ord == 1 && distrito != "Alagoinhas") {
+          igrejas.add(["", "", "", "", ""]);
+        }
+        igrejas.add([
+          ord.toString(),
+          element["distrito"],
+          element["cod"],
+          element["nome"],
+          ""
+        ]);
+        ord++;
+      }
     },
   );
 
-  List<List<String>> list = [];
-  for (int i = 0; i < 10; i++) {
-    list.add(['Ordem $i', 'Distrito $i', 'Cod $i', 'Nome $i', '_____________________']);
-  }
-
   pdf.addPage(
-    pw.MultiPage(
+    MultiPage(
       pageFormat: format,
-      footer: (pw.Context context) {
-        return pw.Container(
-            alignment: pw.Alignment.centerRight,
-            margin: const pw.EdgeInsets.only(top: 1.0 * PdfPageFormat.cm),
-            child: pw.Text('Página ${context.pageNumber}/${context.pagesCount}',
-                style: pw.Theme.of(context)
-                    .defaultTextStyle
-                    .copyWith(color: PdfColors.grey)));
+      footer: (Context context) {
+        return Container(
+          alignment: Alignment.centerRight,
+          margin: const EdgeInsets.only(top: 1.0 * PdfPageFormat.cm),
+          child: Text(
+            'Página ${context.pageNumber}/${context.pagesCount}',
+            style: Theme.of(context).defaultTextStyle.copyWith(
+                  color: PdfColors.grey,
+                ),
+          ),
+        );
       },
       build: (context) {
         return [
-          pw.ListView.builder(
-              itemBuilder: (context, index) {
-                return pw.Row(children: [
-                  pw.Text(list[index][0]),
-                  pw.Text(list[index][1]),
-                  pw.Text(list[index][2]),
-                  pw.Text(list[index][3]),
-                  pw.Text(list[index][4]),
-                ], mainAxisAlignment: pw.MainAxisAlignment.spaceAround);
-              },
-              itemCount: list.length)
+          Container(
+            width: format.availableWidth,
+            height: format.availableHeight - 50,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: <Widget>[
+                Center(
+                  child: Text(
+                    title,
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 32,
+                    ),
+                  ),
+                ),
+                Image(
+                  ImageProxy(
+                    PdfImage.file(
+                      pdf.document,
+                      bytes: image.buffer.asUint8List(),
+                    ),
+                  ),
+                ),
+                Center(
+                  child: Text(
+                    "Lição Escola Sabatina",
+                    style: TextStyle(
+                      fontSize: 26,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Table.fromTextArray(
+            border: null,
+            cellAlignments: {
+              0: Alignment.centerLeft,
+              1: Alignment.centerLeft,
+              2: Alignment.center,
+              3: Alignment.centerLeft,
+              4: Alignment.centerRight,
+            },
+            headerDecoration: BoxDecoration(
+              borderRadius: const BorderRadius.all(Radius.circular(2)),
+              color: baseColor,
+            ),
+            headerHeight: 16,
+            cellHeight: 11,
+            cellPadding: EdgeInsets.all(1),
+            oddRowDecoration: BoxDecoration(color: PdfColors.grey400),
+            headerAlignments: {
+              0: Alignment.centerLeft,
+              1: Alignment.centerLeft,
+              2: Alignment.center,
+              3: Alignment.centerLeft,
+              4: Alignment.centerRight,
+            },
+            headerStyle: TextStyle(
+              color: _baseTextColor,
+              fontSize: 12,
+              fontWeight: FontWeight.bold,
+            ),
+            cellStyle: const TextStyle(
+              color: _darkColor,
+              fontSize: 10,
+            ),
+            rowDecoration: BoxDecoration(
+              border: Border(
+                bottom: BorderSide(
+                  color: PdfColors.blueGrey900,
+                  width: .5,
+                ),
+              ),
+            ),
+            headers: headers,
+            data: igrejas,
+          ),
         ];
       },
     ),
