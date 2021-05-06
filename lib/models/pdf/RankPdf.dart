@@ -1,32 +1,42 @@
 import 'dart:typed_data';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
+import 'package:remessa/models/widgets/consts.dart';
 
-class Distrito {
-  const Distrito(
-    this.nome,
+class Distrito implements Comparable<Distrito> {
+  Distrito({
+    this.id,
     this.pastor,
     this.faltam,
     this.data,
-  );
+  });
 
-  final String nome;
-  final String faltam;
-  final String data;
+  final String id;
+  final int faltam;
   final String pastor;
+  String data;
 
   String getIndex(int index) {
     switch (index) {
       case 0:
-        return nome;
+        return id;
       case 1:
-        return faltam;
+        return faltam.toString();
       case 2:
         return data;
       case 3:
         return pastor;
     }
     return '';
+  }
+
+  @override
+  int compareTo(Distrito other) {
+    DateTime adate = currentDate(date: other.data);
+    DateTime bdate = currentDate(date: other.data);
+    return this.faltam == 0
+        ? adate.compareTo(bdate)
+        : this.faltam.compareTo(other.faltam);
   }
 }
 
@@ -139,6 +149,11 @@ Future<Uint8List> buildPdf(
   final List<String> headers = simples
       ? ['Distrito', 'Faltam', 'Data']
       : ['Distrito', 'Faltam', 'Data', 'Pastor'];
+  for (var distrito in distritos) {
+    if (distrito.faltam != 0) {
+      distrito.data = "Falta";
+    }
+  }
 
   PdfPageFormat format;
   doc.addPage(

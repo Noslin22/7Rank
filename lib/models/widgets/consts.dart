@@ -37,9 +37,8 @@ final navigatorKey = GlobalKey<NavigatorState>();
 
 currentDate({String date, bool dateTime = true, bool dataAtual = false}) {
   List _listaData = date != null ? date.split("/").toList() : null;
-  String _dataFormatada = _listaData != null
-      ? "${_listaData[2]}-${_listaData[1]}-${_listaData[0]}"
-      : null;
+  String _dataFormatada =
+      _listaData != null ? _listaData.reversed.join("-") : null;
   DateTime _dateTime =
       _dataFormatada != null ? DateTime.parse(_dataFormatada) : null;
   String _dataPronta =

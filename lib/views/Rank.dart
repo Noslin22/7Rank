@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:pdf/pdf.dart';
 import 'package:printing/printing.dart';
@@ -195,22 +196,21 @@ class _RankState extends State<Rank> {
               if (_buildFeita == false) {
                 for (var i = 0; i < querySnapshot.docs.length; i++) {
                   _total += querySnapshot.docs[i]["faltam"];
-                  distritos.add(
-                    Distrito(
-                      querySnapshot.docs[i].id,
-                      querySnapshot.docs[i]["pastor"],
-                      querySnapshot.docs[i]["faltam"].toString(),
-                      querySnapshot.docs[i]["faltam"] == 0
-                          ? querySnapshot.docs[i]["data"]
-                          : 'Falta',
-                    ),
-                  );
                   if (i == querySnapshot.docs.length - 1) {
                     _buildFeita = true;
                   }
                 }
+                Future.wait(querySnapshot.docs.map((e) async {
+                  distritos.add(
+                    Distrito(
+                      id: e.id,
+                      pastor: e["pastor"],
+                      faltam: e["faltam"],
+                      data: DateFormat("dd/MM/yyyy").format(e["data"].toDate()),
+                    ),
+                  );
+                }));
               }
-
               return Column(
                 children: [
                   Expanded(
@@ -218,10 +218,8 @@ class _RankState extends State<Rank> {
                       shrinkWrap: true,
                       itemCount: querySnapshot.docs.length,
                       itemBuilder: (context, index) {
-                        List<DocumentSnapshot> distritos =
-                            querySnapshot.docs.toList();
-                        DocumentSnapshot documentSnapshot = distritos[index];
-                        String data = documentSnapshot['data'];
+                        Distrito distrito = distritos[index];
+                        String data = distrito.data;
                         return Container(
                           padding:
                               _print ? EdgeInsets.all(0) : EdgeInsets.all(10),
@@ -232,14 +230,14 @@ class _RankState extends State<Rank> {
                             children: [
                               Expanded(
                                 child: Text(
-                                  documentSnapshot.id,
+                                  distrito.id,
                                   style: TextStyle(fontSize: _print ? 10 : 16),
                                 ),
                               ),
                               !_simples
                                   ? Expanded(
                                       child: Text(
-                                        documentSnapshot["pastor"],
+                                        distrito.pastor,
                                         style: TextStyle(
                                             fontSize: _print ? 10 : 16),
                                       ),
@@ -248,11 +246,11 @@ class _RankState extends State<Rank> {
                               Align(
                                 alignment: FractionalOffset.centerRight,
                                 child: Text(
-                                  documentSnapshot["faltam"].toString(),
+                                  distrito.faltam.toString(),
                                   style: TextStyle(fontSize: _print ? 10 : 16),
                                 ),
                               ),
-                              documentSnapshot["faltam"].toString() == "0"
+                              distrito.faltam.toString() == "0"
                                   ? Align(
                                       alignment: FractionalOffset.centerRight,
                                       child: Padding(
