@@ -1,11 +1,12 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:intl/intl.dart';
 import 'package:remessa/models/widgets/consts.dart';
 
 class IgrejaFB {
   bool marcado = false;
   String distrito;
   String nome;
-  String data;
+  Timestamp data;
   String id;
   int faltam;
 
@@ -14,7 +15,9 @@ class IgrejaFB {
   IgrejaFB.toCheckBoxModel(DocumentSnapshot documentSnapshot) {
     this.nome = documentSnapshot["nome"];
     this.marcado = documentSnapshot["marcado"];
-    this.data = documentSnapshot["data"];
+    this.data = documentSnapshot["data"] != null
+        ? Timestamp.fromDate(currentDate(date: documentSnapshot["data"]))
+        : null;
     this.distrito = documentSnapshot["distrito"];
     this.id = documentSnapshot.id;
   }
@@ -23,22 +26,25 @@ class IgrejaFB {
     db.collection("igrejas").doc(item.id).update({
       "marcado": campo == "data" ? true : item.marcado,
       "data": campo == "data"
-          ? item.data
+          ? DateFormat("dd/MM/yyyy").format(item.data.toDate())
           : item.marcado
               ? currentDate(dataAtual: true)
               : null,
     });
     db.collection('distritos').doc(item.distrito).get().then((value) {
-      String dataDb = value.data()['data'];
+      Timestamp dataDb = value.get("data");
       if (dataDb == null ||
           item.data == null ||
-          int.parse(dataDb.split('/')[0]) <
-              int.parse(item.data.split('/')[0])) {
+          dataDb.toDate().isBefore(item.data.toDate())) {
         db.collection('distritos').doc(item.distrito).update({
           "data": campo == "data"
               ? item.data
               : item.marcado
-                  ? currentDate(dataAtual: true)
+                  ? Timestamp.fromDate(
+                      DateTime.parse(
+                        DateFormat("yyyy-MM-dd").format(DateTime.now()),
+                      ),
+                    )
                   : null,
         });
       }

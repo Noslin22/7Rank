@@ -19,8 +19,8 @@ class CheckBoxTile extends StatefulWidget {
 class _CheckboxTileState extends State<CheckBoxTile> {
   @override
   Widget build(BuildContext context) {
-    String _dataPronta = currentDate(date: widget.item.data, dateTime: false);
-    DateTime _dateTime = currentDate(date: widget.item.data);
+    Timestamp _timestamp = widget.item.data;
+    DateTime _dateTime = widget.item.data != null ? widget.item.data.toDate() : null;
     Future<void> _selectDate(BuildContext context) async {
       final DateTime picked = await showDatePicker(
         context: context,
@@ -31,11 +31,11 @@ class _CheckboxTileState extends State<CheckBoxTile> {
       if (picked != null && picked != _dateTime) {
         setState(() {
           _dateTime = picked;
-          _dataPronta = DateFormat("dd/MM/yyyy").format(_dateTime);
-          widget.item.data = _dataPronta != null
-              ? _dataPronta
+          _timestamp = Timestamp.fromDate(_dateTime);
+          widget.item.data = _timestamp != null
+              ? _timestamp
               : _dateTime != null
-                  ? DateFormat("dd/MM/yyyy").format(_dateTime)
+                  ? Timestamp.fromDate(_dateTime)
                   : null;
         });
         IgrejaFB.save("data", widget.item);
@@ -119,7 +119,10 @@ class _CheckboxTileState extends State<CheckBoxTile> {
                           );
                         }
                       : null,
-                  child: Text(widget.item.data == null ? "" : widget.item.data),
+                  child: Text(widget.item.data == null
+                      ? ""
+                      : DateFormat("dd/MM/yyyy")
+                          .format(widget.item.data.toDate())),
                 ),
               ),
             ),
