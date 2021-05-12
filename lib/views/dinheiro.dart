@@ -255,7 +255,7 @@ class _DinheiroState extends State<Dinheiro> {
                     ),
                   ],
                 ),
-                RaisedButton(
+                TextButton(
                   onPressed: () {
                     _clearForm();
                     widget.cache.get("protocolo").clear();
@@ -268,7 +268,19 @@ class _DinheiroState extends State<Dinheiro> {
                     "Novo Protocolo",
                     style: TextStyle(color: Colors.white),
                   ),
-                  color: Colors.yellow[700],
+                  style: ButtonStyle(
+                    backgroundColor: MaterialStateProperty.resolveWith(
+                      (states) {
+                        if (states.contains(MaterialState.pressed)) {
+                          return Colors.yellow[700].withOpacity(0.7);
+                        }
+                        return Colors.yellow[700];
+                      },
+                    ),
+                    padding: MaterialStateProperty.all(
+                      EdgeInsets.all(10),
+                    ),
+                  ),
                 ),
               ],
             ),
@@ -733,7 +745,7 @@ class _DinheiroState extends State<Dinheiro> {
                           children: [
                             Expanded(
                               flex: 1,
-                              child: RaisedButton(
+                              child: TextButton(
                                 onPressed: () {
                                   setState(() {
                                     protocolo.add([cod, igrejas[cod], total]);
@@ -744,13 +756,28 @@ class _DinheiroState extends State<Dinheiro> {
                                   "Gravar",
                                   style: TextStyle(color: Colors.white),
                                 ),
-                                color: Colors.deepOrange,
+                                style: ButtonStyle(
+                                  backgroundColor:
+                                      MaterialStateProperty.resolveWith(
+                                    (states) {
+                                      if (states
+                                          .contains(MaterialState.pressed)) {
+                                        return Colors.deepOrange
+                                            .withOpacity(0.7);
+                                      }
+                                      return Colors.deepOrange;
+                                    },
+                                  ),
+                                  padding: MaterialStateProperty.all(
+                                    EdgeInsets.all(10),
+                                  ),
+                                ),
                               ),
                             ),
                             Spacer(),
                             Expanded(
                               flex: 1,
-                              child: RaisedButton(
+                              child: TextButton(
                                 onPressed: () {
                                   Printing.layoutPdf(
                                     name: 'Malote',
@@ -763,13 +790,27 @@ class _DinheiroState extends State<Dinheiro> {
                                   "Malote",
                                   style: TextStyle(color: Colors.white),
                                 ),
-                                color: Colors.indigo,
+                                style: ButtonStyle(
+                                  backgroundColor:
+                                      MaterialStateProperty.resolveWith(
+                                    (states) {
+                                      if (states
+                                          .contains(MaterialState.pressed)) {
+                                        return Colors.indigo.withOpacity(0.7);
+                                      }
+                                      return Colors.indigo;
+                                    },
+                                  ),
+                                  padding: MaterialStateProperty.all(
+                                    EdgeInsets.all(10),
+                                  ),
+                                ),
                               ),
                             ),
                             Spacer(),
                             Expanded(
                               flex: 1,
-                              child: RaisedButton(
+                              child: TextButton(
                                 onPressed: () {
                                   Printing.layoutPdf(
                                     name: 'Protocolo Caixa',
@@ -785,7 +826,22 @@ class _DinheiroState extends State<Dinheiro> {
                                   "Imprimir",
                                   style: TextStyle(color: Colors.white),
                                 ),
-                                color: Colors.lightGreen,
+                                style: ButtonStyle(
+                                  backgroundColor:
+                                      MaterialStateProperty.resolveWith(
+                                    (states) {
+                                      if (states
+                                          .contains(MaterialState.pressed)) {
+                                        return Colors.lightGreen
+                                            .withOpacity(0.7);
+                                      }
+                                      return Colors.lightGreen;
+                                    },
+                                  ),
+                                  padding: MaterialStateProperty.all(
+                                    EdgeInsets.all(10),
+                                  ),
+                                ),
                               ),
                             ),
                           ],

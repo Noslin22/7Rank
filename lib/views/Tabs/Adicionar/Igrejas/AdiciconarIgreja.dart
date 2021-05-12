@@ -12,6 +12,7 @@ class _AdicionarIgrejaState extends State<AdicionarIgreja> {
   final _controllerDistrito = StreamController.broadcast();
   final _formKey = GlobalKey<FormState>();
   String nome;
+  String cod;
   String matricula;
   String contrato;
   String distrito;
@@ -44,6 +45,21 @@ class _AdicionarIgrejaState extends State<AdicionarIgreja> {
               Container(
                 child: Column(
                   children: [
+                    SizedBox(
+                      height: 20,
+                    ),
+                    TextFormField(
+                      validator: (value) {
+                        if (value == null || value == '') {
+                          return "Digite o Código da Igreja";
+                        }
+                        return null;
+                      },
+                      onChanged: (newValue) {
+                        setState(() => cod = newValue);
+                      },
+                      decoration: inputDecoration.copyWith(labelText: "Código"),
+                    ),
                     SizedBox(
                       height: 20,
                     ),
@@ -151,6 +167,7 @@ class _AdicionarIgrejaState extends State<AdicionarIgreja> {
                           _formKey.currentState.validate()) {
                         _formKey.currentState.save();
                         db.collection("igrejas").add({
+                          'cod': nome,
                           'nome': nome,
                           'matricula': matricula,
                           'contrato': contrato,
