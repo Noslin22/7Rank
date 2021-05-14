@@ -9,8 +9,9 @@ class AdicionarDistrito extends StatefulWidget {
 
 class _AdicionarDistritoState extends State<AdicionarDistrito> {
   final _formKey = GlobalKey<FormState>();
-  String nomeDistrito;
+  String distrito;
   String pastor;
+  String regiao;
 
   @override
   void initState() {
@@ -40,7 +41,7 @@ class _AdicionarDistritoState extends State<AdicionarDistrito> {
                       return null;
                     },
                     onChanged: (newValue) {
-                      setState(() => nomeDistrito = newValue);
+                      setState(() => distrito = newValue);
                     },
                     decoration: inputDecoration.copyWith(labelText: "Distrito"),
                   ),
@@ -59,6 +60,21 @@ class _AdicionarDistritoState extends State<AdicionarDistrito> {
                     },
                     decoration: inputDecoration.copyWith(labelText: "Pastor"),
                   ),
+                  SizedBox(
+                    height: 20,
+                  ),
+                  TextFormField(
+                    validator: (value) {
+                      if (value == null || value == '') {
+                        return "Digite a Região";
+                      }
+                      return null;
+                    },
+                    onChanged: (newValue) {
+                      setState(() => regiao = newValue);
+                    },
+                    decoration: inputDecoration.copyWith(labelText: "Região"),
+                  ),
                 ],
               ),
             ),
@@ -73,13 +89,14 @@ class _AdicionarDistritoState extends State<AdicionarDistrito> {
                     if (_formKey.currentState != null &&
                         _formKey.currentState.validate()) {
                       _formKey.currentState.save();
-                      db
-                          .collection("distritos")
-                          .doc(nomeDistrito)
-                          .set({"faltam": 0, "pastor": pastor});
+                      db.collection("distritos").doc(distrito).set({
+                        "faltam": 0,
+                        "pastor": pastor,
+                        "regiao": regiao,
+                      });
                       var snackbar = SnackBar(
                           content: Text(
-                              "${"Distrito $nomeDistrito foi adicionado com sucesso"}"));
+                              "${"Distrito $distrito foi adicionado com sucesso"}"));
                       Scaffold.of(context).showSnackBar(snackbar);
                       Timer(Duration(seconds: 6), () {
                         Navigator.pushReplacementNamed(context, 'home');

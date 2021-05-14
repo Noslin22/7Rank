@@ -9,11 +9,15 @@ class AtualizarDistrito extends StatefulWidget {
 }
 
 class _AtualizarDistritoState extends State<AtualizarDistrito> {
+  TextEditingController _controllerDistrito = TextEditingController();
+  TextEditingController _controllerPastor = TextEditingController();
+  TextEditingController _controllerRegiao = TextEditingController();
   final _controllerDistritos = StreamController.broadcast();
   final _formKey = GlobalKey<FormState>();
   String antigoDistrito;
   String novoDistrito;
   String pastor;
+  String regiao;
 
   @override
   void initState() {
@@ -26,6 +30,14 @@ class _AtualizarDistritoState extends State<AtualizarDistrito> {
 
     distritos.listen((event) {
       _controllerDistritos.add(event);
+    });
+  }
+
+  void getDistrito() {
+    db.collection("distritos").doc(antigoDistrito).get().then((value) {
+      _controllerDistrito.text = value.id;
+      _controllerPastor.text = value.get("pastor");
+      _controllerRegiao.text = value.get("regiao");
     });
   }
 
@@ -71,6 +83,7 @@ class _AtualizarDistritoState extends State<AtualizarDistrito> {
                             onChanged: (value) {
                               setState(() {
                                 antigoDistrito = value;
+                                getDistrito();
                               });
                             },
                             hint: Text("Distritos"),
@@ -93,6 +106,7 @@ class _AtualizarDistritoState extends State<AtualizarDistrito> {
                     height: 20,
                   ),
                   TextFormField(
+                    controller: _controllerDistrito,
                     validator: (value) {
                       if (value == null || value == '') {
                         return "Digite o novo Distrito";
@@ -108,6 +122,7 @@ class _AtualizarDistritoState extends State<AtualizarDistrito> {
                     height: 20,
                   ),
                   TextFormField(
+                    controller: _controllerPastor,
                     validator: (value) {
                       if (value == null || value == '') {
                         return "Digite o Nome do Pastor";
@@ -118,6 +133,22 @@ class _AtualizarDistritoState extends State<AtualizarDistrito> {
                       setState(() => pastor = newValue);
                     },
                     decoration: inputDecoration.copyWith(labelText: "Pastor"),
+                  ),
+                  SizedBox(
+                    height: 20,
+                  ),
+                  TextFormField(
+                    controller: _controllerRegiao,
+                    validator: (value) {
+                      if (value == null || value == '') {
+                        return "Digite a Região";
+                      }
+                      return null;
+                    },
+                    onChanged: (newValue) {
+                      setState(() => regiao = newValue);
+                    },
+                    decoration: inputDecoration.copyWith(labelText: "Região"),
                   ),
                 ],
               ),
@@ -134,10 +165,11 @@ class _AtualizarDistritoState extends State<AtualizarDistrito> {
                         _formKey.currentState.validate()) {
                       _formKey.currentState.save();
                       db.collection("distritos").doc(antigoDistrito).delete();
-                      db
-                          .collection("distritos")
-                          .doc(novoDistrito)
-                          .update({"faltam": 0, "pastor": pastor});
+                      db.collection("distritos").doc(novoDistrito).set({
+                        "faltam": 0,
+                        "pastor": pastor,
+                        "regiao": regiao,
+                      });
                       var snackbar = SnackBar(
                           content: Text(
                               "${"Distrito $novoDistrito foi atualizado com sucesso"}"));

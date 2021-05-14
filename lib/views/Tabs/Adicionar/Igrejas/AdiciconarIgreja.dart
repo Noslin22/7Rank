@@ -108,7 +108,7 @@ class _AdicionarIgrejaState extends State<AdicionarIgreja> {
                                   distrito = value;
                                 });
                               },
-                              hint: Text("Igrejas"),
+                              hint: Text("Distritos"),
                               onSaved: (newValue) {},
                               items: distritos,
                               value: distrito,
@@ -167,10 +167,10 @@ class _AdicionarIgrejaState extends State<AdicionarIgreja> {
                           _formKey.currentState.validate()) {
                         _formKey.currentState.save();
                         db.collection("igrejas").add({
-                          'cod': nome,
+                          'cod': int.parse(cod),
                           'nome': nome,
-                          'matricula': matricula,
-                          'contrato': contrato,
+                          'matricula': int.parse(matricula),
+                          'contrato': int.parse(contrato),
                           'distrito': distrito,
                           'data': null,
                           'marcado': false,

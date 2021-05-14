@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:remessa/models/widgets/consts.dart';
 
 class DeletarIgreja extends StatefulWidget {
@@ -9,27 +10,27 @@ class DeletarIgreja extends StatefulWidget {
 }
 
 class _DeletarIgrejaState extends State<DeletarIgreja> {
-  final _controllerIgrejas = StreamController.broadcast();
+  TextEditingController _controllerCod = TextEditingController();
   final _formKey = GlobalKey<FormState>();
-  String antigaIgreja;
+  List<String> igrejas = [];
+  String igreja = "";
 
-  getData() {
-    Stream<QuerySnapshot> igrejas =
-        db.collection("igrejas").orderBy('nome').snapshots();
-
-    igrejas.listen((event) {
-      _controllerIgrejas.add(event);
+  void getIgrejas() {
+    db.collection("igrejas").orderBy("cod").get().then((value) {
+      List<String> values = value.docs
+          .map((e) => "${e["cod"].toString()} - ${e["nome"].toString()}");
+      igrejas.addAll(values);
     });
   }
 
   @override
   void initState() {
     super.initState();
+    getIgrejas();
   }
 
   @override
   Widget build(BuildContext context) {
-    getData();
     return Container(
       padding: EdgeInsets.all(10),
       child: Form(
@@ -37,55 +38,24 @@ class _DeletarIgrejaState extends State<DeletarIgreja> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Container(
-              child: Column(
-                children: [
-                  SizedBox(
-                    height: 20,
-                  ),
-                  StreamBuilder(
-                      stream: _controllerIgrejas.stream,
-                      builder: (context, snapshot) {
-                        if (snapshot.hasData) {
-                          List<DropdownMenuItem> igrejas = [
-                            DropdownMenuItem(
-                              child: Text(
-                                "Igreja",
-                              ),
-                            ),
-                          ];
-                          for (var i = 0; i < snapshot.data.docs.length; i++) {
-                            igrejas.add(
-                              DropdownMenuItem(
-                                value: snapshot.data.docs[i]['nome'],
-                                child: Text(
-                                  snapshot.data.docs[i]['nome'],
-                                ),
-                              ),
-                            );
-                          }
-                          return DropdownButtonFormField(
-                            decoration: inputDecoration,
-                            onChanged: (value) {
-                              setState(() {
-                                antigaIgreja = value;
-                              });
-                            },
-                            hint: Text("Igrejas"),
-                            onSaved: (newValue) {},
-                            items: igrejas,
-                            value: antigaIgreja,
-                            validator: (value) {
-                              if (value == null) {
-                                return "Escolha alguma igreja";
-                              }
-                              return null;
-                            },
-                          );
-                        }
-                        return Container();
-                      }),
-                ],
+            SizedBox(
+              height: 20,
+            ),
+            TypeAheadField<String>(
+              textFieldConfiguration: TextFieldConfiguration(
+                controller: _controllerCod,
+                decoration: inputDecoration.copyWith(labelText: "Código"),
+              ),
+              debounceDuration: Duration(milliseconds: 600),
+              suggestionsCallback: (pattern) {
+                return igrejas.where((element) =>
+                    element.toLowerCase().contains(pattern.toLowerCase()));
+              },
+              onSuggestionSelected: (suggestion) {
+                _controllerCod.text = suggestion.split(" ")[0];
+              },
+              itemBuilder: (context, itemData) => ListTile(
+                title: Text("$itemData"),
               ),
             ),
             SizedBox(
@@ -101,9 +71,13 @@ class _DeletarIgrejaState extends State<DeletarIgreja> {
                       _formKey.currentState.save();
                       db
                           .collection("igrejas")
-                          .where('nome', isEqualTo: antigaIgreja)
+                          .where('cod',
+                              isEqualTo: int.parse(_controllerCod.text))
                           .get()
                           .then((value) {
+                        setState(() {
+                          igreja = value.docs.first.data()["nome"];
+                        });
                         db
                             .collection('igrejas')
                             .doc(value.docs.first.id)
@@ -111,7 +85,7 @@ class _DeletarIgrejaState extends State<DeletarIgreja> {
                       });
                       var snackbar = SnackBar(
                           content: Text(
-                              "${"Igreja $antigaIgreja foi deletada com sucesso"}"));
+                              "${"Igreja $igreja foi deletada com sucesso"}"));
                       Scaffold.of(context).showSnackBar(snackbar);
                       Timer(Duration(seconds: 6), () {
                         Navigator.pushReplacementNamed(context, 'home');
