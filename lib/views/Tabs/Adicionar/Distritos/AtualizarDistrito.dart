@@ -171,8 +171,10 @@ class _AtualizarDistritoState extends State<AtualizarDistrito> {
                         "regiao": regiao,
                       });
                       var snackbar = SnackBar(
-                          content: Text(
-                              "${"Distrito $novoDistrito foi atualizado com sucesso"}"));
+                        content: Text(
+                          "Distrito $novoDistrito foi atualizado com sucesso",
+                        ),
+                      );
                       Scaffold.of(context).showSnackBar(snackbar);
                       Timer(Duration(seconds: 6), () {
                         Navigator.pushReplacementNamed(context, 'home');

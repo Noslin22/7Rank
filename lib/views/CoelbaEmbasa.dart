@@ -3,6 +3,7 @@ import 'package:autocomplete_textfield/autocomplete_textfield.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:remessa/models/widgets/consts.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -15,16 +16,15 @@ class CoelbaEmbasa extends StatefulWidget {
 
 class _CoelbaEmbasaState extends State<CoelbaEmbasa> {
   TextEditingController _controller = TextEditingController();
-  String valor = 'Igreja';
-  GlobalKey<AutoCompleteTextFieldState<String>> key =
-      new GlobalKey<AutoCompleteTextFieldState<String>>();
-  final _controllerIgrejas = StreamController.broadcast();
   final _controllerIgreja = StreamController.broadcast();
+  TextEditingController _controllerPesquisa = TextEditingController();
   final _controllerRank = StreamController.broadcast();
   final _formKey = GlobalKey<FormState>();
-  bool _coelba = true;
-  bool mostrar = false;
+  List<String> igrejas = [];
   bool mostrar2 = false;
+  bool mostrar = false;
+  bool _coelba = true;
+  String valor;
 
   save() {
     if (_formKey.currentState != null && _formKey.currentState.validate()) {
@@ -32,12 +32,11 @@ class _CoelbaEmbasaState extends State<CoelbaEmbasa> {
     }
   }
 
-  _igrejas() {
-    Stream<QuerySnapshot> igrejas =
-        db.collection("igrejas").orderBy('nome').snapshots();
-
-    igrejas.listen((event) {
-      _controllerIgrejas.add(event);
+  void getIgrejas() {
+    db.collection("igrejas").orderBy("cod").get().then((value) {
+      List<String> values = value.docs
+          .map((e) => "${e["cod"].toString()} - ${e["nome"].toString()}");
+      igrejas.addAll(values);
     });
   }
 
@@ -50,12 +49,33 @@ class _CoelbaEmbasaState extends State<CoelbaEmbasa> {
                 ? _controller.text
                 : i)
         .snapshots();
-    Stream<QuerySnapshot> igreja =
-        db.collection("igrejas").where('nome', isEqualTo: valor).snapshots();
 
     rank.listen((event) {
       _controllerRank.add(event);
     });
+
+    return null;
+  }
+
+  void _getIgreja(String cod) {
+    db
+        .collection("igrejas")
+        .where("cod", isEqualTo: int.parse(cod))
+        .get()
+        .then((value) {
+      QueryDocumentSnapshot values = value.docs.first;
+      setState(() {
+        valor = values["cod"].toString();
+      });
+    });
+  }
+
+  Stream<QuerySnapshot> _pegarIgreja() {
+    Stream<QuerySnapshot> igreja = db
+        .collection("igrejas")
+        .where('cod', isEqualTo: int.parse(valor))
+        .snapshots();
+
     igreja.listen((event) {
       _controllerIgreja.add(event);
     });
@@ -65,7 +85,7 @@ class _CoelbaEmbasaState extends State<CoelbaEmbasa> {
 
   @override
   void initState() {
-    _igrejas();
+    getIgrejas();
     super.initState();
   }
 
@@ -168,7 +188,7 @@ class _CoelbaEmbasaState extends State<CoelbaEmbasa> {
                 children: [
                   RaisedButton(
                     onPressed: () {
-                      _pegarDados();
+                      _pegarIgreja();
                       save();
                       setState(() {
                         mostrar2 = true;
@@ -184,56 +204,27 @@ class _CoelbaEmbasaState extends State<CoelbaEmbasa> {
                     width: 20,
                   ),
                   Expanded(
-                    child: StreamBuilder(
-                        stream: _controllerIgrejas.stream,
-                        builder: (context, snapshot) {
-                          if (snapshot.hasData) {
-                            List<DropdownMenuItem> distritos = [
-                              DropdownMenuItem(
-                                value: 'Igreja',
-                                child: Text(
-                                  "Igreja",
-                                ),
-                              ),
-                            ];
-                            for (var i = 0;
-                                i < snapshot.data.docs.length;
-                                i++) {
-                              distritos.add(
-                                DropdownMenuItem(
-                                  value: snapshot.data.docs[i]["nome"],
-                                  child: Text(
-                                    snapshot.data.docs[i]["nome"],
-                                  ),
-                                ),
-                              );
-                            }
-                            return DropdownButtonFormField(
-                              validator: (value) {
-                                if (value == '' || value == null) {
-                                  return 'Selecione uma Igreja';
-                                }
-                                return null;
-                              },
-                              icon: Container(),
-                              decoration: inputDecoration,
-                              onChanged: (value) {
-                                setState(() {
-                                  valor = value;
-                                });
-                              },
-                              hint: Text("Igreja"),
-                              onSaved: (newValue) {
-                                setState(() {
-                                  valor = newValue;
-                                });
-                              },
-                              items: distritos,
-                              value: valor,
-                            );
-                          }
-                          return Container();
-                        }),
+                    child: TypeAheadField<String>(
+                      textFieldConfiguration: TextFieldConfiguration(
+                        controller: _controllerPesquisa,
+                        textAlign: TextAlign.end,
+                        decoration:
+                            inputDecoration.copyWith(labelText: "Igreja"),
+                      ),
+                      debounceDuration: Duration(milliseconds: 600),
+                      suggestionsCallback: (pattern) {
+                        return igrejas.where((element) => element
+                            .toLowerCase()
+                            .contains(pattern.toLowerCase()));
+                      },
+                      onSuggestionSelected: (suggestion) {
+                        _controllerPesquisa.text = suggestion;
+                        _getIgreja(suggestion.split(" ")[0]);
+                      },
+                      itemBuilder: (context, itemData) => ListTile(
+                        title: Text("$itemData"),
+                      ),
+                    ),
                   )
                 ],
               ),
@@ -295,7 +286,7 @@ class _CoelbaEmbasaState extends State<CoelbaEmbasa> {
                   : Container(),
               mostrar2
                   ? StreamBuilder(
-                      stream: _controllerIgrejas.stream,
+                      stream: _controllerIgreja.stream,
                       builder: (context, snapshot) {
                         if (snapshot.connectionState ==
                             ConnectionState.waiting) {
@@ -325,11 +316,11 @@ class _CoelbaEmbasaState extends State<CoelbaEmbasa> {
                                     ),
                                     ListTile(
                                       title: Text(
-                                          "Igreja: ${documentSnapshot["contrato"]}"),
+                                          "Contrato: ${documentSnapshot["contrato"].toString()}"),
                                     ),
                                     ListTile(
                                       title: Text(
-                                          "Igreja: ${documentSnapshot["matricula"]}"),
+                                          "Matricula: ${documentSnapshot["matricula"].toString()}"),
                                     ),
                                   ],
                                 );
