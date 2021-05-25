@@ -90,21 +90,27 @@ List<Widget> actions(String gerenciador, BuildContext context, String tela,
                   showDialog(
                     context: context,
                     builder: (context) {
+                      bool loading = false;
                       return AlertDialog(
                         title: Text(
                           "Escolha um distrito",
                           textAlign: TextAlign.center,
                         ),
-                        content: DropdownButtonFormField(
-                          onChanged: (value) {
-                            distritoEtiqueta = value;
-                          },
-                          onSaved: (value) {
-                            distritoEtiqueta = value;
-                          },
-                          hint: Text("Distritos"),
-                          items: distritos,
-                          value: distritoEtiqueta,
+                        content: Column(
+                          children: [
+                            DropdownButtonFormField(
+                              onChanged: (value) {
+                                distritoEtiqueta = value;
+                              },
+                              onSaved: (value) {
+                                distritoEtiqueta = value;
+                              },
+                              hint: Text("Distritos"),
+                              items: distritos,
+                              value: distritoEtiqueta,
+                            ),
+                            loading ? LinearProgressIndicator() : Container()
+                          ],
                         ),
                         actions: [
                           Row(
@@ -113,28 +119,36 @@ List<Widget> actions(String gerenciador, BuildContext context, String tela,
                             children: [
                               Expanded(
                                 flex: 1,
-                                child: TextButton(
-                                  style: TextButton.styleFrom(
-                                    backgroundColor: Colors.lightGreen,
-                                  ),
-                                  child: Text(
-                                    "Gerar",
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                    ),
-                                  ),
-                                  onPressed: () {
-                                    Printing.layoutPdf(
-                                      onLayout: (format) {
-                                        return buildPdfEtiqueta(
-                                          distritoEtiqueta,
-                                          currentDate(dataAtual: true)
-                                              .split("/")[2],
+                                child: StatefulBuilder(
+                                  builder: (context, setState) {
+                                    return TextButton(
+                                      style: TextButton.styleFrom(
+                                        backgroundColor: Colors.lightGreen,
+                                      ),
+                                      child: Text(
+                                        "Gerar",
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                      onPressed: () {
+                                        setState(() {
+                                          loading = true;
+                                        });
+                                        Printing.layoutPdf(
+                                          onLayout: (format) {
+                                            return buildPdfEtiqueta(
+                                              distritoEtiqueta,
+                                              currentDate(dataAtual: true)
+                                                  .split("/")[2],
+                                            );
+                                          },
                                         );
+                                        Navigator.of(context).pop();
+                                        distritoEtiqueta = "";
+                                        loading = false;
                                       },
                                     );
-                                    distritoEtiqueta = "";
-                                    Navigator.of(context).pop();
                                   },
                                 ),
                               ),

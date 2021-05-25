@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'package:autocomplete_textfield/autocomplete_textfield.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -15,22 +14,15 @@ class CoelbaEmbasa extends StatefulWidget {
 }
 
 class _CoelbaEmbasaState extends State<CoelbaEmbasa> {
-  TextEditingController _controller = TextEditingController();
-  final _controllerIgreja = StreamController.broadcast();
   TextEditingController _controllerPesquisa = TextEditingController();
-  final _controllerRank = StreamController.broadcast();
-  final _formKey = GlobalKey<FormState>();
+  StreamController _controllerIgreja = StreamController.broadcast();
+  StreamController _controllerRank = StreamController.broadcast();
+  TextEditingController _controller = TextEditingController();
   List<String> igrejas = [];
   bool mostrar2 = false;
   bool mostrar = false;
   bool _coelba = true;
   String valor;
-
-  save() {
-    if (_formKey.currentState != null && _formKey.currentState.validate()) {
-      _formKey.currentState.save();
-    }
-  }
 
   void getIgrejas() {
     db.collection("igrejas").orderBy("cod").get().then((value) {
@@ -99,262 +91,263 @@ class _CoelbaEmbasaState extends State<CoelbaEmbasa> {
       ),
       drawer: kIsWeb ? null : drawer(widget.gerenciador, context, 'coelba'),
       body: SingleChildScrollView(
-          child: Form(
-        key: _formKey,
-        child: Container(
-          padding: EdgeInsets.all(10),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  FlatButton(
-                    onPressed: () {
-                      setState(() {
-                        _coelba = true;
-                        mostrar = false;
-                      });
-                    },
-                    child: Column(
-                      children: [
-                        Icon(
-                          Icons.wb_incandescent,
-                          color: _coelba ? Colors.blue : Colors.black,
-                        ),
-                        Text("Coelba"),
-                      ],
-                    ),
-                  ),
-                  FlatButton(
-                    onPressed: () {
-                      setState(() {
-                        _coelba = false;
-                        mostrar = false;
-                      });
-                    },
-                    child: Column(
-                      children: [
-                        Icon(
-                          Icons.shopping_basket,
-                          color: !_coelba ? Colors.blue : Colors.black,
-                        ),
-                        Text("Embasa"),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-              SizedBox(
-                height: 20,
-              ),
-              Row(
-                children: [
-                  RaisedButton(
-                    onPressed: () {
-                      _pegarDados();
-                      _controllerRank.stream != null
-                          ? setState(() => mostrar = true)
-                          // ignore: unnecessary_statements
-                          : null;
-                    },
-                    child: Text(
-                      "Pesquisar",
-                      style: TextStyle(color: Colors.white, fontSize: 16),
-                    ),
-                    color: Colors.blue,
-                  ),
-                  SizedBox(
-                    width: 20,
-                  ),
-                  Expanded(
-                    child: TextField(
-                      onChanged: (value) {
-                        setState(() {
-                          _controller.text = value;
-                        });
-                      },
-                      textAlign: TextAlign.end,
-                      decoration: inputDecoration.copyWith(
-                          labelText: _coelba ? "Contrato" : "Matricula"),
-                    ),
-                  )
-                ],
-              ),
-              SizedBox(
-                height: 20,
-              ),
-              Row(
-                children: [
-                  RaisedButton(
-                    onPressed: () {
-                      _pegarIgreja();
-                      save();
-                      setState(() {
-                        mostrar2 = true;
-                      });
-                    },
-                    child: Text(
-                      "Pesquisar",
-                      style: TextStyle(color: Colors.white, fontSize: 16),
-                    ),
-                    color: Colors.blue,
-                  ),
-                  SizedBox(
-                    width: 20,
-                  ),
-                  Expanded(
-                    child: TypeAheadField<String>(
-                      textFieldConfiguration: TextFieldConfiguration(
-                        controller: _controllerPesquisa,
-                        textAlign: TextAlign.end,
-                        decoration:
-                            inputDecoration.copyWith(labelText: "Igreja"),
+          child: Container(
+        padding: EdgeInsets.all(10),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                FlatButton(
+                  onPressed: () {
+                    setState(() {
+                      _coelba = true;
+                      mostrar = false;
+                      mostrar2 = false;
+                      _controller.text = "";
+                      _controllerPesquisa.text = "";
+                    });
+                  },
+                  child: Column(
+                    children: [
+                      Icon(
+                        Icons.wb_incandescent,
+                        color: _coelba ? Colors.blue : Colors.black,
                       ),
-                      debounceDuration: Duration(milliseconds: 600),
-                      suggestionsCallback: (pattern) {
-                        return igrejas.where((element) => element
-                            .toLowerCase()
-                            .contains(pattern.toLowerCase()));
-                      },
-                      onSuggestionSelected: (suggestion) {
-                        _controllerPesquisa.text = suggestion;
-                        _getIgreja(suggestion.split(" ")[0]);
-                      },
-                      itemBuilder: (context, itemData) => ListTile(
-                        title: Text("$itemData"),
-                      ),
-                    ),
-                  )
-                ],
-              ),
-              SizedBox(
-                height: 20,
-              ),
-              mostrar
-                  ? StreamBuilder(
-                      stream: _controllerRank.stream,
-                      builder: (context, snapshot) {
-                        if (snapshot.connectionState ==
-                            ConnectionState.waiting) {
-                          return Container();
-                        } else if (snapshot.hasData) {
-                          QuerySnapshot querySnapshot = snapshot.data;
-                          return Container(
-                            decoration: BoxDecoration(
-                              border:
-                                  Border.all(color: Colors.blue, width: 2.5),
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            child: ListView.builder(
-                              shrinkWrap: true,
-                              itemCount: querySnapshot.docs.length,
-                              itemBuilder: (context, index) {
-                                List<DocumentSnapshot> igrejas =
-                                    querySnapshot.docs.toList();
-                                DocumentSnapshot documentSnapshot =
-                                    igrejas[index];
-                                return ListView(
-                                  shrinkWrap: true,
-                                  children: [
-                                    ListTile(
-                                      title: Text(
-                                          "Distrito: ${documentSnapshot["distrito"]}"),
-                                    ),
-                                    ListTile(
-                                      title: Text(
-                                          "Igreja: ${documentSnapshot["nome"]}"),
-                                    ),
-                                  ],
-                                );
-                              },
-                            ),
-                          );
-                        } else {
-                          var snackbar =
-                              SnackBar(content: Text("Igreja não encontrada"));
-                          Scaffold.of(context).showSnackBar(snackbar);
-                        }
-                        return Container();
-                      },
-                    )
-                  : Container(),
-              mostrar
-                  ? SizedBox(
-                      height: 20,
-                    )
-                  : Container(),
-              mostrar2
-                  ? StreamBuilder(
-                      stream: _controllerIgreja.stream,
-                      builder: (context, snapshot) {
-                        if (snapshot.connectionState ==
-                            ConnectionState.waiting) {
-                          return Container();
-                        } else if (snapshot.hasData) {
-                          QuerySnapshot querySnapshot = snapshot.data;
-                          return Container(
-                            decoration: BoxDecoration(
-                              border:
-                                  Border.all(color: Colors.blue, width: 2.5),
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            child: ListView.builder(
-                              shrinkWrap: true,
-                              itemCount: querySnapshot.docs.length,
-                              itemBuilder: (context, index) {
-                                List<DocumentSnapshot> igrejas =
-                                    querySnapshot.docs.toList();
-                                DocumentSnapshot documentSnapshot =
-                                    igrejas[index];
-                                return ListView(
-                                  shrinkWrap: true,
-                                  children: [
-                                    ListTile(
-                                      title: Text(
-                                          "Distrito: ${documentSnapshot["distrito"]}"),
-                                    ),
-                                    ListTile(
-                                      title: Text(
-                                          "Contrato: ${documentSnapshot["contrato"].toString()}"),
-                                    ),
-                                    ListTile(
-                                      title: Text(
-                                          "Matricula: ${documentSnapshot["matricula"].toString()}"),
-                                    ),
-                                  ],
-                                );
-                              },
-                            ),
-                          );
-                        } else {
-                          var snackbar =
-                              SnackBar(content: Text("Igreja não encontrada"));
-                          Scaffold.of(context).showSnackBar(snackbar);
-                        }
-                        return Container();
-                      },
-                    )
-                  : Container(),
-              mostrar2
-                  ? SizedBox(
-                      height: 20,
-                    )
-                  : Container(),
-              RaisedButton(
-                onPressed: () async {
-                  await launch(_coelba
-                      ? "http://servicos.coelba.com.br/servicos-ao-cliente/Pages/login-av.aspx"
-                      : "http://www.embasa2.ba.gov.br/novo/central-servicos/?mod=sua-conta&a=2via");
-                },
-                color: Colors.blue,
-                child: Text(
-                  "Ir para o Site",
-                  style: TextStyle(color: Colors.white),
+                      Text("Coelba"),
+                    ],
+                  ),
                 ),
+                FlatButton(
+                  onPressed: () {
+                    setState(() {
+                      _coelba = false;
+                      mostrar = false;
+                      mostrar2 = false;
+                      _controller.text = "";
+                      _controllerPesquisa.text = "";
+                    });
+                  },
+                  child: Column(
+                    children: [
+                      Icon(
+                        Icons.shopping_basket,
+                        color: !_coelba ? Colors.blue : Colors.black,
+                      ),
+                      Text("Embasa"),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(
+              height: 20,
+            ),
+            Row(
+              children: [
+                RaisedButton(
+                  onPressed: () {
+                    _pegarDados();
+                    _controllerRank.stream != null
+                        ? setState(() {
+                            mostrar = true;
+                            mostrar2 = false;
+                          })
+                        // ignore: unnecessary_statements
+                        : null;
+                  },
+                  child: Text(
+                    "Pesquisar",
+                    style: TextStyle(color: Colors.white, fontSize: 16),
+                  ),
+                  color: Colors.blue,
+                ),
+                SizedBox(
+                  width: 20,
+                ),
+                Expanded(
+                  child: TextField(
+                    onChanged: (value) {
+                      setState(() {
+                        _controller.text = value;
+                      });
+                    },
+                    textAlign: TextAlign.end,
+                    decoration: inputDecoration.copyWith(
+                        labelText: _coelba ? "Contrato" : "Matricula"),
+                  ),
+                )
+              ],
+            ),
+            SizedBox(
+              height: 20,
+            ),
+            Row(
+              children: [
+                RaisedButton(
+                  onPressed: () {
+                    _pegarIgreja();
+                    setState(() {
+                      mostrar2 = true;
+                      mostrar = false;
+                    });
+                  },
+                  child: Text(
+                    "Pesquisar",
+                    style: TextStyle(color: Colors.white, fontSize: 16),
+                  ),
+                  color: Colors.blue,
+                ),
+                SizedBox(
+                  width: 20,
+                ),
+                Expanded(
+                  child: TypeAheadField<String>(
+                    textFieldConfiguration: TextFieldConfiguration(
+                      controller: _controllerPesquisa,
+                      textAlign: TextAlign.end,
+                      decoration: inputDecoration.copyWith(labelText: "Igreja"),
+                    ),
+                    debounceDuration: Duration(milliseconds: 600),
+                    suggestionsCallback: (pattern) {
+                      return igrejas.where((element) => element
+                          .toLowerCase()
+                          .contains(pattern.toLowerCase()));
+                    },
+                    onSuggestionSelected: (suggestion) {
+                      _controllerPesquisa.text = suggestion;
+                      _getIgreja(suggestion.split(" ")[0]);
+                    },
+                    itemBuilder: (context, itemData) => ListTile(
+                      title: Text("$itemData"),
+                    ),
+                  ),
+                )
+              ],
+            ),
+            SizedBox(
+              height: 20,
+            ),
+            mostrar
+                ? StreamBuilder(
+                    stream: _controllerRank.stream,
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return Container();
+                      } else if (snapshot.hasData) {
+                        QuerySnapshot querySnapshot = snapshot.data;
+                        return Container(
+                          decoration: BoxDecoration(
+                            border: Border.all(color: Colors.blue, width: 2.5),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: ListView.builder(
+                            shrinkWrap: true,
+                            itemCount: querySnapshot.docs.length,
+                            itemBuilder: (context, index) {
+                              List<DocumentSnapshot> igrejas =
+                                  querySnapshot.docs.toList();
+                              DocumentSnapshot documentSnapshot =
+                                  igrejas[index];
+                              return ListView(
+                                shrinkWrap: true,
+                                children: [
+                                  ListTile(
+                                    title: Text(
+                                        "Distrito: ${documentSnapshot["distrito"]}"),
+                                  ),
+                                  ListTile(
+                                    title: Text(
+                                        "Igreja: ${documentSnapshot["nome"]}"),
+                                  ),
+                                ],
+                              );
+                            },
+                          ),
+                        );
+                      } else {
+                        var snackbar =
+                            SnackBar(content: Text("Igreja não encontrada"));
+                        Scaffold.of(context).showSnackBar(snackbar);
+                      }
+                      return Container();
+                    },
+                  )
+                : Container(),
+            mostrar
+                ? SizedBox(
+                    height: 20,
+                  )
+                : Container(),
+            mostrar2
+                ? StreamBuilder(
+                    stream: _controllerIgreja.stream,
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return Container();
+                      } else if (snapshot.hasData) {
+                        QuerySnapshot querySnapshot = snapshot.data;
+                        return Container(
+                          decoration: BoxDecoration(
+                            border: Border.all(color: Colors.blue, width: 2.5),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: ListView.builder(
+                            shrinkWrap: true,
+                            itemCount: querySnapshot.docs.length,
+                            itemBuilder: (context, index) {
+                              List<DocumentSnapshot> igrejas =
+                                  querySnapshot.docs.toList();
+                              DocumentSnapshot documentSnapshot =
+                                  igrejas[index];
+                              return ListView(
+                                shrinkWrap: true,
+                                children: [
+                                  ListTile(
+                                    title: Text(
+                                        "Distrito: ${documentSnapshot["distrito"]}"),
+                                  ),
+                                  ListTile(
+                                    title: Text(
+                                        "Contrato: ${documentSnapshot["contrato"].toString()}"),
+                                  ),
+                                  ListTile(
+                                    title: Text(
+                                        "Matricula: ${documentSnapshot["matricula"].toString()}"),
+                                  ),
+                                ],
+                              );
+                            },
+                          ),
+                        );
+                      } else {
+                        var snackbar =
+                            SnackBar(content: Text("Igreja não encontrada"));
+                        Scaffold.of(context).showSnackBar(snackbar);
+                      }
+                      return Container();
+                    },
+                  )
+                : Container(),
+            mostrar2
+                ? SizedBox(
+                    height: 20,
+                  )
+                : Container(),
+            RaisedButton(
+              onPressed: () async {
+                await launch(_coelba
+                    ? "http://servicos.coelba.com.br/servicos-ao-cliente/Pages/login-av.aspx"
+                    : "http://www.embasa2.ba.gov.br/novo/central-servicos/?mod=sua-conta&a=2via");
+              },
+              color: Colors.blue,
+              child: Text(
+                "Ir para o Site",
+                style: TextStyle(color: Colors.white),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       )),
     );

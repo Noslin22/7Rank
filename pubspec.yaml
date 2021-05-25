@@ -30,6 +30,7 @@ dependencies:
       url: git://github.com/himanshusharma89/plugins.git
       path: packages/share
   autocomplete_textfield: ^1.7.3
+  firebase_analytics: "^8.1.0"
   cloud_firestore: ^1.0.2
   csv: ^4.1.0
   dcache: ^0.4.0
@@ -39,6 +40,7 @@ dependencies:
   flutter_share_me: ^0.9.1
   flutter_spinkit: ^4.1.2
   intl: ^0.17.0
+  firebase_storage: ^8.1.0
   mask_text_input_formatter: ^1.2.1
   multi_sort: ^3.0.0
   path_provider: ^2.0.1
