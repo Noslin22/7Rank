@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
@@ -18,10 +19,12 @@ class _CoelbaEmbasaState extends State<CoelbaEmbasa> {
   StreamController _controllerIgreja = StreamController.broadcast();
   StreamController _controllerRank = StreamController.broadcast();
   TextEditingController _controller = TextEditingController();
+  FirebaseStorage storage = FirebaseStorage.instance;
   List<String> igrejas = [];
   bool mostrar2 = false;
   bool mostrar = false;
   bool _coelba = true;
+  String nome = '';
   String valor;
 
   void getIgrejas() {
@@ -58,8 +61,23 @@ class _CoelbaEmbasaState extends State<CoelbaEmbasa> {
       QueryDocumentSnapshot values = value.docs.first;
       setState(() {
         valor = values["cod"].toString();
+        nome = values["nome"].toString().replaceAll('- ', "");
       });
     });
+  }
+
+  Future<String> _pegarImagem() async {
+    String url = '';
+    var result = await db
+        .collection("igrejas")
+        .where("cod", isEqualTo: int.parse(valor))
+        .get();
+    url = await result.docs.first["url_${_coelba ? "contrato" : "matricula"}"];
+    if (url != '') {
+      return url;
+    } else {
+      return 'https://firebasestorage.googleapis.com/v0/b/igreja-4019a.appspot.com/o/imagem-error.png?alt=media&token=98e9452b-dc41-4ef8-83db-4c6d2738aad7';
+    }
   }
 
   Stream<QuerySnapshot> _pegarIgreja() {
@@ -94,6 +112,7 @@ class _CoelbaEmbasaState extends State<CoelbaEmbasa> {
           child: Container(
         padding: EdgeInsets.all(10),
         child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Row(
@@ -237,6 +256,12 @@ class _CoelbaEmbasaState extends State<CoelbaEmbasa> {
                         return Container();
                       } else if (snapshot.hasData) {
                         QuerySnapshot querySnapshot = snapshot.data;
+                        setState(() {
+                          nome = querySnapshot.docs
+                              .toList()[0]["nome"]
+                              .toString()
+                              .replaceAll('- ', "");
+                        });
                         return Container(
                           decoration: BoxDecoration(
                             border: Border.all(color: Colors.blue, width: 2.5),
@@ -308,14 +333,15 @@ class _CoelbaEmbasaState extends State<CoelbaEmbasa> {
                                     title: Text(
                                         "Distrito: ${documentSnapshot["distrito"]}"),
                                   ),
-                                  ListTile(
-                                    title: Text(
-                                        "Contrato: ${documentSnapshot["contrato"].toString()}"),
-                                  ),
-                                  ListTile(
-                                    title: Text(
-                                        "Matricula: ${documentSnapshot["matricula"].toString()}"),
-                                  ),
+                                  _coelba
+                                      ? ListTile(
+                                          title: Text(
+                                              "Contrato: ${documentSnapshot["contrato"].toString()}"),
+                                        )
+                                      : ListTile(
+                                          title: Text(
+                                              "Matricula: ${documentSnapshot["matricula"].toString()}"),
+                                        ),
                                 ],
                               );
                             },
@@ -347,6 +373,28 @@ class _CoelbaEmbasaState extends State<CoelbaEmbasa> {
                 style: TextStyle(color: Colors.white),
               ),
             ),
+            mostrar || mostrar2
+                ? Flexible(
+                    child: ConstrainedBox(
+                    constraints: BoxConstraints(
+                        maxHeight:
+                            ((MediaQuery.of(context).size.height / 5) * 3) -
+                                100),
+                    child: FutureBuilder<String>(
+                      future: _pegarImagem(),
+                      builder: (context, snapshot) {
+                        if (snapshot.hasData) {
+                          return Image.network(
+                            snapshot.data,
+                            fit: BoxFit.contain,
+                          );
+                        } else {
+                          return CircularProgressIndicator();
+                        }
+                      },
+                    ),
+                  ))
+                : Container()
           ],
         ),
       )),

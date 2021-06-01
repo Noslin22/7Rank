@@ -47,9 +47,12 @@ class _AtualizarIgrejaState extends State<AtualizarIgreja> {
       QueryDocumentSnapshot values = value.docs.first;
       setState(() {
         _controllerNome.text = values.get("nome");
-        distrito = values.get("distrito");
         _controllerContrato.text = values.get("contrato").toString();
         _controllerMatricula.text = values.get("matricula").toString();
+        nome = values.get("nome");
+        distrito = values.get("distrito");
+        contrato = values.get("contrato").toString();
+        matricula = values.get("matricula").toString();
       });
     });
   }
@@ -186,7 +189,8 @@ class _AtualizarIgrejaState extends State<AtualizarIgreja> {
                         db
                             .collection("igrejas")
                             .where('cod',
-                                isEqualTo: int.parse(_controllerCod.text))
+                                isEqualTo: int.parse(
+                                    _controllerCod.text.split(" ")[0]))
                             .get()
                             .then((value) {
                           db
