@@ -67,17 +67,19 @@ class _CoelbaEmbasaState extends State<CoelbaEmbasa> {
   }
 
   Future<String> _pegarImagem() async {
-    String url = '';
-    var result = await db
-        .collection("igrejas")
-        .where("cod", isEqualTo: int.parse(valor))
-        .get();
-    url = await result.docs.first["url_${_coelba ? "contrato" : "matricula"}"];
-    if (url != '') {
-      return url;
-    } else {
+    print(
+        "${nome.toLowerCase().replaceAll(" ", '-')}_${_coelba ? "contrato" : "matricula"}.png");
+    return storage
+        .ref(
+            "${nome.toLowerCase().replaceAll(" ", '-')}_${_coelba ? "contrato" : "matricula"}.png")
+        .getDownloadURL()
+        .then((value) {
+      print(value);
+      return value;
+    }).catchError(() {
+      print('olá');
       return 'https://firebasestorage.googleapis.com/v0/b/igreja-4019a.appspot.com/o/imagem-error.png?alt=media&token=98e9452b-dc41-4ef8-83db-4c6d2738aad7';
-    }
+    });
   }
 
   Stream<QuerySnapshot> _pegarIgreja() {
@@ -389,7 +391,7 @@ class _CoelbaEmbasaState extends State<CoelbaEmbasa> {
                             fit: BoxFit.contain,
                           );
                         } else {
-                          return CircularProgressIndicator();
+                          return Container();
                         }
                       },
                     ),

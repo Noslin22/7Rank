@@ -33,6 +33,7 @@ class _LoginPastorState extends State<LoginPastor> {
               height: 20,
             ),
             TextFormField(
+              
               validator: (value) {
                 if (value == null || value == '') {
                   return "Digite o Nome do Pastor";

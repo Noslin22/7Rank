@@ -196,7 +196,9 @@ List<Widget> actions(String gerenciador, BuildContext context, String tela,
                     );
                     if (result != null) {
                       List<PlatformFile> files = result.files;
-                      bool n = false;
+                      bool poupanca = false;
+                      bool acms = true;
+
                       showDialog(
                         context: context,
                         builder: (context) {
@@ -212,15 +214,35 @@ List<Widget> actions(String gerenciador, BuildContext context, String tela,
                                         flex: 1,
                                         child: TextButton(
                                           style: TextButton.styleFrom(
+                                            backgroundColor: Colors.deepOrange,
+                                          ),
+                                          onPressed: () {
+                                            setState(() {
+                                              poupanca = !poupanca;
+                                            });
+                                          },
+                                          child: Text(
+                                            poupanca ? "Poupança" : "Corrente",
+                                            style: TextStyle(
+                                              color: Colors.white,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                      Spacer(),
+                                      Expanded(
+                                        flex: 1,
+                                        child: TextButton(
+                                          style: TextButton.styleFrom(
                                             backgroundColor: Colors.orange,
                                           ),
                                           onPressed: () {
                                             setState(() {
-                                              n = !n;
+                                              acms = !acms;
                                             });
                                           },
                                           child: Text(
-                                            n ? "Poupança" : "Corrente",
+                                            acms ? "ACMS" : "AASI",
                                             style: TextStyle(
                                               color: Colors.white,
                                             ),
@@ -299,13 +321,27 @@ List<Widget> actions(String gerenciador, BuildContext context, String tela,
                                             List<Map<String, String>>
                                                 jsonCsvDecoded =
                                                 jsonDecode(jsonCsvEncoded);
-                                            List<String> text = [
-                                              "Bank          	              BankAccountNumber           	              Date          	              Description   	              Value"
-                                            ];
-                                            jsonCsvDecoded.forEach((element) {
-                                              text.add(
-                                                  " 237          	               ${element["conta"]}${n ? "1" : ""}          	              ${element["data"]}    	              ${element["lancamento"]} - ${element["doc"]}           	               ${element["valor"]}");
-                                            });
+                                            List<String> text = acms
+                                                ? [
+                                                    "Bank	BankAccountNumber	Date	Description	Value"
+                                                  ]
+                                                : [];
+                                            for (var element
+                                                in jsonCsvDecoded) {
+                                              if (acms) {
+                                                text.add(
+                                                    "237	${element["conta"]}${poupanca ? "1" : ""}	${element["data"]}	${element["lancamento"]} - ${element["doc"]}	${element["valor"]}");
+                                              } else {
+                                                List<String> letters =
+                                                    element["valor"]
+                                                        .split('')
+                                                        .reversed
+                                                        .toList();
+                                                letters.insert(2, ',');
+                                                text.add(
+                                                    "${element["data"]};${element["lancamento"]};${element["doc"]};${element["valor"].contains('-') ? '' : letters.reversed.join()};${element["valor"].contains('-') ? letters.reversed.join().replaceAll("-", '') : ''}");
+                                              }
+                                            }
                                             var anchor;
                                             var url;
                                             // prepare
@@ -319,7 +355,8 @@ List<Widget> actions(String gerenciador, BuildContext context, String tela,
                                                 as html.AnchorElement
                                               ..href = url
                                               ..style.display = 'none'
-                                              ..download = 'Conciliacao.txt';
+                                              ..download =
+                                                  'Conciliacao.${acms ? 'txt' : 'csv'}';
                                             html.document.body.children
                                                 .add(anchor);
 
