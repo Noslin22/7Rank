@@ -12,13 +12,13 @@ const RESOURCES = {
 "assets/assets/imagem-error.png": "9f93c0e9a85a61bbeff1bc2f5d01a50d",
 "assets/assets/logo_app.png": "723ab2053e578c8cf693e72459eeab9c",
 "assets/FontManifest.json": "7b2a36307916a9721811788013e65289",
-"assets/fonts/MaterialIcons-Regular.otf": "1288c9e28052e028aba623321f7826ac",
-"assets/NOTICES": "3e128c791ae8836094ffae03da3d77d0",
+"assets/fonts/MaterialIcons-Regular.otf": "4e6447691c9509f7acdbf8a931a85ca1",
+"assets/NOTICES": "5c6362e014ec4c1a797ca60f20a0939b",
 "icons/Icon-192.png": "ac9a721a12bbc803b44f645561ecb1e1",
 "icons/Icon-512.png": "96e752610906ba2a93c65f8abe1645f1",
-"index.html": "b6d545395c2b273d8a9f366641ee7402",
-"/": "b6d545395c2b273d8a9f366641ee7402",
-"main.dart.js": "0b4bb258a9189d22ad319a1ba0dacd92",
+"index.html": "2bac019414576abc68475bd77a579c43",
+"/": "2bac019414576abc68475bd77a579c43",
+"main.dart.js": "30f6d843475d56127becb025c9594718",
 "manifest.json": "1726bc90bb76dd3cecf06dc8c35b881c",
 "version.json": "4639302361f56de9af8af6013d368ab3"
 };
@@ -38,7 +38,7 @@ self.addEventListener("install", (event) => {
   return event.waitUntil(
     caches.open(TEMP).then((cache) => {
       return cache.addAll(
-        CORE.map((value) => new Request(value + '?revision=' + RESOURCES[value], {'cache': 'reload'})));
+        CORE.map((value) => new Request(value, {'cache': 'reload'})));
     })
   );
 });

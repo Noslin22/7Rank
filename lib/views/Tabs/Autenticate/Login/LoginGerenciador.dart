@@ -47,6 +47,7 @@ class _LoginGerenciadorState extends State<LoginGerenciador> {
                 myFocusNode = FocusNode();
                 myFocusNode.requestFocus();
               },
+              keyboardType: TextInputType.name,
               onChanged: (newValue) {
                 setState(() => nome = _auth.removerAcentos(newValue));
               },

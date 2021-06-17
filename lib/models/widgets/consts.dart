@@ -268,53 +268,61 @@ List<Widget> actions(String gerenciador, BuildContext context, String tela,
                                               String csvData =
                                                   File.fromRawPath(file.bytes)
                                                       .path;
-                                              List<String> datas =
-                                                  csvData.split("\r");
-                                              datas[0] = datas[0]
-                                                  .replaceFirst("\n", "");
+                                              List<String> datas = csvData
+                                                  .replaceAll('\r\n', '\r')
+                                                  .replaceAll('\n', '\r')
+                                                  .split("\r");
+                                              datas.removeAt(0);
                                               String conta = datas.first
-                                                  .split(" ")[6]
-                                                  .split("-")[0];
-                                              datas.removeRange(0, 3);
-                                              String part;
+                                                  .split(' ')[6]
+                                                  .split('-')[0];
+                                              datas.removeRange(0, 2);
+                                              datas.removeWhere((element) =>
+                                                  element == ' ' ||
+                                                  element == '' ||
+                                                  element == '\r' ||
+                                                  element.split(";")[0] ==
+                                                      "Total" ||
+                                                  element.split(";")[0] ==
+                                                      "Data" ||
+                                                  element
+                                                          .split(" ")[0]
+                                                          .split(';')[1] ==
+                                                      "�ltimos" ||
+                                                  element.split(" ")[0] ==
+                                                      ";Saldos" ||
+                                                  element
+                                                          .split(';')[1]
+                                                          .split(' ')[0] ==
+                                                      'SALDO');
                                               for (var element in datas) {
-                                                if (element.split(";")[0] !=
-                                                    "Total") {
-                                                  List<String> list =
-                                                      element.split(";");
-                                                  csvList.add(
-                                                    Conciliacao(
-                                                      conta,
-                                                      list[0],
-                                                      list[1],
-                                                      list[2],
-                                                      list[3] != ""
-                                                          ? list[3] != null
-                                                              ? list[3]
-                                                                  .replaceAll(
-                                                                      ".", "")
-                                                                  .replaceAll(
-                                                                      ",", "")
-                                                              : list[4]
-                                                                  .replaceAll(
-                                                                      ".", "")
-                                                                  .replaceAll(
-                                                                      ",", "")
-                                                          : list[4]
-                                                              .replaceAll(
-                                                                  ".", "")
-                                                              .replaceAll(
-                                                                  ",", ""),
-                                                    ),
-                                                  );
-                                                } else {
-                                                  part = element;
-                                                  break;
-                                                }
+                                                List<String> list =
+                                                    element.split(";");
+                                                csvList.add(
+                                                  Conciliacao(
+                                                    conta,
+                                                    list[0],
+                                                    list[1],
+                                                    list[2],
+                                                    list[3] != ""
+                                                        ? list[3] != null
+                                                            ? list[3]
+                                                                .replaceAll(
+                                                                    ".", "")
+                                                                .replaceAll(
+                                                                    ",", "")
+                                                            : list[4]
+                                                                .replaceAll(
+                                                                    ".", "")
+                                                                .replaceAll(
+                                                                    ",", "")
+                                                        : list[4]
+                                                            .replaceAll(".", "")
+                                                            .replaceAll(
+                                                                ",", ""),
+                                                  ),
+                                                );
                                               }
-                                              datas.removeRange(
-                                                  datas.indexOf(part),
-                                                  datas.length);
                                             }
                                             String jsonCsvEncoded =
                                                 jsonEncode(csvList);
