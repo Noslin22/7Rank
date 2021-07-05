@@ -90932,7 +90932,7 @@ s=n.ahq(n.gpz().W1())
 r=$.i3()
 q=H.a([C.AT,C.AY],t.Ez)
 p=H.a([C.Ug],t._p)
-return new Q.DV(new Y.rZ(new P.f5(new D.iX(n).gakl(),s,s.$ti.i("f5<bA.T,iF*>")),o,Q.b43(o,o,t.z9),t.xN),o,o,new S.Ba(r,new M.EI(o),"Remessa",q,p,!1,o),o,t.Pw)}}
+return new Q.DV(new Y.rZ(new P.f5(new D.iX(n).gakl(),s,s.$ti.i("f5<bA.T,iF*>")),o,Q.b43(o,o,t.z9),t.xN),o,o,new S.Ba(r,new M.EI(o),"7Rank",q,p,!1,o),o,t.Pw)}}
 D.iX.prototype={
 akm:function(a){return a!=null?new E.iF(a.a.c.h(0,"uid")):null},
 ia:function(a,b,c){return this.a_S(a,b,c)},
