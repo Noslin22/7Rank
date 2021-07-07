@@ -16,7 +16,7 @@ class Registro extends StatefulWidget {
 
 class _RegistroState extends State<Registro> {
   int tabIndex = 0;
-  List<Widget> listScreens;
+  late List<Widget> listScreens;
   @override
   void initState() {
     super.initState();

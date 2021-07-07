@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:remessa/models/widgets/Button.dart';
 import 'package:remessa/models/widgets/consts.dart';
 
 class AdicionarDistrito extends StatefulWidget {
@@ -9,9 +10,9 @@ class AdicionarDistrito extends StatefulWidget {
 
 class _AdicionarDistritoState extends State<AdicionarDistrito> {
   final _formKey = GlobalKey<FormState>();
-  String distrito;
-  String pastor;
-  String regiao;
+  String? distrito;
+  String? pastor;
+  String? regiao;
 
   @override
   void initState() {
@@ -83,12 +84,11 @@ class _AdicionarDistritoState extends State<AdicionarDistrito> {
             ),
             Builder(
               builder: (context) {
-                return RaisedButton(
-                  padding: EdgeInsets.all(10),
+                return Button.blue10(
                   onPressed: () {
                     if (_formKey.currentState != null &&
-                        _formKey.currentState.validate()) {
-                      _formKey.currentState.save();
+                        _formKey.currentState!.validate()) {
+                      _formKey.currentState!.save();
                       db.collection("distritos").doc(distrito).set({
                         "faltam": 0,
                         "pastor": pastor,
@@ -97,17 +97,13 @@ class _AdicionarDistritoState extends State<AdicionarDistrito> {
                       var snackbar = SnackBar(
                           content: Text(
                               "${"Distrito $distrito foi adicionado com sucesso"}"));
-                      Scaffold.of(context).showSnackBar(snackbar);
+                        ScaffoldMessenger.of(context).showSnackBar(snackbar);
                       Timer(Duration(seconds: 6), () {
                         Navigator.pushReplacementNamed(context, 'home');
                       });
                     }
                   },
-                  color: Colors.blue,
-                  child: Text(
-                    "Adicionar",
-                    style: TextStyle(color: Colors.white),
-                  ),
+                  label: "Adicionar",
                 );
               },
             )

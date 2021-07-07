@@ -1,55 +1,64 @@
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_core/firebase_core.dart';
-import 'package:remessa/models/User.dart';
+import 'package:flutter/foundation.dart';
 
 class Auth {
-  final FirebaseAuth _auth = FirebaseAuth.instance;
+  final FirebaseAuth auth;
+  Auth({required this.auth});
+  
+  ValueNotifier<FirebaseAuthException?> _error =
+      ValueNotifier<FirebaseAuthException?>(null);
+  FirebaseAuthException? get error => _error.value;
+  set error(FirebaseAuthException? error) => _error.value = error;
 
-  Uid _userFromFirebase(User user) {
-    return user != null ? Uid(user.uid) : null;
-  }
+  Stream<User?> get user => auth.authStateChanges();
 
-  Stream<Uid> get user {
-    return _auth.idTokenChanges().map(_userFromFirebase);
-  }
-
-  Future signIn({String email, String senha, String tipo}) async {
+  Future<User?> signIn(
+      {required String email, String? senha, required String tipo}) async {
     if (email.contains(" ")) {
       email = email.trimRight().replaceAll(" ", "_").toLowerCase();
     }
-    if (email != null && senha != null) {
-      Future<UserCredential> result = _auth.signInWithEmailAndPassword(
-          email: tipo == "pastor"
-              ? '$email@pastor.com'
-              : tipo == "gerenciador"
-                  ? '$email@gerenciador.com'
-                  : '$email@adm.com',
-          password: senha);
-      User user;
-      await result.then((value) {
-        user = value.user;
-      });
-      return _userFromFirebase(user);
+    if (senha != null) {
+      try {
+        Future<UserCredential> result = auth.signInWithEmailAndPassword(
+            email: tipo == "pastor"
+                ? '$email@pastor.com'
+                : tipo == "gerenciador"
+                    ? '$email@gerenciador.com'
+                    : '$email@adm.com',
+            password: senha);
+        User? user;
+        await result.then((value) {
+          user = value.user;
+        });
+        return user;
+      } catch (e) {
+        error = e as FirebaseAuthException?;
+      }
     }
   }
 
-  Future register({String email, String senha, String tipo}) async {
+  Future<User?> register(
+      {required String email, String? senha, String? tipo}) async {
     if (email.contains(" ")) {
       email = email.trimRight().replaceAll(" ", "_").toLowerCase();
     }
-    if (email != null && senha != null) {
-      Future<UserCredential> result = _auth.createUserWithEmailAndPassword(
+    if (senha != null) {
+      try {
+      Future<UserCredential> result = auth.createUserWithEmailAndPassword(
           email: tipo == 'pastor'
               ? '$email@pastor.com'
               : tipo == 'gerenciador'
                   ? '$email@gerenciador.com'
                   : '$email@adm.com',
           password: senha);
-      User user;
+      User? user;
       await result.then((value) {
         user = value.user;
       });
-      return _userFromFirebase(user);
+      return user;
+      } catch (e) {
+        error = e as FirebaseAuthException?;
+      }
     }
   }
 
@@ -65,6 +74,6 @@ class Auth {
   }
 
   Future signOut() async {
-    return await _auth.signOut();
+    return await auth.signOut();
   }
 }

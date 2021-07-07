@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:intl/intl.dart';
 import 'package:remessa/models/IgrejaFirebase.dart';
+import 'package:remessa/models/theme/TextStyles.dart';
+import 'package:remessa/models/widgets/Button.dart';
 import 'package:remessa/models/widgets/consts.dart';
 
 class CheckBoxTile extends StatefulWidget {
@@ -19,23 +21,23 @@ class CheckBoxTile extends StatefulWidget {
 class _CheckboxTileState extends State<CheckBoxTile> {
   @override
   Widget build(BuildContext context) {
-    Timestamp _timestamp = widget.item.data;
-    DateTime _dateTime = widget.item.data != null ? widget.item.data.toDate() : null;
+    Timestamp? _timestamp = widget.item.data;
+    DateTime? _dateTime = widget.item.data != null ? widget.item.data!.toDate() : null;
     Future<void> _selectDate(BuildContext context) async {
-      final DateTime picked = await showDatePicker(
+      final DateTime? picked = await showDatePicker(
         context: context,
-        initialDate: _dateTime == null ? DateTime.now() : _dateTime,
+        initialDate: _dateTime == null ? DateTime.now() : _dateTime!,
         firstDate: DateTime(DateTime.now().year - 5),
         lastDate: DateTime(DateTime.now().year + 5),
       );
       if (picked != null && picked != _dateTime) {
         setState(() {
           _dateTime = picked;
-          _timestamp = Timestamp.fromDate(_dateTime);
+          _timestamp = Timestamp.fromDate(_dateTime!);
           widget.item.data = _timestamp != null
               ? _timestamp
               : _dateTime != null
-                  ? Timestamp.fromDate(_dateTime)
+                  ? Timestamp.fromDate(_dateTime!)
                   : null;
         });
         IgrejaFB.save("data", widget.item);
@@ -72,7 +74,7 @@ class _CheckboxTileState extends State<CheckBoxTile> {
                 top: 15,
                 right: 20,
               ),
-              child: Text(widget.item.nome),
+              child: Text(widget.item.nome!),
             ),
             flex: 4,
           ),
@@ -93,14 +95,16 @@ class _CheckboxTileState extends State<CheckBoxTile> {
                                 content: Text(
                                     "Você deseja limpar a data de ${widget.item.nome}?"),
                                 actions: [
-                                  FlatButton(
-                                    child: new Text("Não"),
+                                  Button(
+                                    label: "Não",
+                                    style: TextStyles.normal,
                                     onPressed: () {
                                       Navigator.of(context).pop();
                                     },
                                   ),
-                                  FlatButton(
-                                    child: new Text("Sim"),
+                                  Button(
+                                    label: "Sim",
+                                    style: TextStyles.normal,
                                     onPressed: () {
                                       db
                                           .collection("igrejas")
@@ -122,7 +126,7 @@ class _CheckboxTileState extends State<CheckBoxTile> {
                   child: Text(widget.item.data == null
                       ? ""
                       : DateFormat("dd/MM/yyyy")
-                          .format(widget.item.data.toDate())),
+                          .format(widget.item.data!.toDate())),
                 ),
               ),
             ),
@@ -137,14 +141,14 @@ class _CheckboxTileState extends State<CheckBoxTile> {
                 ),
                 onPressed: widget.pastor == "gerenciador"
                     ? () {
-                        if (widget.item.marcado) {
+                        if (widget.item.marcado!) {
                           _selectDate(context);
                         } else {
                           final snackBar = SnackBar(
                             content: Text('Primeiro Marque'),
                             duration: Duration(seconds: 2),
                           );
-                          Scaffold.of(context).showSnackBar(snackBar);
+                          ScaffoldMessenger.of(context).showSnackBar(snackBar);
                         }
                       }
                     : null,

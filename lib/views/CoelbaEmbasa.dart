@@ -4,6 +4,8 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
+import 'package:remessa/models/theme/TextStyles.dart';
+import 'package:remessa/models/widgets/Button.dart';
 import 'package:remessa/models/widgets/consts.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -16,8 +18,8 @@ class CoelbaEmbasa extends StatefulWidget {
 
 class _CoelbaEmbasaState extends State<CoelbaEmbasa> {
   TextEditingController _controllerPesquisa = TextEditingController();
-  StreamController _controllerIgreja = StreamController.broadcast();
-  StreamController _controllerRank = StreamController.broadcast();
+  StreamController<QuerySnapshot> _controllerIgreja = StreamController.broadcast();
+  StreamController<QuerySnapshot> _controllerRank = StreamController.broadcast();
   TextEditingController _controller = TextEditingController();
   FirebaseStorage storage = FirebaseStorage.instance;
   List<String> igrejas = [];
@@ -25,17 +27,17 @@ class _CoelbaEmbasaState extends State<CoelbaEmbasa> {
   bool mostrar = false;
   bool _coelba = true;
   String nome = '';
-  String valor;
+  late String valor;
 
   void getIgrejas() {
     db.collection("igrejas").orderBy("cod").get().then((value) {
       List<String> values = value.docs
-          .map((e) => "${e["cod"].toString()} - ${e["nome"].toString()}");
+          .map((e) => "${e["cod"].toString()} - ${e["nome"].toString()}") as List<String>;
       igrejas.addAll(values);
     });
   }
 
-  Stream<QuerySnapshot> _pegarDados() {
+  Stream<QuerySnapshot>? _pegarDados() {
     int i = int.parse(_controller.text);
     Stream<QuerySnapshot> rank = db
         .collection("igrejas")
@@ -76,13 +78,14 @@ class _CoelbaEmbasaState extends State<CoelbaEmbasa> {
         .then((value) {
       print(value);
       return value;
+    // ignore: argument_type_not_assignable_to_error_handler
     }).catchError(() {
       print('olá');
       return 'https://firebasestorage.googleapis.com/v0/b/igreja-4019a.appspot.com/o/imagem-error.png?alt=media&token=98e9452b-dc41-4ef8-83db-4c6d2738aad7';
     });
   }
 
-  Stream<QuerySnapshot> _pegarIgreja() {
+  Stream<QuerySnapshot>? _pegarIgreja() {
     Stream<QuerySnapshot> igreja = db
         .collection("igrejas")
         .where('cod', isEqualTo: int.parse(valor))
@@ -120,7 +123,7 @@ class _CoelbaEmbasaState extends State<CoelbaEmbasa> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
-                FlatButton(
+                Button(
                   onPressed: () {
                     setState(() {
                       _coelba = true;
@@ -140,7 +143,7 @@ class _CoelbaEmbasaState extends State<CoelbaEmbasa> {
                     ],
                   ),
                 ),
-                FlatButton(
+                Button(
                   onPressed: () {
                     setState(() {
                       _coelba = false;
@@ -167,21 +170,16 @@ class _CoelbaEmbasaState extends State<CoelbaEmbasa> {
             ),
             Row(
               children: [
-                RaisedButton(
+                Button(
                   onPressed: () {
                     _pegarDados();
-                    _controllerRank.stream != null
-                        ? setState(() {
+                    setState(() {
                             mostrar = true;
                             mostrar2 = false;
-                          })
-                        // ignore: unnecessary_statements
-                        : null;
+                          });
                   },
-                  child: Text(
-                    "Pesquisar",
-                    style: TextStyle(color: Colors.white, fontSize: 16),
-                  ),
+                  label: "Pesquisar",
+                    style: TextStyles.bigWhite,
                   color: Colors.blue,
                 ),
                 SizedBox(
@@ -206,7 +204,7 @@ class _CoelbaEmbasaState extends State<CoelbaEmbasa> {
             ),
             Row(
               children: [
-                RaisedButton(
+                Button(
                   onPressed: () {
                     _pegarIgreja();
                     setState(() {
@@ -214,10 +212,8 @@ class _CoelbaEmbasaState extends State<CoelbaEmbasa> {
                       mostrar = false;
                     });
                   },
-                  child: Text(
-                    "Pesquisar",
-                    style: TextStyle(color: Colors.white, fontSize: 16),
-                  ),
+                  label: "Pesquisar",
+                    style: TextStyles.bigWhite,
                   color: Colors.blue,
                 ),
                 SizedBox(
@@ -251,13 +247,13 @@ class _CoelbaEmbasaState extends State<CoelbaEmbasa> {
               height: 20,
             ),
             mostrar
-                ? StreamBuilder(
+                ? StreamBuilder<QuerySnapshot>(
                     stream: _controllerRank.stream,
                     builder: (context, snapshot) {
                       if (snapshot.connectionState == ConnectionState.waiting) {
                         return Container();
                       } else if (snapshot.hasData) {
-                        QuerySnapshot querySnapshot = snapshot.data;
+                        QuerySnapshot querySnapshot = snapshot.data!;
                         setState(() {
                           nome = querySnapshot.docs
                               .toList()[0]["nome"]
@@ -296,7 +292,7 @@ class _CoelbaEmbasaState extends State<CoelbaEmbasa> {
                       } else {
                         var snackbar =
                             SnackBar(content: Text("Igreja não encontrada"));
-                        Scaffold.of(context).showSnackBar(snackbar);
+                        ScaffoldMessenger.of(context).showSnackBar(snackbar);
                       }
                       return Container();
                     },
@@ -308,13 +304,13 @@ class _CoelbaEmbasaState extends State<CoelbaEmbasa> {
                   )
                 : Container(),
             mostrar2
-                ? StreamBuilder(
+                ? StreamBuilder<QuerySnapshot>(
                     stream: _controllerIgreja.stream,
                     builder: (context, snapshot) {
                       if (snapshot.connectionState == ConnectionState.waiting) {
                         return Container();
                       } else if (snapshot.hasData) {
-                        QuerySnapshot querySnapshot = snapshot.data;
+                        QuerySnapshot querySnapshot = snapshot.data!;
                         return Container(
                           decoration: BoxDecoration(
                             border: Border.all(color: Colors.blue, width: 2.5),
@@ -352,7 +348,8 @@ class _CoelbaEmbasaState extends State<CoelbaEmbasa> {
                       } else {
                         var snackbar =
                             SnackBar(content: Text("Igreja não encontrada"));
-                        Scaffold.of(context).showSnackBar(snackbar);
+                        
+                        ScaffoldMessenger.of(context).showSnackBar(snackbar);
                       }
                       return Container();
                     },
@@ -363,17 +360,14 @@ class _CoelbaEmbasaState extends State<CoelbaEmbasa> {
                     height: 20,
                   )
                 : Container(),
-            RaisedButton(
+            Button(
               onPressed: () async {
                 await launch(_coelba
                     ? "http://servicos.coelba.com.br/servicos-ao-cliente/Pages/login-av.aspx"
                     : "http://www.embasa2.ba.gov.br/novo/central-servicos/?mod=sua-conta&a=2via");
               },
               color: Colors.blue,
-              child: Text(
-                "Ir para o Site",
-                style: TextStyle(color: Colors.white),
-              ),
+              label: "Ir para o Site",
             ),
             mostrar || mostrar2
                 ? Flexible(
@@ -387,7 +381,7 @@ class _CoelbaEmbasaState extends State<CoelbaEmbasa> {
                       builder: (context, snapshot) {
                         if (snapshot.hasData) {
                           return Image.network(
-                            snapshot.data,
+                            snapshot.data!,
                             fit: BoxFit.contain,
                           );
                         } else {

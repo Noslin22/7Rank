@@ -24,11 +24,11 @@ class IgrejaPdf {
 }
 
 Future<Uint8List> buildPdfDistrito(
-    {List<List<String>> protocolos,
-    List<IgrejaPdf> igrejas,
-    String data,
+    {List<List<String?>>? protocolos,
+    List<IgrejaPdf>? igrejas,
+    String? data,
     bool protocolo = false,
-    String distrito}) async {
+    String? distrito}) async {
   final Document doc = Document();
   final baseColor = PdfColors.blue;
   const _darkColor = PdfColors.blueGrey800;
@@ -37,7 +37,7 @@ Future<Uint8List> buildPdfDistrito(
   final List<String> headers =
       protocolo ? ['Código', 'Igreja', 'Valor'] : ['Igreja', 'Data'];
 
-  PdfPageFormat format;
+  PdfPageFormat? format;
   doc.addPage(
     MultiPage(
       pageFormat: format,
@@ -58,7 +58,7 @@ Future<Uint8List> buildPdfDistrito(
                         ),
                         !protocolo
                             ? Text(
-                                data,
+                                data!,
                                 style: TextStyle(
                                     color: PdfColors.black, fontSize: 14),
                               )
@@ -118,9 +118,9 @@ Future<Uint8List> buildPdfDistrito(
                       ),
                       headers: headers,
                       data: protocolo
-                          ? protocolos
+                          ? protocolos!
                           : List<List<String>>.generate(
-                              igrejas.length,
+                              igrejas!.length,
                               (row) => List<String>.generate(
                                 headers.length,
                                 (col) => igrejas[row].getIndex(col),

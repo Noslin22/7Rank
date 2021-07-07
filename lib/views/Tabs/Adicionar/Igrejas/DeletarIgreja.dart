@@ -1,7 +1,7 @@
 import 'dart:async';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
+import 'package:remessa/models/widgets/Button.dart';
 import 'package:remessa/models/widgets/consts.dart';
 
 class DeletarIgreja extends StatefulWidget {
@@ -13,12 +13,12 @@ class _DeletarIgrejaState extends State<DeletarIgreja> {
   TextEditingController _controllerCod = TextEditingController();
   final _formKey = GlobalKey<FormState>();
   List<String> igrejas = [];
-  String igreja = "";
+  String? igreja = "";
 
   void getIgrejas() {
     db.collection("igrejas").orderBy("cod").get().then((value) {
       List<String> values = value.docs
-          .map((e) => "${e["cod"].toString()} - ${e["nome"].toString()}");
+          .map((e) => "${e["cod"].toString()} - ${e["nome"].toString()}") as List<String>;
       igrejas.addAll(values);
     });
   }
@@ -63,12 +63,11 @@ class _DeletarIgrejaState extends State<DeletarIgreja> {
             ),
             Builder(
               builder: (context) {
-                return RaisedButton(
-                  padding: EdgeInsets.all(10),
+                return Button.blue10(
                   onPressed: () {
                     if (_formKey.currentState != null &&
-                        _formKey.currentState.validate()) {
-                      _formKey.currentState.save();
+                        _formKey.currentState!.validate()) {
+                      _formKey.currentState!.save();
                       db
                           .collection("igrejas")
                           .where('cod',
@@ -86,17 +85,13 @@ class _DeletarIgrejaState extends State<DeletarIgreja> {
                       var snackbar = SnackBar(
                           content: Text(
                               "${"Igreja $igreja foi deletada com sucesso"}"));
-                      Scaffold.of(context).showSnackBar(snackbar);
+                        ScaffoldMessenger.of(context).showSnackBar(snackbar);
                       Timer(Duration(seconds: 6), () {
                         Navigator.pushReplacementNamed(context, 'home');
                       });
                     }
                   },
-                  color: Colors.blue,
-                  child: Text(
-                    "Deletar",
-                    style: TextStyle(color: Colors.white),
-                  ),
+                  label: "Deletar",
                 );
               },
             )

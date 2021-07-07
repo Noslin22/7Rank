@@ -1,9 +1,11 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:remessa/models/Auth.dart';
+import 'package:remessa/models/widgets/Button.dart';
 import 'package:remessa/models/widgets/consts.dart';
 
 import '../../../Home.dart';
+    import 'package:provider/provider.dart';
 
 class RegistroPastor extends StatefulWidget {
   final Function carregar;
@@ -14,14 +16,15 @@ class RegistroPastor extends StatefulWidget {
 
 class _RegistroPastorState extends State<RegistroPastor> {
   final _formKey = GlobalKey<FormState>();
-  FocusNode myFocusNode;
-  Auth _auth = Auth();
+  FocusNode? myFocusNode;
   String nome = '';
   String senha = '';
   String erro = '';
   int focus = 0;
   @override
   Widget build(BuildContext context) {
+    
+    Auth _auth = context.read<Auth>();
     return Container(
       padding: EdgeInsets.all(10),
       child: Form(
@@ -45,7 +48,7 @@ class _RegistroPastorState extends State<RegistroPastor> {
                   focus++;
                 });
                 myFocusNode = FocusNode();
-                myFocusNode.requestFocus();
+                myFocusNode!.requestFocus();
               },
               onChanged: (newValue) {
                 setState(() => nome = _auth.removerAcentos(newValue));
@@ -65,7 +68,7 @@ class _RegistroPastorState extends State<RegistroPastor> {
               focusNode: focus == 1 ? myFocusNode : null,
               onFieldSubmitted: (value) async {
                 if (_formKey.currentState != null &&
-                    _formKey.currentState.validate()) {
+                    _formKey.currentState!.validate()) {
                   widget.carregar(true);
                   dynamic result = await _auth.signIn(
                       email: nome, senha: senha, tipo: "pastor");
@@ -75,7 +78,7 @@ class _RegistroPastorState extends State<RegistroPastor> {
                     }
                     if (result != null) {
                       widget.carregar(false);
-                      Navigator.of(navigatorKey.currentContext).pushReplacement(
+                      Navigator.of(navigatorKey.currentContext!).pushReplacement(
                         MaterialPageRoute(
                           builder: (context) => Home(),
                         ),
@@ -95,10 +98,10 @@ class _RegistroPastorState extends State<RegistroPastor> {
             SizedBox(
               height: 20,
             ),
-            RaisedButton(
+            Button(
               onPressed: () async {
                 if (_formKey.currentState != null &&
-                    _formKey.currentState.validate()) {
+                    _formKey.currentState!.validate()) {
                   widget.carregar(true);
                   dynamic result = await _auth.register(
                       email: nome, senha: senha, tipo: "pastor");
@@ -109,17 +112,14 @@ class _RegistroPastorState extends State<RegistroPastor> {
                   });
                   Timer(Duration(seconds: 2), () {
                     if (result != null) {
-                      Navigator.of(navigatorKey.currentContext)
+                      Navigator.of(navigatorKey.currentContext!)
                           .pushReplacementNamed('home');
                     }
                   });
                 }
               },
               color: Colors.blue,
-              child: Text(
-                'Registrar',
-                style: TextStyle(color: Colors.white),
-              ),
+              label: 'Registrar',
             ),
             Text(
               erro,

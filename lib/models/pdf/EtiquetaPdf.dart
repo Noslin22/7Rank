@@ -3,11 +3,11 @@ import 'package:flutter/services.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart';
 
-Future<Uint8List> buildPdfEtiqueta(String distrito, String year) async {
+Future<Uint8List> buildPdfEtiqueta(String? distrito, String? year) async {
   final Document doc = Document();
 
   ByteData image = await rootBundle.load("assets/Iasd.png");
-  PdfPageFormat format;
+  PdfPageFormat? format;
   doc.addPage(
     MultiPage(
       pageFormat: format,
@@ -19,8 +19,8 @@ Future<Uint8List> buildPdfEtiqueta(String distrito, String year) async {
   return await doc.save();
 }
 
-List<Widget> _buildSheet(String distrito, Document doc, String ano,
-    PdfPageFormat format, ByteData image) {
+List<Widget> _buildSheet(String? distrito, Document doc, String? ano,
+    PdfPageFormat? format, ByteData image) {
   List<Widget> widgets = [];
   for (var i = 0; i < 6; i++) {
     widgets.add(
@@ -66,7 +66,7 @@ List<Widget> _buildSheet(String distrito, Document doc, String ano,
                 style: TextStyle(fontSize: 42),
               ),
               Text(
-                distrito,
+                distrito!,
                 style: TextStyle(fontSize: 48),
                 textAlign: TextAlign.center,
               ),

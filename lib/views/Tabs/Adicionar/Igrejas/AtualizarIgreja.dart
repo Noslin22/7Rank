@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
+import 'package:remessa/models/widgets/Button.dart';
 import 'package:remessa/models/widgets/consts.dart';
 
 class AtualizarIgreja extends StatefulWidget {
@@ -10,17 +11,17 @@ class AtualizarIgreja extends StatefulWidget {
 }
 
 class _AtualizarIgrejaState extends State<AtualizarIgreja> {
-  final _controllerDistritos = StreamController.broadcast();
+  StreamController<QuerySnapshot> _controllerDistritos = StreamController.broadcast();
   TextEditingController _controllerCod = TextEditingController();
   TextEditingController _controllerNome = TextEditingController();
   TextEditingController _controllerContrato = TextEditingController();
   TextEditingController _controllerMatricula = TextEditingController();
   final _formKey = GlobalKey<FormState>();
   List<String> igrejas = [];
-  String distrito;
-  String nome;
-  String contrato;
-  String matricula;
+  String? distrito;
+  String? nome;
+  late String contrato;
+  late String matricula;
 
   getData() {
     Stream<QuerySnapshot> distritos = db.collection("distritos").snapshots();
@@ -33,7 +34,7 @@ class _AtualizarIgrejaState extends State<AtualizarIgreja> {
   void getIgrejas() {
     db.collection("igrejas").orderBy("cod").get().then((value) {
       List<String> values = value.docs
-          .map((e) => "${e["cod"].toString()} - ${e["nome"].toString()}");
+          .map((e) => "${e["cod"].toString()} - ${e["nome"].toString()}") as List<String>;
       igrejas.addAll(values);
     });
   }
@@ -110,7 +111,7 @@ class _AtualizarIgrejaState extends State<AtualizarIgreja> {
                     SizedBox(
                       height: 14,
                     ),
-                    StreamBuilder(
+                    StreamBuilder<QuerySnapshot>(
                         stream: _controllerDistritos.stream,
                         builder: (context, snapshot) {
                           if (snapshot.hasData) {
@@ -122,26 +123,26 @@ class _AtualizarIgrejaState extends State<AtualizarIgreja> {
                               ),
                             ];
                             for (var i = 0;
-                                i < snapshot.data.docs.length;
+                                i < snapshot.data!.docs.length;
                                 i++) {
                               distritos.add(
                                 DropdownMenuItem(
-                                  value: snapshot.data.docs[i].id,
+                                  value: snapshot.data!.docs[i].id,
                                   child: Text(
-                                    snapshot.data.docs[i].id,
+                                    snapshot.data!.docs[i].id,
                                   ),
                                 ),
                               );
                             }
                             return DropdownButtonFormField(
                               decoration: inputDecoration,
-                              onChanged: (value) {
+                              onChanged: (dynamic value) {
                                 setState(() {
                                   distrito = value;
                                 });
                               },
                               hint: Text("Distrito"),
-                              onSaved: (newValue) {
+                              onSaved: (dynamic newValue) {
                                 distrito = newValue;
                               },
                               items: distritos,
@@ -180,12 +181,11 @@ class _AtualizarIgrejaState extends State<AtualizarIgreja> {
               ),
               Builder(
                 builder: (context) {
-                  return RaisedButton(
-                    padding: EdgeInsets.all(10),
+                  return Button.blue10(
                     onPressed: () {
                       if (_formKey.currentState != null &&
-                          _formKey.currentState.validate()) {
-                        _formKey.currentState.save();
+                          _formKey.currentState!.validate()) {
+                        _formKey.currentState!.save();
                         db
                             .collection("igrejas")
                             .where('cod',
@@ -208,17 +208,13 @@ class _AtualizarIgrejaState extends State<AtualizarIgreja> {
                         var snackbar = SnackBar(
                             content: Text(
                                 "${"Igreja $nome foi atualizada com sucesso"}"));
-                        Scaffold.of(context).showSnackBar(snackbar);
+                        ScaffoldMessenger.of(context).showSnackBar(snackbar);
                         Timer(Duration(seconds: 6), () {
                           Navigator.pushReplacementNamed(context, 'home');
                         });
                       }
                     },
-                    color: Colors.blue,
-                    child: Text(
-                      "Atualizar",
-                      style: TextStyle(color: Colors.white),
-                    ),
+                    label: "Atualizar",
                   );
                 },
               )

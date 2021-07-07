@@ -8,7 +8,7 @@ import 'package:remessa/models/pdf/MalotePdf.dart';
 import 'package:remessa/models/widgets/consts.dart';
 
 class Dinheiro extends StatefulWidget {
-  final Cache<String, List<List<String>>> cache;
+  final Cache<String, List<List<String?>>?> cache;
   Dinheiro(this.cache);
   @override
   _DinheiroState createState() => _DinheiroState();
@@ -37,10 +37,10 @@ class _DinheiroState extends State<Dinheiro> {
     mask: '##/####',
     filter: {"#": RegExp(r'[0-9]')},
   );
-  List<List<String>> protocolo = [];
+  List<List<String?>>? protocolo = [];
   Map<String, String> igrejas = {};
   String total = "R\$ 0,00";
-  List<String> datas = [
+  List<String?> datas = [
     "",
     "",
     "",
@@ -58,7 +58,7 @@ class _DinheiroState extends State<Dinheiro> {
     "0",
     "R\$ 0,00"
   ];
-  FocusNode myFocusNode;
+  FocusNode? myFocusNode;
   double text200 = 0.0;
   double text100 = 0.0;
   double text050 = 0.0;
@@ -78,7 +78,7 @@ class _DinheiroState extends State<Dinheiro> {
   double cheque5 = 0.0;
   String cod = "";
   String rem = "";
-  int focus;
+  int? focus;
 
   String _format(double dou) {
     return NumberFormat.currency(locale: 'pt_BR', decimalDigits: 2, name: "R\$")
@@ -188,7 +188,7 @@ class _DinheiroState extends State<Dinheiro> {
 
   @override
   void dispose() {
-    myFocusNode.dispose();
+    myFocusNode!.dispose();
     super.dispose();
   }
 
@@ -218,7 +218,7 @@ class _DinheiroState extends State<Dinheiro> {
                             datas[1] = igrejas[value];
                           });
                           myFocusNode = FocusNode();
-                          myFocusNode.requestFocus();
+                          myFocusNode!.requestFocus();
                         },
                         focusNode: focus == 0 ? myFocusNode : null,
                         textAlign: TextAlign.center,
@@ -230,7 +230,7 @@ class _DinheiroState extends State<Dinheiro> {
                     SizedBox(
                       width: 30,
                     ),
-                    Text(cod != "" ? igrejas[cod] : "Nome da Igreja"),
+                    Text(cod != "" ? igrejas[cod]! : "Nome da Igreja"),
                     SizedBox(
                       width: 70,
                     ),
@@ -243,7 +243,7 @@ class _DinheiroState extends State<Dinheiro> {
                             datas[2] = value;
                           });
                           myFocusNode = FocusNode();
-                          myFocusNode.requestFocus();
+                          myFocusNode!.requestFocus();
                         },
                         focusNode: focus == 1 ? myFocusNode : null,
                         textAlign: TextAlign.center,
@@ -258,7 +258,7 @@ class _DinheiroState extends State<Dinheiro> {
                 TextButton(
                   onPressed: () {
                     _clearForm();
-                    widget.cache.get("protocolo").clear();
+                    widget.cache.get("protocolo")!.clear();
                     setState(() {
                       protocolo = [];
                     });
@@ -272,7 +272,7 @@ class _DinheiroState extends State<Dinheiro> {
                     backgroundColor: MaterialStateProperty.resolveWith(
                       (states) {
                         if (states.contains(MaterialState.pressed)) {
-                          return Colors.yellow[700].withOpacity(0.7);
+                          return Colors.yellow[700]!.withOpacity(0.7);
                         }
                         return Colors.yellow[700];
                       },
@@ -322,7 +322,7 @@ class _DinheiroState extends State<Dinheiro> {
                                     datas[3] = text;
                                   });
                                   myFocusNode = FocusNode();
-                                  myFocusNode.requestFocus();
+                                  myFocusNode!.requestFocus();
                                 },
                                 textAlign: TextAlign.center,
                                 controller: controller200,
@@ -355,7 +355,7 @@ class _DinheiroState extends State<Dinheiro> {
                                     datas[4] = text;
                                   });
                                   myFocusNode = FocusNode();
-                                  myFocusNode.requestFocus();
+                                  myFocusNode!.requestFocus();
                                 },
                                 textAlign: TextAlign.center,
                                 controller: controller100,
@@ -388,7 +388,7 @@ class _DinheiroState extends State<Dinheiro> {
                                     datas[5] = text;
                                   });
                                   myFocusNode = FocusNode();
-                                  myFocusNode.requestFocus();
+                                  myFocusNode!.requestFocus();
                                 },
                                 textAlign: TextAlign.center,
                                 controller: controller50,
@@ -421,7 +421,7 @@ class _DinheiroState extends State<Dinheiro> {
                                     datas[6] = text;
                                   });
                                   myFocusNode = FocusNode();
-                                  myFocusNode.requestFocus();
+                                  myFocusNode!.requestFocus();
                                 },
                                 textAlign: TextAlign.center,
                                 controller: controller20,
@@ -454,7 +454,7 @@ class _DinheiroState extends State<Dinheiro> {
                                     datas[7] = text;
                                   });
                                   myFocusNode = FocusNode();
-                                  myFocusNode.requestFocus();
+                                  myFocusNode!.requestFocus();
                                 },
                                 textAlign: TextAlign.center,
                                 controller: controller10,
@@ -487,7 +487,7 @@ class _DinheiroState extends State<Dinheiro> {
                                     datas[8] = text;
                                   });
                                   myFocusNode = FocusNode();
-                                  myFocusNode.requestFocus();
+                                  myFocusNode!.requestFocus();
                                 },
                                 textAlign: TextAlign.center,
                                 controller: controller5,
@@ -520,7 +520,7 @@ class _DinheiroState extends State<Dinheiro> {
                                     datas[9] = text;
                                   });
                                   myFocusNode = FocusNode();
-                                  myFocusNode.requestFocus();
+                                  myFocusNode!.requestFocus();
                                 },
                                 textAlign: TextAlign.center,
                                 controller: controller2,
@@ -568,7 +568,7 @@ class _DinheiroState extends State<Dinheiro> {
                                     datas[10] = text;
                                   });
                                   myFocusNode = FocusNode();
-                                  myFocusNode.requestFocus();
+                                  myFocusNode!.requestFocus();
                                 },
                                 textAlign: TextAlign.center,
                                 controller: controller1,
@@ -601,7 +601,7 @@ class _DinheiroState extends State<Dinheiro> {
                                     datas[11] = text;
                                   });
                                   myFocusNode = FocusNode();
-                                  myFocusNode.requestFocus();
+                                  myFocusNode!.requestFocus();
                                 },
                                 textAlign: TextAlign.center,
                                 controller: controller050,
@@ -636,7 +636,7 @@ class _DinheiroState extends State<Dinheiro> {
                                     datas[12] = text;
                                   });
                                   myFocusNode = FocusNode();
-                                  myFocusNode.requestFocus();
+                                  myFocusNode!.requestFocus();
                                 },
                                 textAlign: TextAlign.center,
                                 controller: controller025,
@@ -671,7 +671,7 @@ class _DinheiroState extends State<Dinheiro> {
                                     datas[13] = text;
                                   });
                                   myFocusNode = FocusNode();
-                                  myFocusNode.requestFocus();
+                                  myFocusNode!.requestFocus();
                                 },
                                 textAlign: TextAlign.center,
                                 controller: controller010,
@@ -706,7 +706,7 @@ class _DinheiroState extends State<Dinheiro> {
                                     datas[14] = text;
                                   });
                                   myFocusNode = FocusNode();
-                                  myFocusNode.requestFocus();
+                                  myFocusNode!.requestFocus();
                                 },
                                 textAlign: TextAlign.center,
                                 controller: controller05,
@@ -748,7 +748,7 @@ class _DinheiroState extends State<Dinheiro> {
                               child: TextButton(
                                 onPressed: () {
                                   setState(() {
-                                    protocolo.add([cod, igrejas[cod], total]);
+                                    protocolo!.add([cod, igrejas[cod], total]);
                                     widget.cache.set("protocolo", protocolo);
                                   });
                                 },
@@ -888,7 +888,7 @@ class _DinheiroState extends State<Dinheiro> {
                                     datas[16] = text;
                                   });
                                   myFocusNode = FocusNode();
-                                  myFocusNode.requestFocus();
+                                  myFocusNode!.requestFocus();
                                 },
                                 textAlign: TextAlign.center,
                                 controller: controllerCheque1,
@@ -925,7 +925,7 @@ class _DinheiroState extends State<Dinheiro> {
                                     datas[17] = text;
                                   });
                                   myFocusNode = FocusNode();
-                                  myFocusNode.requestFocus();
+                                  myFocusNode!.requestFocus();
                                 },
                                 textAlign: TextAlign.center,
                                 controller: controllerCheque2,
@@ -962,7 +962,7 @@ class _DinheiroState extends State<Dinheiro> {
                                     datas[18] = text;
                                   });
                                   myFocusNode = FocusNode();
-                                  myFocusNode.requestFocus();
+                                  myFocusNode!.requestFocus();
                                 },
                                 textAlign: TextAlign.center,
                                 controller: controllerCheque3,
@@ -999,7 +999,7 @@ class _DinheiroState extends State<Dinheiro> {
                                     datas[19] = text;
                                   });
                                   myFocusNode = FocusNode();
-                                  myFocusNode.requestFocus();
+                                  myFocusNode!.requestFocus();
                                 },
                                 textAlign: TextAlign.center,
                                 controller: controllerCheque4,
@@ -1036,7 +1036,7 @@ class _DinheiroState extends State<Dinheiro> {
                                     datas[20] = text;
                                   });
                                   myFocusNode = FocusNode();
-                                  myFocusNode.requestFocus();
+                                  myFocusNode!.requestFocus();
                                 },
                                 textAlign: TextAlign.center,
                                 controller: controllerCheque5,
@@ -1106,7 +1106,7 @@ class _DinheiroState extends State<Dinheiro> {
                         ),
                         Expanded(
                           child: ListView.builder(
-                            itemCount: protocolo.length,
+                            itemCount: protocolo!.length,
                             itemBuilder: (context, index) {
                               return Container(
                                 decoration: BoxDecoration(
@@ -1124,7 +1124,7 @@ class _DinheiroState extends State<Dinheiro> {
                                       padding: EdgeInsets.all(4.0),
                                       width: 100.0,
                                       child: Text(
-                                        protocolo[index][0],
+                                        protocolo![index][0]!,
                                         style: TextStyle(fontSize: 20),
                                         textAlign: TextAlign.center,
                                       ),
@@ -1133,7 +1133,7 @@ class _DinheiroState extends State<Dinheiro> {
                                       padding: EdgeInsets.all(4.0),
                                       width: 300.0,
                                       child: Text(
-                                        protocolo[index][1],
+                                        protocolo![index][1]!,
                                         style: TextStyle(fontSize: 16),
                                         textAlign: TextAlign.center,
                                       ),
@@ -1142,7 +1142,7 @@ class _DinheiroState extends State<Dinheiro> {
                                       padding: EdgeInsets.all(4.0),
                                       width: 150.0,
                                       child: Text(
-                                        protocolo[index][2],
+                                        protocolo![index][2]!,
                                         style: TextStyle(fontSize: 20),
                                         textAlign: TextAlign.center,
                                       ),

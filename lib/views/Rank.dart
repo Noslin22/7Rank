@@ -7,6 +7,7 @@ import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:pdf/pdf.dart';
 import 'package:printing/printing.dart';
+import 'package:remessa/models/widgets/Button.dart';
 import 'package:remessa/models/widgets/consts.dart';
 import 'package:remessa/models/pdf/RankPdf.dart';
 import 'package:share/share.dart';
@@ -22,7 +23,7 @@ class Rank extends StatefulWidget {
 
 class _RankState extends State<Rank> {
   final _controller = StreamController.broadcast();
-  PdfPageFormat format;
+  PdfPageFormat? format;
   bool _buildFeita = false;
   bool _simples = true;
   List<IgrejaModel> igrejas = [];
@@ -39,7 +40,7 @@ class _RankState extends State<Rank> {
             : null;
   }
 
-  Future<Stream<QuerySnapshot>> _rank() async {
+  Future<Stream<QuerySnapshot>?> _rank() async {
     Stream<QuerySnapshot> distritos = db
         .collection("distritos")
         .orderBy("faltam")
@@ -82,8 +83,8 @@ class _RankState extends State<Rank> {
   Future _shareFile() async {
     final dir = (await getApplicationDocumentsDirectory()).path;
     final file = File('$dir/Rank Atualizado.pdf');
-    await file.writeAsBytesSync(await pdf());
-    Share.shareFile(file);
+    file.writeAsBytesSync(await pdf());
+    Share.shareFiles([file.path]);
   }
 
   void func() {
@@ -104,14 +105,14 @@ class _RankState extends State<Rank> {
           title: Text("Confirmar"),
           content: Text("Você deseja fechar o mapa?"),
           actions: [
-            FlatButton(
-              child: new Text("Não"),
+            Button(
+              label: "Não",
               onPressed: () {
                 Navigator.of(context).pop();
               },
             ),
-            FlatButton(
-              child: new Text("Sim"),
+            Button(
+              label: "Sim",
               onPressed: () {
                 db.collection("distritos").get().then((value) {
                   value.docs.forEach((element) async {
@@ -192,10 +193,10 @@ class _RankState extends State<Rank> {
           stream: _controller.stream,
           builder: (context, snapshot) {
             if (snapshot.hasData) {
-              QuerySnapshot querySnapshot = snapshot.data;
+              QuerySnapshot querySnapshot = snapshot.data as QuerySnapshot;
               if (_buildFeita == false) {
                 for (var i = 0; i < querySnapshot.docs.length; i++) {
-                  _total += querySnapshot.docs[i]["faltam"];
+                  _total += querySnapshot.docs[i]["faltam"] as int;
                   if (i == querySnapshot.docs.length - 1) {
                     _buildFeita = true;
                   }
@@ -219,7 +220,7 @@ class _RankState extends State<Rank> {
                       itemCount: querySnapshot.docs.length,
                       itemBuilder: (context, index) {
                         Distrito distrito = distritos[index];
-                        String data = distrito.data;
+                        String? data = distrito.data;
                         return Container(
                           padding:
                               _print ? EdgeInsets.all(0) : EdgeInsets.all(10),
@@ -230,14 +231,14 @@ class _RankState extends State<Rank> {
                             children: [
                               Expanded(
                                 child: Text(
-                                  distrito.id,
+                                  distrito.id!,
                                   style: TextStyle(fontSize: _print ? 10 : 16),
                                 ),
                               ),
                               !_simples
                                   ? Expanded(
                                       child: Text(
-                                        distrito.pastor,
+                                        distrito.pastor!,
                                         style: TextStyle(
                                             fontSize: _print ? 10 : 16),
                                       ),
@@ -256,7 +257,7 @@ class _RankState extends State<Rank> {
                                       child: Padding(
                                         padding: EdgeInsets.only(left: 20),
                                         child: Text(
-                                          data,
+                                          data!,
                                           style: TextStyle(
                                               fontSize: _print ? 11 : 16),
                                         ),

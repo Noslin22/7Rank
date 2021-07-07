@@ -11,12 +11,12 @@ class Distrito implements Comparable<Distrito> {
     this.data,
   });
 
-  final String id;
-  final int faltam;
-  final String pastor;
-  String data;
+  final String? id;
+  final int? faltam;
+  final String? pastor;
+  String? data;
 
-  String getIndex(int index) {
+  String? getIndex(int index) {
     switch (index) {
       case 0:
         return id;
@@ -32,11 +32,11 @@ class Distrito implements Comparable<Distrito> {
 
   @override
   int compareTo(Distrito other) {
-    DateTime adate = currentDate(date: other.data);
-    DateTime bdate = currentDate(date: other.data);
+    DateTime? adate = currentDate(date: other.data);
+    DateTime? bdate = currentDate(date: other.data);
     return this.faltam == 0
-        ? adate.compareTo(bdate)
-        : this.faltam.compareTo(other.faltam);
+        ? adate!.compareTo(bdate!)
+        : this.faltam!.compareTo(other.faltam!);
   }
 }
 
@@ -46,10 +46,10 @@ class IgrejaModel {
     this.distrito,
   );
 
-  final String nome;
-  final String distrito;
+  final String? nome;
+  final String? distrito;
 
-  String getIndex(int index) {
+  String? getIndex(int index) {
     switch (index) {
       case 0:
         return nome;
@@ -68,7 +68,7 @@ Future<Uint8List> buildPdf2(List<IgrejaModel> igrejas, String data) async {
   PdfColor _baseTextColor = PdfColors.white;
   final List<String> headers = ['Igreja', 'Distrito'];
 
-  PdfPageFormat format;
+  PdfPageFormat? format;
   doc.addPage(
     pw.Page(
       build: (pw.Context context) {
@@ -120,9 +120,9 @@ Future<Uint8List> buildPdf2(List<IgrejaModel> igrejas, String data) async {
                     ),
                   ),
                   headers: headers,
-                  data: List<List<String>>.generate(
+                  data: List<List<String?>>.generate(
                     igrejas.length,
-                    (row) => List<String>.generate(
+                    (row) => List<String?>.generate(
                       headers.length,
                       (col) => igrejas[row].getIndex(col),
                     ),
@@ -155,7 +155,7 @@ Future<Uint8List> buildPdf(
     }
   }
 
-  PdfPageFormat format;
+  PdfPageFormat? format;
   doc.addPage(
     pw.Page(
       pageFormat: format,
@@ -216,9 +216,9 @@ Future<Uint8List> buildPdf(
                     ),
                   ),
                   headers: headers,
-                  data: List<List<String>>.generate(
+                  data: List<List<String?>>.generate(
                     distritos.length,
-                    (row) => List<String>.generate(
+                    (row) => List<String?>.generate(
                       headers.length,
                       (col) => distritos[row].getIndex(col),
                     ),

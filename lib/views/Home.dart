@@ -4,12 +4,14 @@ import 'package:printing/printing.dart';
 import 'package:remessa/models/Auth.dart';
 import 'package:remessa/models/IgrejaFirebase.dart';
 import 'package:remessa/models/pdf/DistritoPdf.dart';
+import 'package:remessa/models/widgets/Button.dart';
 import 'package:remessa/models/widgets/CheckBoxTile.dart';
 import 'package:remessa/models/widgets/consts.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
 import 'package:remessa/views/Rank.dart';
+    import 'package:provider/provider.dart';
 import 'dart:async';
 
 class Home extends StatefulWidget {
@@ -18,27 +20,26 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
-  StreamController _controllerDistritos = StreamController.broadcast();
-  StreamController _controllerIgrejas = StreamController.broadcast();
-  StreamController _controllerRank = StreamController.broadcast();
+  StreamController<QuerySnapshot> _controllerDistritos = StreamController.broadcast();
+  StreamController<QuerySnapshot> _controllerIgrejas = StreamController.broadcast();
+  StreamController<QuerySnapshot> _controllerRank = StreamController.broadcast();
   ScrollController _controllerScroll = ScrollController();
   FirebaseAuth auth = FirebaseAuth.instance;
   final _formKey = GlobalKey<FormState>();
   List<IgrejaPdf> igrejas = [];
   String _data = DateFormat("dd/MM/yyyy").format(DateTime.now());
   bool _distrito = false;
-  Auth _auth = Auth();
-  String escolhido;
-  String usuario;
+  String? escolhido;
+  String? usuario;
 
   save() {
-    if (_formKey.currentState != null && _formKey.currentState.validate()) {
-      _formKey.currentState.save();
+    if (_formKey.currentState != null && _formKey.currentState!.validate()) {
+      _formKey.currentState!.save();
       _pegarDados();
     }
   }
 
-  Stream<QuerySnapshot> _pegarDados() {
+  Stream<QuerySnapshot>? _pegarDados() {
     igrejas = [];
     Query query = db
         .collection("igrejas")
@@ -86,14 +87,14 @@ class _HomeState extends State<Home> {
 
   String currentUser() {
     String nome;
-    nome = auth.currentUser.email.contains("pastor")
+    nome = auth.currentUser!.email!.contains("pastor")
         ? "pastor"
-        : auth.currentUser.email.contains("adm")
+        : auth.currentUser!.email!.contains("adm")
             ? "adm"
             : "gerenciador";
-    usuario = auth.currentUser.email.contains("_")
-        ? '${auth.currentUser.email.split("_")[0].substring(0, 1).toUpperCase()}${auth.currentUser.email.split("_")[0].substring(1)} ${auth.currentUser.email.split("_")[1].split("@")[0].substring(0, 1).toUpperCase()}${auth.currentUser.email.split("_")[1].split("@")[0].substring(1)}'
-        : auth.currentUser.email.split("@")[0];
+    usuario = auth.currentUser!.email!.contains("_")
+        ? '${auth.currentUser!.email!.split("_")[0].substring(0, 1).toUpperCase()}${auth.currentUser!.email!.split("_")[0].substring(1)} ${auth.currentUser!.email!.split("_")[1].split("@")[0].substring(0, 1).toUpperCase()}${auth.currentUser!.email!.split("_")[1].split("@")[0].substring(1)}'
+        : auth.currentUser!.email!.split("@")[0];
     Stream<QuerySnapshot> pastor = nome == "pastor"
         ? db
             .collectionGroup("distritos")
@@ -115,6 +116,8 @@ class _HomeState extends State<Home> {
 
   @override
   Widget build(BuildContext context) {
+    
+    Auth _auth = context.read<Auth>();
     return Scaffold(
       appBar: AppBar(
         title: Text("$usuario"),
@@ -130,7 +133,7 @@ class _HomeState extends State<Home> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              StreamBuilder(
+              StreamBuilder<QuerySnapshot>(
                   stream: _controllerDistritos.stream,
                   builder: (context, snapshot) {
                     if (snapshot.hasData) {
@@ -141,32 +144,32 @@ class _HomeState extends State<Home> {
                           ),
                         ),
                       ];
-                      for (var i = 0; i < snapshot.data.docs.length; i++) {
+                      for (var i = 0; i < snapshot.data!.docs.length; i++) {
                         distritos.add(
                           DropdownMenuItem(
-                            value: snapshot.data.docs[i].id,
+                            value: snapshot.data!.docs[i].id,
                             child: Text(
-                              snapshot.data.docs[i].id,
+                              snapshot.data!.docs[i].id,
                             ),
                           ),
                         );
                       }
                       return DropdownButtonFormField(
                         decoration: inputDecoration,
-                        onChanged: (value) {
+                        onChanged: (dynamic value) {
                           setState(() {
                             escolhido = value;
                           });
                         },
                         hint: Text("Distritos"),
-                        onSaved: (newValue) {
+                        onSaved: (dynamic newValue) {
                           setState(() {
                             _distrito = true;
                           });
                         },
                         items: distritos,
                         value: escolhido,
-                        validator: (value) {
+                        validator: (dynamic value) {
                           if (value == null) {
                             return "Escolha algum distrito";
                           }
@@ -182,27 +185,23 @@ class _HomeState extends State<Home> {
               Row(
                 children: [
                   Expanded(
-                    child: RaisedButton(
+                    child: Button(
                       padding: EdgeInsets.all(10),
                       color: Colors.blue,
                       onPressed: () {
                         save();
                       },
-                      child: Text(
-                        "Procurar",
-                        style: TextStyle(color: Colors.white),
-                      ),
-                      disabledColor: Colors.green,
+                      label: "Procurar",
                     ),
                   ),
                   _distrito
                       ? Align(
                           alignment: FractionalOffset.centerRight,
-                          child: StreamBuilder(
+                          child: StreamBuilder<QuerySnapshot>(
                             stream: _controllerRank.stream,
                             builder: (context, snapshot) {
                               if (snapshot.hasData) {
-                                QuerySnapshot querySnapshot = snapshot.data;
+                                QuerySnapshot querySnapshot = snapshot.data!;
                                 db
                                     .collection("distritos")
                                     .doc(escolhido)
@@ -242,7 +241,7 @@ class _HomeState extends State<Home> {
               Row(
                 children: [
                   Expanded(
-                    child: RaisedButton(
+                    child: Button(
                       padding: EdgeInsets.all(10),
                       onPressed: () {
                         Navigator.push(
@@ -251,10 +250,7 @@ class _HomeState extends State<Home> {
                               builder: (context) => Rank(_data, currentUser()),
                             ));
                       },
-                      child: Text(
-                        "Rank",
-                        style: TextStyle(color: Colors.white),
-                      ),
+                      label: "Rank",
                       color: Colors.blue,
                     ),
                     flex: 3,
@@ -266,7 +262,7 @@ class _HomeState extends State<Home> {
                       : Container(),
                   _distrito
                       ? Expanded(
-                          child: RaisedButton(
+                          child: Button(
                             padding: EdgeInsets.all(10),
                             onPressed: () {
                               Printing.layoutPdf(
@@ -280,10 +276,7 @@ class _HomeState extends State<Home> {
                                 },
                               );
                             },
-                            child: Text(
-                              "Listar",
-                              style: TextStyle(color: Colors.white),
-                            ),
+                            label: "Listar",
                             color: Colors.blue,
                           ),
                           flex: 2)
@@ -291,7 +284,7 @@ class _HomeState extends State<Home> {
                 ],
               ),
               _distrito
-                  ? StreamBuilder(
+                  ? StreamBuilder<QuerySnapshot>(
                       stream: _controllerIgrejas.stream,
                       builder: (context, snapshot) {
                         switch (snapshot.connectionState) {
@@ -300,12 +293,11 @@ class _HomeState extends State<Home> {
                             return Center(
                               child: CircularProgressIndicator(),
                             );
-                            break;
                           case ConnectionState.active:
                           case ConnectionState.done:
                             if (!snapshot.hasError) {
                               if (snapshot.hasData) {
-                                QuerySnapshot querySnapshot = snapshot.data;
+                                QuerySnapshot querySnapshot = snapshot.data!;
                                 return Expanded(
                                   child: Scrollbar(
                                     controller: _controllerScroll,

@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:remessa/models/Auth.dart';
 import 'package:remessa/models/widgets/BottomNavigator.dart';
 import 'package:remessa/models/widgets/Loading.dart';
 import 'package:remessa/views/Tabs/Autenticate/Login/LoginAdm.dart';
+import 'package:provider/provider.dart';
 import 'package:remessa/views/Tabs/Autenticate/Login/LoginGerenciador.dart';
 import 'package:remessa/views/Tabs/Autenticate/Login/LoginPastor.dart';
 
@@ -11,17 +13,8 @@ class Login extends StatefulWidget {
 }
 
 class _LoginState extends State<Login> {
+  late List<Widget> listScreens;
   int tabIndex = 0;
-  List<Widget> listScreens;
-  @override
-  void initState() {
-    super.initState();
-    listScreens = [
-      LoginPastor(carregar),
-      LoginGerenciador(carregar),
-      LoginAdm(carregar),
-    ];
-  }
 
   void setIndex(value) {
     setState(() {
@@ -29,7 +22,7 @@ class _LoginState extends State<Login> {
     });
   }
 
-  void carregar(value) {
+  void carregar(bool value) {
     setState(() {
       carregando = value;
     });
@@ -39,6 +32,22 @@ class _LoginState extends State<Login> {
 
   @override
   Widget build(BuildContext context) {
+    Auth _auth = context.read<Auth>();
+
+    listScreens = [
+      LoginPastor(
+        carregar,
+        code: _auth.error != null ? _auth.error!.code : null,
+      ),
+      LoginGerenciador(
+        carregar,
+        code: _auth.error != null ? _auth.error!.code : null,
+      ),
+      LoginAdm(
+        carregar,
+        code: _auth.error != null ? _auth.error!.code : null,
+      ),
+    ];
     return carregando
         ? Loading()
         : Scaffold(

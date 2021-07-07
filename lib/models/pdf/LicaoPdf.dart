@@ -7,16 +7,16 @@ import 'package:remessa/models/widgets/consts.dart';
 final baseColor = PdfColors.blue;
 final List<String> headers = ['Ord.', 'Distrito', 'Cod.', 'Igreja', 'Ass.'];
 
-Future<Uint8List> generateLicaoPdf(PdfPageFormat format, String title) async {
+Future<Uint8List> generateLicaoPdf(PdfPageFormat format, String? title) async {
   final pdf = Document();
   final baseColor = PdfColors.blue;
   const _darkColor = PdfColors.blueGrey800;
   PdfColor _baseTextColor = PdfColors.white;
   ByteData image = await rootBundle.load("assets/Ess_logo.png");
-  List<List<String>> igrejas = [];
+  List<List<String?>> igrejas = [];
   await db.collection('igrejas').orderBy('distrito').orderBy("nome").get().then(
     (value) {
-      String distrito = "Alagoinhas";
+      String? distrito = "Alagoinhas";
       int ord = 1;
       for (var element in value.docs) {
         if (distrito != element["distrito"]) {
@@ -63,7 +63,7 @@ Future<Uint8List> generateLicaoPdf(PdfPageFormat format, String title) async {
               children: <Widget>[
                 Center(
                   child: Text(
-                    title,
+                    title!,
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 32,

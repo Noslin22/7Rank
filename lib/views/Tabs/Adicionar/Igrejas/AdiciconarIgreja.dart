@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:remessa/models/widgets/Button.dart';
 import 'package:remessa/models/widgets/consts.dart';
 
 class AdicionarIgreja extends StatefulWidget {
@@ -9,13 +10,13 @@ class AdicionarIgreja extends StatefulWidget {
 }
 
 class _AdicionarIgrejaState extends State<AdicionarIgreja> {
-  final _controllerDistrito = StreamController.broadcast();
+  StreamController<QuerySnapshot> _controllerDistrito = StreamController.broadcast();
   final _formKey = GlobalKey<FormState>();
-  String nome;
-  String cod;
-  String matricula;
-  String contrato;
-  String distrito;
+  String? nome;
+  late String cod;
+  late String matricula;
+  late String contrato;
+  String? distrito;
 
   getData() {
     Stream<QuerySnapshot> distritos = db.collection("distritos").snapshots();
@@ -78,7 +79,7 @@ class _AdicionarIgrejaState extends State<AdicionarIgreja> {
                     SizedBox(
                       height: 20,
                     ),
-                    StreamBuilder(
+                    StreamBuilder<QuerySnapshot>(
                         stream: _controllerDistrito.stream,
                         builder: (context, snapshot) {
                           if (snapshot.hasData) {
@@ -90,29 +91,29 @@ class _AdicionarIgrejaState extends State<AdicionarIgreja> {
                               ),
                             ];
                             for (var i = 0;
-                                i < snapshot.data.docs.length;
+                                i < snapshot.data!.docs.length;
                                 i++) {
                               distritos.add(
                                 DropdownMenuItem(
-                                  value: snapshot.data.docs[i].id,
+                                  value: snapshot.data!.docs[i].id,
                                   child: Text(
-                                    snapshot.data.docs[i].id,
+                                    snapshot.data!.docs[i].id,
                                   ),
                                 ),
                               );
                             }
                             return DropdownButtonFormField(
                               decoration: inputDecoration,
-                              onChanged: (value) {
+                              onChanged: (dynamic value) {
                                 setState(() {
                                   distrito = value;
                                 });
                               },
                               hint: Text("Distritos"),
-                              onSaved: (newValue) {},
+                              onSaved: (dynamic newValue) {},
                               items: distritos,
                               value: distrito,
-                              validator: (value) {
+                              validator: (dynamic value) {
                                 if (value == null) {
                                   return "Escolha algum distrito";
                                 }
@@ -160,12 +161,11 @@ class _AdicionarIgrejaState extends State<AdicionarIgreja> {
               ),
               Builder(
                 builder: (context) {
-                  return RaisedButton(
-                    padding: EdgeInsets.all(10),
+                  return Button.blue10(
                     onPressed: () {
                       if (_formKey.currentState != null &&
-                          _formKey.currentState.validate()) {
-                        _formKey.currentState.save();
+                          _formKey.currentState!.validate()) {
+                        _formKey.currentState!.save();
                         db.collection("igrejas").add({
                           'cod': int.parse(cod),
                           'nome': nome,
@@ -178,17 +178,13 @@ class _AdicionarIgrejaState extends State<AdicionarIgreja> {
                         var snackbar = SnackBar(
                             content: Text(
                                 "${"Igreja $nome foi adicionada com sucesso"}"));
-                        Scaffold.of(context).showSnackBar(snackbar);
+                        ScaffoldMessenger.of(context).showSnackBar(snackbar);
                         Timer(Duration(seconds: 6), () {
                           Navigator.pushReplacementNamed(context, 'home');
                         });
                       }
                     },
-                    color: Colors.blue,
-                    child: Text(
-                      "Adicionar",
-                      style: TextStyle(color: Colors.white),
-                    ),
+                    label: "Adicionar",
                   );
                 },
               )

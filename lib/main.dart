@@ -1,9 +1,9 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
 import 'package:remessa/models/Auth.dart';
-import 'package:remessa/models/User.dart';
 import 'package:remessa/models/widgets/consts.dart';
 import 'package:remessa/views/wrappers/Wrapper.dart';
 
@@ -16,8 +16,16 @@ void main() async {
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return StreamProvider<Uid>.value(
-      value: Auth().user,
+    return MultiProvider(
+      providers: [
+        Provider<Auth>(
+          create: (context) => Auth(auth: FirebaseAuth.instance),
+        ),
+        StreamProvider<User?>(
+          create: (context) => context.read<Auth>().user,
+          initialData: null,
+        ),
+      ],
       child: MaterialApp(
         navigatorKey: navigatorKey,
         home: Wrapper(),

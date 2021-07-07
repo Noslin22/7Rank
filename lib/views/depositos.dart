@@ -1,5 +1,6 @@
 import 'package:dcache/dcache.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
+import 'package:remessa/models/widgets/Button.dart';
 import 'package:remessa/models/widgets/consts.dart';
 import "package:flutter/material.dart";
 import 'dart:convert';
@@ -7,7 +8,7 @@ import 'dart:convert';
 import 'dart:html' as html;
 
 class Deposito extends StatefulWidget {
-  final Cache<String, List<String>> cache;
+  final Cache<String, List<String>?> cache;
   Deposito(this.cache);
   @override
   _DepositoState createState() => _DepositoState();
@@ -28,12 +29,12 @@ class _DepositoState extends State<Deposito> {
   TextEditingController controllerDc = TextEditingController();
   TextEditingController controllerVl = TextEditingController();
   ScrollController _scrollController = new ScrollController();
-  String title = "Código da Igreja";
+  String? title = "Código da Igreja";
   Map<String, String> igrejas = {};
-  List<String> depositos = [];
-  List<String> amostra = [];
-  FocusNode myFocusNode;
-  String conta = "128076-7";
+  List<String>? depositos = [];
+  List<String>? amostra = [];
+  FocusNode? myFocusNode;
+  String? conta = "128076-7";
   bool caixa = false;
   String cod = "";
   int focus = 0;
@@ -67,13 +68,13 @@ class _DepositoState extends State<Deposito> {
       ..download = caixa
           ? "Recibo Caixa - ${currentDate(dataAtual: true)}"
           : '$conta.txt';
-    html.document.body.children.add(anchor);
+    html.document.body!.children.add(anchor);
 
     // download
     anchor.click();
 
     // cleanup
-    html.document.body.children.remove(anchor);
+    html.document.body!.children.remove(anchor);
     html.Url.revokeObjectUrl(url);
   }
 
@@ -86,22 +87,23 @@ class _DepositoState extends State<Deposito> {
 
   @override
   void dispose() {
-    myFocusNode.dispose();
+    myFocusNode!.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    bool showCentered = MediaQuery.of(context).size.width > 960;
     return Scaffold(
       appBar: AppBar(
         title: Text("Depositos Manuais"),
       ),
       body: Row(
         children: [
-          Expanded(
+          showCentered ? Expanded(
             child: Container(),
             flex: 1,
-          ),
+          ) : Container(),
           Expanded(
             child: Container(
               padding: EdgeInsets.fromLTRB(10, 50, 10, 20),
@@ -115,7 +117,7 @@ class _DepositoState extends State<Deposito> {
                           Radio(
                               value: "128076-7",
                               groupValue: conta,
-                              onChanged: (text) {
+                              onChanged: (dynamic text) {
                                 setState(() {
                                   conta = text;
                                   caixa = false;
@@ -129,7 +131,7 @@ class _DepositoState extends State<Deposito> {
                           Radio(
                               value: "41500-6",
                               groupValue: conta,
-                              onChanged: (text) {
+                              onChanged: (dynamic text) {
                                 setState(() {
                                   conta = text;
                                   caixa = false;
@@ -143,7 +145,7 @@ class _DepositoState extends State<Deposito> {
                           Radio(
                               value: "43266-0",
                               groupValue: conta,
-                              onChanged: (text) {
+                              onChanged: (dynamic text) {
                                 setState(() {
                                   conta = text;
                                   caixa = false;
@@ -157,7 +159,7 @@ class _DepositoState extends State<Deposito> {
                           Radio(
                               value: "136385-1",
                               groupValue: conta,
-                              onChanged: (text) {
+                              onChanged: (dynamic text) {
                                 setState(() {
                                   conta = text;
                                   caixa = false;
@@ -171,7 +173,7 @@ class _DepositoState extends State<Deposito> {
                           Radio(
                               value: "342-5",
                               groupValue: conta,
-                              onChanged: (text) {
+                              onChanged: (dynamic text) {
                                 setState(() {
                                   conta = text;
                                   caixa = false;
@@ -185,7 +187,7 @@ class _DepositoState extends State<Deposito> {
                           Radio(
                               value: "Recibo Caixa",
                               groupValue: conta,
-                              onChanged: (text) {
+                              onChanged: (dynamic text) {
                                 setState(() {
                                   conta = text;
                                   caixa = true;
@@ -216,7 +218,7 @@ class _DepositoState extends State<Deposito> {
                               title = igrejas[controllerCod.text];
                             });
                             myFocusNode = FocusNode();
-                            myFocusNode.requestFocus();
+                            myFocusNode!.requestFocus();
                           },
                           decoration:
                               inputDecoration.copyWith(labelText: title),
@@ -235,7 +237,7 @@ class _DepositoState extends State<Deposito> {
                               focus = 2;
                             });
                             myFocusNode = FocusNode();
-                            myFocusNode.requestFocus();
+                            myFocusNode!.requestFocus();
                           },
                           decoration:
                               inputDecoration.copyWith(labelText: "Data"),
@@ -258,7 +260,7 @@ class _DepositoState extends State<Deposito> {
                               focus = 3;
                             });
                             myFocusNode = FocusNode();
-                            myFocusNode.requestFocus();
+                            myFocusNode!.requestFocus();
                           },
                           decoration:
                               inputDecoration.copyWith(labelText: "Remessa"),
@@ -276,7 +278,7 @@ class _DepositoState extends State<Deposito> {
                               focus = 4;
                             });
                             myFocusNode = FocusNode();
-                            myFocusNode.requestFocus();
+                            myFocusNode!.requestFocus();
                           },
                           decoration:
                               inputDecoration.copyWith(labelText: "Documento"),
@@ -301,12 +303,12 @@ class _DepositoState extends State<Deposito> {
                       widget.cache.set("depositos", depositos);
                       widget.cache.set("amostra", amostra);
                       setState(() {
-                        depositos.insert(
+                        depositos!.insert(
                             0,
                             caixa
                                 ? "${date[0]}	${date[1]}	${date[2]}	Recibo Caixa ${controllerDc.text} - Rm ${controllerRM.text}	${controllerCod.text}	${controllerDc.text}	$vl"
                                 : "${date[0]}	${date[1]}	${date[2]}	Deposito em ${controllerDate.text} - Rm ${controllerRM.text} - ${controllerDc.text}	${controllerCod.text}	${controllerDc.text}	$vl");
-                        amostra.insert(0,
+                        amostra!.insert(0,
                             "${igrejas[controllerCod.text]} - ${controllerCod.text} - ${controllerDate.text} - Remessa ${controllerRM.text} - Doc ${controllerDc.text} - R\$ ${controllerVl.text}");
                         controllerCod.text = '';
                         controllerDc.text = '';
@@ -315,7 +317,7 @@ class _DepositoState extends State<Deposito> {
                         focus = 0;
                       });
                       myFocusNode = FocusNode();
-                      myFocusNode.requestFocus();
+                      myFocusNode!.requestFocus();
                     },
                     decoration: inputDecoration.copyWith(labelText: "Valor"),
                   ),
@@ -325,15 +327,12 @@ class _DepositoState extends State<Deposito> {
                   Row(
                     children: [
                       Expanded(
-                        child: RaisedButton(
+                        child: Button(
                             color: Colors.orange,
-                            child: Text(
-                              "Exportar",
-                              style: TextStyle(color: Colors.white),
-                            ),
+                            label: "Exportar",
                             onPressed: () {
                               if (depositos != []) {
-                                _write(depositos);
+                                _write(depositos!);
                                 setState(() {
                                   controllerCod.text = '';
                                   controllerDate.text = '';
@@ -349,15 +348,12 @@ class _DepositoState extends State<Deposito> {
                         width: 20,
                       ),
                       Expanded(
-                        child: RaisedButton(
+                        child: Button(
                             color: Colors.lightGreen,
-                            child: Text(
-                              "Novo",
-                              style: TextStyle(color: Colors.white),
-                            ),
+                            label: "Novo",
                             onPressed: () {
-                              widget.cache.get("depositos").clear();
-                              widget.cache.get("amostra").clear();
+                              widget.cache.get("depositos")!.clear();
+                              widget.cache.get("amostra")!.clear();
                               setState(() {
                                 depositos = [];
                                 amostra = [];
@@ -378,17 +374,17 @@ class _DepositoState extends State<Deposito> {
                   ),
                   Expanded(
                     child: ListView.builder(
-                        itemCount: amostra.length,
+                        itemCount: amostra!.length,
                         controller: _scrollController,
                         shrinkWrap: true,
                         reverse: true,
                         itemBuilder: (context, index) {
                           return ListTile(
-                            title: Text(amostra[index]),
+                            title: Text(amostra![index]),
                             trailing: Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                FlatButton(
+                                Button(
                                   child: Icon(
                                     Icons.delete,
                                     color: Colors.white,
@@ -396,15 +392,15 @@ class _DepositoState extends State<Deposito> {
                                   color: Colors.red,
                                   onPressed: () {
                                     setState(() {
-                                      amostra.removeAt(index);
-                                      depositos.removeAt(index);
+                                      amostra!.removeAt(index);
+                                      depositos!.removeAt(index);
                                     });
                                   },
                                 ),
                                 SizedBox(
                                   width: 10,
                                 ),
-                                FlatButton(
+                                Button(
                                   child: Icon(
                                     Icons.edit,
                                     color: Colors.white,
@@ -412,10 +408,10 @@ class _DepositoState extends State<Deposito> {
                                   color: Colors.orange,
                                   onPressed: () {
                                     List<String> text =
-                                        amostra[index].split("-");
+                                        amostra![index].split("-");
                                     setState(() {
-                                      amostra.removeAt(index);
-                                      depositos.removeAt(index);
+                                      amostra!.removeAt(index);
+                                      depositos!.removeAt(index);
                                       title =
                                           igrejas[text[1].replaceAll(" ", "")];
                                       controllerCod.text =
@@ -444,10 +440,10 @@ class _DepositoState extends State<Deposito> {
             ),
             flex: 2,
           ),
-          Expanded(
+          showCentered ? Expanded(
             child: Container(),
             flex: 1,
-          ),
+          ) : Container(),
         ],
       ),
     );
