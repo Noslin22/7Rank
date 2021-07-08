@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:remessa/models/Auth.dart';
 import 'package:remessa/models/pages/SignModel.dart';
 import 'package:remessa/models/widgets/Button.dart';
@@ -96,64 +97,72 @@ class _SignState extends State<SignPage> {
             SizedBox(
               height: 20,
             ),
-            TextFormField(
-              validator: (value) {
-                if (value == null || value == '') {
-                  return "Digite o Nome do $type";
-                }
-                return null;
-              },
-              focusNode: focus == 0 ? myFocusNode : null,
-              onFieldSubmitted: (value) {
-                setState(() {
-                  focus++;
-                });
-                myFocusNode = FocusNode();
-                myFocusNode!.requestFocus();
-              },
-              keyboardType: TextInputType.name,
-              onChanged: (newValue) {
-                setState(() => nome = _auth.removerAcentos(newValue));
-              },
-              decoration: inputDecoration.copyWith(labelText: "Nome $type"),
-            ),
-            SizedBox(
-              height: 20,
-            ),
-            TextFormField(
-              validator: (value) {
-                if (value == null || value == '') {
-                  return "Digite a senha";
-                }
-                return null;
-              },
-              onChanged: (newValue) {
-                setState(() => senha = newValue);
-              },
-              focusNode: focus == 1 ? myFocusNode : null,
-              onFieldSubmitted: (value) async {
-                if (_formKey.currentState != null &&
-                    _formKey.currentState!.validate()) {
-                  widget.model.carregar(true);
-                  User? result = await _auth.signIn(
-                      email: nome, senha: senha, tipo: widget.model.type);
+            AutofillGroup(
+              child: Column(
+                children: [
+                  TextFormField(
+                    validator: (value) {
+                      if (value == null || value == '') {
+                        return "Digite o Nome do $type";
+                      }
+                      return null;
+                    },
+                    focusNode: focus == 0 ? myFocusNode : null,
+                    onFieldSubmitted: (value) {
+                      setState(() {
+                        focus++;
+                      });
+                      myFocusNode = FocusNode();
+                      myFocusNode!.requestFocus();
+                    },
+                    autofillHints: [AutofillHints.username],
+                    onChanged: (newValue) {
+                      setState(() => nome = _auth.removerAcentos(newValue));
+                    },
+                    decoration:
+                        inputDecoration.copyWith(labelText: "Nome $type"),
+                  ),
+                  SizedBox(
+                    height: 20,
+                  ),
+                  TextFormField(
+                    validator: (value) {
+                      if (value == null || value == '') {
+                        return "Digite a senha";
+                      }
+                      return null;
+                    },
+                    onChanged: (newValue) {
+                      setState(() => senha = newValue);
+                    },
+                    focusNode: focus == 1 ? myFocusNode : null,
+                    onFieldSubmitted: (value) async {
+                      if (_formKey.currentState != null &&
+                          _formKey.currentState!.validate()) {
+                        TextInput.finishAutofillContext();
+                        widget.model.carregar(true);
+                        User? result = await _auth.signIn(
+                            email: nome, senha: senha, tipo: widget.model.type);
 
-                  Timer(Duration(seconds: 3), () {
-                    widget.model.carregar(false);
-                    if (result != null) {
-                      Navigator.of(navigatorKey.currentContext!)
-                          .pushReplacement(
-                        MaterialPageRoute(
-                          builder: (context) => Home(),
-                        ),
-                      );
-                    }
-                  });
-                }
-              },
-              obscureText: true,
-              decoration: inputDecoration.copyWith(
-                labelText: "Senha",
+                        Timer(Duration(seconds: 3), () {
+                          widget.model.carregar(false);
+                          if (result != null) {
+                            Navigator.of(navigatorKey.currentContext!)
+                                .pushReplacement(
+                              MaterialPageRoute(
+                                builder: (context) => Home(),
+                              ),
+                            );
+                          }
+                        });
+                      }
+                    },
+                    obscureText: true,
+                    decoration: inputDecoration.copyWith(
+                      labelText: "Senha",
+                    ),
+                  ),
+                ],
               ),
             ),
             SizedBox(

@@ -8,7 +8,7 @@ import 'package:remessa/models/pdf/MalotePdf.dart';
 import 'package:remessa/models/widgets/consts.dart';
 
 class Dinheiro extends StatefulWidget {
-  final Cache<String, List<List<String?>>?> cache;
+  final SimpleCache<String, List<List<String?>>?> cache;
   Dinheiro(this.cache);
   @override
   _DinheiroState createState() => _DinheiroState();

@@ -33,7 +33,11 @@ final inputDecoration = InputDecoration(
   ),
 );
 
-SimpleCache<String, List<String>> c = SimpleCache<String, List<String>>(
+SimpleCache<String, List<String>?> c1 = SimpleCache<String, List<String>?>(
+  storage: InMemoryStorage(3),
+);
+SimpleCache<String, List<List<String?>>?> c2 =
+    SimpleCache<String, List<List<String?>>?>(
   storage: InMemoryStorage(3),
 );
 
@@ -594,7 +598,7 @@ List<Widget> actions(String gerenciador, BuildContext context, String tela,
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => Deposito(c),
+                      builder: (context) => Deposito(c1),
                     ),
                   );
                 }),
@@ -610,8 +614,7 @@ List<Widget> actions(String gerenciador, BuildContext context, String tela,
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => Dinheiro(
-                              c as Cache<String, List<List<String?>>?>),
+                          builder: (context) => Dinheiro(c2),
                         ),
                       );
                     }),
@@ -1190,7 +1193,7 @@ drawer(String gerenciador, BuildContext context, String tela,
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => Deposito(c),
+                      builder: (context) => Deposito(c1),
                     ),
                   );
                 })
