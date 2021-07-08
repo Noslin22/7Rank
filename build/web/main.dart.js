@@ -91511,7 +91511,9 @@ fj:function(){var s=this
 return s.r1+s.r2+s.x2+s.y1+s.y2+s.b0+s.ar+s.N+s.rx+s.ry+s.x1+s.a6+s.bB+s.bC+s.bn+s.b8+s.bb},
 a9h:function(){var s=this,r="protocolo",q=$.cd()
 O.bR(q,q.gbz().c1(0,"igrejas")).fB(0,"nome").e_(0).bo(0,new X.arE(s),t.P)
-if(s.a.c.at(0,r)!=null)s.id=s.a.c.at(0,r)},
+if(s.a.c.at(0,r)!=null){q=s.a.c.at(0,r)
+q.toString
+s.id=q}},
 Mg:function(){var s=this
 s.k2="R$ 0,00"
 s.bb=s.b8=s.bn=s.bC=s.bB=s.N=s.ar=s.b0=s.a6=s.y2=s.y1=s.x2=s.x1=s.ry=s.rx=s.r2=s.r1=0
@@ -91671,12 +91673,7 @@ e=L.S("5\xba",a4,a4,a4,a4,a4,a4)
 a=T.a3(a4,a4,10)
 f=A.bw(a4,a4,C.aG,a4,a4,a4,a4,a4,a4,a4,a4,a4,a4,a4,a4,a4,!0,a4,a4,a4,a4,a4,a4,a4)
 c=a3.aF===18?a3.k4:a4
-f=T.aI(T.cg(H.a([m,d,g,a9,s,r,k,j,i,h,T.aT(H.a([e,a,T.a3(Z.d1(!0,a4,!1,a4,a3.fy,a4,a4,a4,2,b0,!0,!0,a4,!1,c,a4,a4,a4,a4,!0,a4,1,a4,!1,a5,a4,a4,new X.ask(a3),a4,!1,a4,C.a2,a4,a4,a4,a4,a4,a4,f,C.O,a4,C.a4,a4,a4,a4),a4,100)],n),C.p,C.o,C.l)],n),C.p,C.o,C.l),1)
-c=T.a3(a4,a4,48)
-b0=M.a2(a4,T.aT(H.a([M.a2(a4,L.S("Cod",a4,a4,a4,A.bw(a4,a4,C.r,a4,a4,a4,a4,a4,a4,a4,a4,21,a4,a4,a4,a4,!0,a4,a4,a4,a4,a4,a4,a4),C.O,a4),C.h,C.a1,a4,a4,a4,a4,a4,new V.ai(4,4,4,4),a4,a4,100),M.a2(a4,L.S("Igreja",a4,a4,a4,A.bw(a4,a4,C.r,a4,a4,a4,a4,a4,a4,a4,a4,21,a4,a4,a4,a4,!0,a4,a4,a4,a4,a4,a4,a4),C.O,a4),C.h,C.a1,a4,a4,a4,a4,a4,new V.ai(4,4,4,4),a4,a4,100),M.a2(a4,L.S("Valor",a4,a4,a4,A.bw(a4,a4,C.r,a4,a4,a4,a4,a4,a4,a4,a4,21,a4,a4,a4,a4,!0,a4,a4,a4,a4,a4,a4,a4),C.O,a4),C.h,C.a1,a4,a4,a4,a4,a4,new V.ai(4,4,4,4),a4,a4,100)],n),C.p,C.ip,C.l),C.h,C.a1,a4,a4,a4,40,a4,a4,a4,a4,a4)
-a=a3.id
-a.toString
-return M.qQ(a8,M.a2(a4,T.cg(H.a([o,p,T.aI(T.aT(H.a([q,a2,l,f,c,T.aI(T.cg(H.a([b0,T.aI(B.AU(a4,new X.asl(a3),J.bK(a),!1,!1),1)],n),C.p,C.o,C.l),3)],n),C.p,C.o,C.l),1)],n),C.p,C.o,C.l),C.h,a4,a4,a4,a4,a4,a4,new V.ai(10,10,10,10),a4,a4,a4),a4,a4)}}
+return M.qQ(a8,M.a2(a4,T.cg(H.a([o,p,T.aI(T.aT(H.a([q,a2,l,T.aI(T.cg(H.a([m,d,g,a9,s,r,k,j,i,h,T.aT(H.a([e,a,T.a3(Z.d1(!0,a4,!1,a4,a3.fy,a4,a4,a4,2,b0,!0,!0,a4,!1,c,a4,a4,a4,a4,!0,a4,1,a4,!1,a5,a4,a4,new X.ask(a3),a4,!1,a4,C.a2,a4,a4,a4,a4,a4,a4,f,C.O,a4,C.a4,a4,a4,a4),a4,100)],n),C.p,C.o,C.l)],n),C.p,C.o,C.l),1),T.a3(a4,a4,48),T.aI(T.cg(H.a([M.a2(a4,T.aT(H.a([M.a2(a4,L.S("Cod",a4,a4,a4,A.bw(a4,a4,C.r,a4,a4,a4,a4,a4,a4,a4,a4,21,a4,a4,a4,a4,!0,a4,a4,a4,a4,a4,a4,a4),C.O,a4),C.h,C.a1,a4,a4,a4,a4,a4,new V.ai(4,4,4,4),a4,a4,100),M.a2(a4,L.S("Igreja",a4,a4,a4,A.bw(a4,a4,C.r,a4,a4,a4,a4,a4,a4,a4,a4,21,a4,a4,a4,a4,!0,a4,a4,a4,a4,a4,a4,a4),C.O,a4),C.h,C.a1,a4,a4,a4,a4,a4,new V.ai(4,4,4,4),a4,a4,100),M.a2(a4,L.S("Valor",a4,a4,a4,A.bw(a4,a4,C.r,a4,a4,a4,a4,a4,a4,a4,a4,21,a4,a4,a4,a4,!0,a4,a4,a4,a4,a4,a4,a4),C.O,a4),C.h,C.a1,a4,a4,a4,a4,a4,new V.ai(4,4,4,4),a4,a4,100)],n),C.p,C.ip,C.l),C.h,C.a1,a4,a4,a4,40,a4,a4,a4,a4,a4),T.aI(B.AU(a4,new X.asl(a3),J.bK(a3.id),!1,!1),1)],n),C.p,C.o,C.l),3)],n),C.p,C.o,C.l),1)],n),C.p,C.o,C.l),C.h,a4,a4,a4,a4,a4,a4,new V.ai(10,10,10,10),a4,a4,a4),a4,a4)}}
 X.arE.prototype={
 $1:function(a){C.c.ap(a.gbL(a),new X.arD(this.a))},
 $S:12}
@@ -91953,11 +91950,9 @@ $0:function(){var s=this.a
 s.L(new X.arY(s))},
 $S:0}
 X.arY.prototype={
-$0:function(){var s,r=this.a,q=r.id
-q.toString
-s=r.bp
-J.iH(q,H.a([s,r.k1.h(0,s),r.k2],t._m))
-r.a.c.nN("protocolo",r.id)},
+$0:function(){var s=this.a,r=s.id,q=s.bp
+J.iH(r,H.a([q,s.k1.h(0,q),s.k2],t._m))
+s.a.c.nN("protocolo",s.id)},
 $S:0}
 X.asa.prototype={
 $1:function(a){if(a.A(0,C.az))return P.aw(C.d.az(178.5),255,87,34)
@@ -92074,19 +92069,13 @@ r[15]=s
 r[20]=q},
 $S:0}
 X.asl.prototype={
-$2:function(a,b){var s,r=null,q=this.a,p=q.id
-p.toString
-p=J.U(J.U(p,b),0)
+$2:function(a,b){var s,r=null,q=this.a,p=J.U(J.U(q.id,b),0)
 p.toString
 p=M.a2(r,L.S(p,r,r,r,A.bw(r,r,r,r,r,r,r,r,r,r,r,20,r,r,r,r,!0,r,r,r,r,r,r,r),C.O,r),C.h,r,r,r,r,r,r,new V.ai(4,4,4,4),r,r,100)
-s=q.id
-s.toString
-s=J.U(J.U(s,b),1)
+s=J.U(J.U(q.id,b),1)
 s.toString
 s=M.a2(r,L.S(s,r,r,r,A.bw(r,r,r,r,r,r,r,r,r,r,r,16,r,r,r,r,!0,r,r,r,r,r,r,r),C.O,r),C.h,r,r,r,r,r,r,new V.ai(4,4,4,4),r,r,300)
-q=q.id
-q.toString
-q=J.U(J.U(q,b),2)
+q=J.U(J.U(q.id,b),2)
 q.toString
 return M.a2(r,T.aT(H.a([p,s,M.a2(r,L.S(q,r,r,r,A.bw(r,r,r,r,r,r,r,r,r,r,r,20,r,r,r,r,!0,r,r,r,r,r,r,r),C.O,r),C.h,r,r,r,r,r,r,new V.ai(4,4,4,4),r,r,150)],t.D),C.p,C.ip,C.l),C.h,r,r,new S.cW(r,r,new F.du(C.B,C.B,new Y.dk(C.C,1,C.a9),C.B),r,r,r,C.a8),r,r,r,r,r,r,r)},
 $C:"$2",

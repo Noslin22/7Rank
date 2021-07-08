@@ -37,7 +37,7 @@ class _DinheiroState extends State<Dinheiro> {
     mask: '##/####',
     filter: {"#": RegExp(r'[0-9]')},
   );
-  List<List<String?>>? protocolo = [];
+  List<List<String?>> protocolo = [];
   Map<String, String> igrejas = {};
   String total = "R\$ 0,00";
   List<String?> datas = [
@@ -112,7 +112,7 @@ class _DinheiroState extends State<Dinheiro> {
       });
     });
     if (widget.cache.get("protocolo") != null) {
-      protocolo = widget.cache.get("protocolo");
+      protocolo = widget.cache.get("protocolo")!;
     }
   }
 
@@ -748,7 +748,7 @@ class _DinheiroState extends State<Dinheiro> {
                               child: TextButton(
                                 onPressed: () {
                                   setState(() {
-                                    protocolo!.add([cod, igrejas[cod], total]);
+                                    protocolo.add([cod, igrejas[cod], total]);
                                     widget.cache.set("protocolo", protocolo);
                                   });
                                 },
@@ -1106,7 +1106,7 @@ class _DinheiroState extends State<Dinheiro> {
                         ),
                         Expanded(
                           child: ListView.builder(
-                            itemCount: protocolo!.length,
+                            itemCount: protocolo.length,
                             itemBuilder: (context, index) {
                               return Container(
                                 decoration: BoxDecoration(
@@ -1124,7 +1124,7 @@ class _DinheiroState extends State<Dinheiro> {
                                       padding: EdgeInsets.all(4.0),
                                       width: 100.0,
                                       child: Text(
-                                        protocolo![index][0]!,
+                                        protocolo[index][0]!,
                                         style: TextStyle(fontSize: 20),
                                         textAlign: TextAlign.center,
                                       ),
@@ -1133,7 +1133,7 @@ class _DinheiroState extends State<Dinheiro> {
                                       padding: EdgeInsets.all(4.0),
                                       width: 300.0,
                                       child: Text(
-                                        protocolo![index][1]!,
+                                        protocolo[index][1]!,
                                         style: TextStyle(fontSize: 16),
                                         textAlign: TextAlign.center,
                                       ),
@@ -1142,7 +1142,7 @@ class _DinheiroState extends State<Dinheiro> {
                                       padding: EdgeInsets.all(4.0),
                                       width: 150.0,
                                       child: Text(
-                                        protocolo![index][2]!,
+                                        protocolo[index][2]!,
                                         style: TextStyle(fontSize: 20),
                                         textAlign: TextAlign.center,
                                       ),
