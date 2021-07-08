@@ -33,7 +33,7 @@ final inputDecoration = InputDecoration(
   ),
 );
 
-Cache<String, List> c = new SimpleCache<String, List<List<String>>>(
+SimpleCache<String, List<String>> c = SimpleCache<String, List<String>>(
   storage: InMemoryStorage(3),
 );
 
@@ -67,8 +67,24 @@ currentDate({String? date, bool dateTime = true, bool dataAtual = false}) {
 }
 
 List<Widget> actions(String gerenciador, BuildContext context, String tela,
-    {auth, Function? setDistrito, bool? igreja, kisWeb}) {
+    {auth, Function? setDistrito, bool? igreja}) {
+  initialize();
   return [
+    tela != 'home'
+        ? Tooltip(
+            message: '7Rank',
+            child: IconButton(
+                icon: Icon(Icons.home),
+                onPressed: () {
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => Home(),
+                    ),
+                  );
+                }),
+          )
+        : Container(),
     tela == 'home'
         ? Tooltip(
             message: 'Sair',
@@ -85,508 +101,461 @@ List<Widget> actions(String gerenciador, BuildContext context, String tela,
                 }),
           )
         : Container(),
-    tela == 'home'
-        ? Tooltip(
-            message: 'Etiqueta',
-            child: IconButton(
-                icon: Icon(Icons.local_offer),
-                onPressed: () {
-                  showDialog(
-                    context: context,
-                    builder: (context) {
-                      return AlertDialog(
-                        title: Text(
-                          "Escolha um distrito",
-                          textAlign: TextAlign.center,
+    Tooltip(
+      message: 'Etiqueta',
+      child: IconButton(
+          icon: Icon(Icons.local_offer),
+          onPressed: () {
+            showDialog(
+              context: context,
+              builder: (context) {
+                return AlertDialog(
+                  title: Text(
+                    "Escolha um distrito",
+                    textAlign: TextAlign.center,
+                  ),
+                  content: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      DropdownButtonFormField(
+                        onChanged: (dynamic value) {
+                          distritoEtiqueta = value;
+                        },
+                        onSaved: (dynamic value) {
+                          distritoEtiqueta = value;
+                        },
+                        hint: Text("Distritos"),
+                        items: distritos,
+                        value: distritoEtiqueta,
+                      ),
+                    ],
+                  ),
+                  actions: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Expanded(
+                          flex: 1,
+                          child: Button(
+                            color: Colors.lightGreen,
+                            label: "Gerar",
+                            onPressed: () {
+                              Printing.layoutPdf(
+                                onLayout: (format) {
+                                  return buildPdfEtiqueta(
+                                    distritoEtiqueta,
+                                    currentDate(dataAtual: true).split("/")[2],
+                                  );
+                                },
+                              );
+                              Navigator.of(context).pop();
+                              distritoEtiqueta = "";
+                            },
+                          ),
                         ),
-                        content: Column(
+                        Expanded(
+                          child: Container(),
+                        ),
+                        Expanded(
+                          flex: 1,
+                          child: Button(
+                            color: Colors.blue,
+                            label: "Cancelar",
+                            onPressed: () {
+                              Navigator.of(context).pop();
+                            },
+                          ),
+                        ),
+                      ],
+                    )
+                  ],
+                );
+              },
+            );
+          }),
+    ),
+    Tooltip(
+      message: 'Conciliação Bancária',
+      child: IconButton(
+        icon: Icon(Icons.insert_drive_file_rounded),
+        onPressed: () async {
+          FilePickerResult? result = await FilePicker.platform.pickFiles(
+            type: FileType.custom,
+            allowMultiple: true,
+            allowedExtensions: [
+              'csv',
+            ],
+          );
+          if (result != null) {
+            List<PlatformFile> files = result.files;
+            bool poupanca = false;
+            bool acms = true;
+
+            showDialog(
+              context: context,
+              builder: (context) {
+                return StatefulBuilder(
+                  builder: (context, setState) {
+                    return AlertDialog(
+                      title: Text("Confirme o(s) arquivo(s)"),
+                      content: Text("${files[0].name} e outros"),
+                      actions: [
+                        Row(
                           children: [
-                            DropdownButtonFormField(
-                              onChanged: (dynamic value) {
-                                distritoEtiqueta = value;
-                              },
-                              onSaved: (dynamic value) {
-                                distritoEtiqueta = value;
-                              },
-                              hint: Text("Distritos"),
-                              items: distritos,
-                              value: distritoEtiqueta,
+                            Expanded(
+                              flex: 1,
+                              child: Button(
+                                color: Colors.deepOrange,
+                                onPressed: () {
+                                  setState(() {
+                                    poupanca = !poupanca;
+                                  });
+                                },
+                                label: poupanca ? "Poupança" : "Corrente",
+                              ),
+                            ),
+                            Expanded(
+                              child: Container(),
+                            ),
+                            Expanded(
+                              flex: 1,
+                              child: Button(
+                                color: Colors.orange,
+                                onPressed: () {
+                                  setState(() {
+                                    acms = !acms;
+                                  });
+                                },
+                                label: acms ? "ACMS" : "AASI",
+                              ),
+                            ),
+                            Expanded(
+                              child: Container(),
+                            ),
+                            Expanded(
+                              flex: 1,
+                              child: Button(
+                                color: Colors.lightGreen,
+                                label: "Gerar",
+                                onPressed: () async {
+                                  List<Conciliacao> csvList = [];
+                                  for (var file in files) {
+                                    String csvData =
+                                        File.fromRawPath(file.bytes!).path;
+                                    List<String> datas = csvData
+                                        .replaceAll('\r\n', '\r')
+                                        .replaceAll('\n', '\r')
+                                        .split("\r");
+                                    datas.removeAt(0);
+                                    String conta =
+                                        datas.first.split(' ')[6].split('-')[0];
+                                    datas.removeRange(0, 2);
+                                    datas.removeWhere((element) =>
+                                        element == ' ' ||
+                                        element == '' ||
+                                        element == '\r' ||
+                                        element.split(";")[0] == "Total" ||
+                                        element.split(";")[0] == "Data" ||
+                                        element.split(" ")[0].split(';')[1] ==
+                                            "�ltimos" ||
+                                        element.split(" ")[0] == ";Saldos" ||
+                                        element.split(';')[1].split(' ')[0] ==
+                                            'SALDO');
+                                    for (var element in datas) {
+                                      List<String?> list = element.split(";");
+                                      csvList.add(
+                                        Conciliacao(
+                                          conta,
+                                          list[0]!,
+                                          list[1]!,
+                                          list[2]!,
+                                          list[3] != ""
+                                              ? list[3] != null
+                                                  ? list[3]!
+                                                      .replaceAll(".", "")
+                                                      .replaceAll(",", "")
+                                                  : list[4]!
+                                                      .replaceAll(".", "")
+                                                      .replaceAll(",", "")
+                                              : list[4]!
+                                                  .replaceAll(".", "")
+                                                  .replaceAll(",", ""),
+                                        ),
+                                      );
+                                    }
+                                  }
+                                  String jsonCsvEncoded = jsonEncode(csvList);
+                                  List<Map<String, String>> jsonCsvDecoded =
+                                      jsonDecode(jsonCsvEncoded);
+                                  List<String> text = acms
+                                      ? [
+                                          "Bank	BankAccountNumber	Date	Description	Value"
+                                        ]
+                                      : [];
+                                  for (var element in jsonCsvDecoded) {
+                                    if (acms) {
+                                      text.add(
+                                          "237	${element["conta"]}${poupanca ? "1" : ""}	${element["data"]}	${element["lancamento"]} - ${element["doc"]}	${element["valor"]}");
+                                    } else {
+                                      List<String> letters = element["valor"]!
+                                          .split('')
+                                          .reversed
+                                          .toList();
+                                      letters.insert(2, ',');
+                                      text.add(
+                                          "${element["data"]};${element["lancamento"]};${element["doc"]};${element["valor"]!.contains('-') ? '' : letters.reversed.join()};${element["valor"]!.contains('-') ? letters.reversed.join().replaceAll("-", '') : ''}");
+                                    }
+                                  }
+                                  var anchor;
+                                  var url;
+                                  // prepare
+                                  final bytes = utf8.encode(text.join("\n"));
+                                  final blob = html.Blob([bytes]);
+                                  url = html.Url.createObjectUrlFromBlob(blob);
+                                  anchor = html.document.createElement('a')
+                                      as html.AnchorElement
+                                    ..href = url
+                                    ..style.display = 'none'
+                                    ..download =
+                                        'Conciliacao.${acms ? 'txt' : 'csv'}';
+                                  html.document.body!.children.add(anchor);
+
+                                  // download
+                                  anchor.click();
+
+                                  // cleanup
+                                  html.document.body!.children.remove(anchor);
+                                  html.Url.revokeObjectUrl(url);
+                                  Navigator.of(context).pop();
+                                },
+                              ),
+                            ),
+                            Expanded(
+                              child: Container(),
+                            ),
+                            Expanded(
+                              flex: 1,
+                              child: Button(
+                                color: Colors.blue,
+                                label: "Sair",
+                                onPressed: () {
+                                  Navigator.of(context).pop();
+                                },
+                              ),
+                            ),
+                          ],
+                        )
+                      ],
+                    );
+                  },
+                );
+              },
+            );
+          }
+        },
+      ),
+    ),
+    Tooltip(
+      message: 'Lições',
+      child: IconButton(
+        icon: Icon(Icons.menu_book),
+        onPressed: () async {
+          String? escolhido;
+          showDialog(
+            context: context,
+            builder: (context) {
+              List<DropdownMenuItem> distritos = [
+                DropdownMenuItem(
+                  child: Text(
+                    "Trimestre",
+                  ),
+                ),
+              ];
+              for (var i = 0; i < 4; i++) {
+                distritos.add(
+                  DropdownMenuItem(
+                    value: "${i + 1}º Trimestre",
+                    child: Text(
+                      "${i + 1}º Trimestre",
+                    ),
+                  ),
+                );
+              }
+              return AlertDialog(
+                title: Text("Escolha o trimestre:"),
+                content: DropdownButtonFormField(
+                  decoration: inputDecoration,
+                  onChanged: (dynamic value) {
+                    escolhido = value;
+                    Printing.layoutPdf(
+                      onLayout: (format) => generateLicaoPdf(
+                        format,
+                        escolhido,
+                      ),
+                    );
+                  },
+                  hint: Text("Trimestre"),
+                  items: distritos,
+                  value: escolhido,
+                  validator: (dynamic value) {
+                    if (value == null) {
+                      return "Escolha algum trimestre";
+                    }
+                    return null;
+                  },
+                ),
+              );
+            },
+          );
+        },
+      ),
+    ),
+    Tooltip(
+      message: 'Pesquisa por conta',
+      child: IconButton(
+          icon: Icon(
+            Icons.search,
+          ),
+          onPressed: () async {
+            String result = await DefaultAssetBundle.of(context)
+                .loadString('assets/contas.json');
+            String conta = "";
+            String searched = "espera";
+            String igrejaCod = "";
+            bool bancaria = true;
+            showDialog(
+              context: context,
+              builder: (context) {
+                return StatefulBuilder(
+                  builder: (context, setState) {
+                    return AlertDialog(
+                      title: Text(
+                        searched == "espera"
+                            ? bancaria
+                                ? "Conta Bancária"
+                                : "Código Igreja"
+                            : searched == "achou"
+                                ? igrejaCod
+                                : bancaria
+                                    ? "Conta não existente"
+                                    : "Código não existente",
+                        textAlign: TextAlign.center,
+                      ),
+                      content: TextField(
+                        focusNode: FocusNode(),
+                        onSubmitted: (value) {
+                          List<Map<String, String>> jsonList =
+                              json.decode(result.toString());
+                          if (jsonList.indexWhere((element) =>
+                                  element["conta"]!.split("-")[0] == value &&
+                                  bancaria) !=
+                              -1) {
+                            setState(() {
+                              igrejaCod =
+                                  "${jsonList[jsonList.indexWhere((element) => element["conta"]!.split("-")[0] == value)]["cod"]} - ${jsonList[jsonList.indexWhere((element) => element["conta"]!.split("-")[0] == value)]["nome"]}";
+                              searched = "achou";
+                            });
+                          } else if (jsonList.indexWhere(
+                                    (element) => element["cod"] == value,
+                                  ) !=
+                                  -1 &&
+                              !bancaria) {
+                            setState(() {
+                              igrejaCod =
+                                  "${jsonList[jsonList.indexWhere((element) => element["cod"] == value)]["conta"]} - ${jsonList[jsonList.indexWhere((element) => element["cod"] == value)]["nome"]}";
+                              searched = "achou";
+                            });
+                          } else {
+                            setState(() {
+                              searched = "erro";
+                            });
+                          }
+                        },
+                        onChanged: (value) {
+                          setState(() {
+                            conta = value;
+                          });
+                        },
+                        textAlign: TextAlign.center,
+                        decoration: inputDecoration,
+                      ),
+                      actions: [
+                        Row(
+                          children: [
+                            Expanded(
+                              flex: 1,
+                              child: Button(
+                                color: Colors.orange,
+                                onPressed: () {
+                                  setState(() {
+                                    searched = "espera";
+                                    bancaria = !bancaria;
+                                  });
+                                },
+                                label: bancaria ? "Conta Banc." : "Cod. Igreja",
+                              ),
+                            ),
+                            Expanded(
+                              child: Container(),
+                            ),
+                            Expanded(
+                              flex: 1,
+                              child: Button(
+                                color: Colors.lightGreen,
+                                label: "Pesquisar",
+                                onPressed: () async {
+                                  List<Map<String, String>> jsonList =
+                                      json.decode(result.toString());
+                                  if (jsonList.indexWhere((element) =>
+                                          element["conta"]!.split("-")[0] ==
+                                              conta &&
+                                          bancaria) !=
+                                      -1) {
+                                    setState(() {
+                                      igrejaCod =
+                                          "${jsonList[jsonList.indexWhere((element) => element["conta"]!.split("-")[0] == conta)]["cod"]} - ${jsonList[jsonList.indexWhere((element) => element["conta"]!.split("-")[0] == conta)]["nome"]}";
+                                      searched = "achou";
+                                    });
+                                  } else if (jsonList.indexWhere((element) =>
+                                              element["cod"] == conta) !=
+                                          -1 &&
+                                      !bancaria) {
+                                    setState(() {
+                                      igrejaCod =
+                                          "${jsonList[jsonList.indexWhere((element) => element["cod"] == conta)]["conta"]} - ${jsonList[jsonList.indexWhere((element) => element["cod"] == conta)]["nome"]}";
+                                      searched = "achou";
+                                    });
+                                  } else {
+                                    setState(() {
+                                      searched = "erro";
+                                    });
+                                  }
+                                },
+                              ),
+                            ),
+                            Expanded(
+                              child: Container(),
+                            ),
+                            Expanded(
+                              flex: 1,
+                              child: Button(
+                                color: Colors.blue,
+                                label: "Sair",
+                                onPressed: () {
+                                  Navigator.of(context).pop();
+                                },
+                              ),
                             ),
                           ],
                         ),
-                        actions: [
-                          Row(
-                            mainAxisSize: MainAxisSize.max,
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Expanded(
-                                flex: 1,
-                                child:Button(
-                                      color: Colors.lightGreen,
-                                      label: "Gerar",
-                                      onPressed: () {
-                                        Printing.layoutPdf(
-                                          onLayout: (format) {
-                                            return buildPdfEtiqueta(
-                                              distritoEtiqueta,
-                                              currentDate(dataAtual: true)
-                                                  .split("/")[2],
-                                            );
-                                          },
-                                        );
-                                        Navigator.of(context).pop();
-                                        distritoEtiqueta = "";
-                                      },
-                                    ),
-                              ),
-                              Expanded(
-                                child: Container(),
-                              ),
-                              Expanded(
-                                flex: 1,
-                                child: Button(
-                                  color: Colors.blue,
-                                  label: "Cancelar",
-                                  onPressed: () {
-                                    Navigator.of(context).pop();
-                                  },
-                                ),
-                              ),
-                            ],
-                          )
-                        ],
-                      );
-                    },
-                  );
-                }),
-          )
-        : Container(),
-    tela == "home"
-        ? kisWeb
-            ? Tooltip(
-                message: 'Conciliação Bancária',
-                child: IconButton(
-                  icon: Icon(Icons.insert_drive_file_rounded),
-                  onPressed: () async {
-                    FilePickerResult? result =
-                        await FilePicker.platform.pickFiles(
-                      type: FileType.custom,
-                      allowMultiple: true,
-                      allowedExtensions: [
-                        'csv',
                       ],
                     );
-                    if (result != null) {
-                      List<PlatformFile> files = result.files;
-                      bool poupanca = false;
-                      bool acms = true;
-
-                      showDialog(
-                        context: context,
-                        builder: (context) {
-                          return StatefulBuilder(
-                            builder: (context, setState) {
-                              return AlertDialog(
-                                title: Text("Confirme o(s) arquivo(s)"),
-                                content: Text("${files[0].name} e outros"),
-                                actions: [
-                                  Row(
-                                    children: [
-                                      Expanded(
-                                        flex: 1,
-                                        child: Button(
-                                          color: Colors.deepOrange,
-                                          onPressed: () {
-                                            setState(() {
-                                              poupanca = !poupanca;
-                                            });
-                                          },
-                                          label: poupanca
-                                              ? "Poupança"
-                                              : "Corrente",
-                                        ),
-                                      ),
-                                      Expanded(
-                                        child: Container(),
-                                      ),
-                                      Expanded(
-                                        flex: 1,
-                                        child: Button(
-                                          color: Colors.orange,
-                                          onPressed: () {
-                                            setState(() {
-                                              acms = !acms;
-                                            });
-                                          },
-                                          label: acms ? "ACMS" : "AASI",
-                                        ),
-                                      ),
-                                      Expanded(
-                                        child: Container(),
-                                      ),
-                                      Expanded(
-                                        flex: 1,
-                                        child: Button(
-                                          color: Colors.lightGreen,
-                                          label: "Gerar",
-                                          onPressed: () async {
-                                            List<Conciliacao> csvList = [];
-                                            for (var file in files) {
-                                              String csvData =
-                                                  File.fromRawPath(file.bytes!)
-                                                      .path;
-                                              List<String> datas = csvData
-                                                  .replaceAll('\r\n', '\r')
-                                                  .replaceAll('\n', '\r')
-                                                  .split("\r");
-                                              datas.removeAt(0);
-                                              String conta = datas.first
-                                                  .split(' ')[6]
-                                                  .split('-')[0];
-                                              datas.removeRange(0, 2);
-                                              datas.removeWhere((element) =>
-                                                  element == ' ' ||
-                                                  element == '' ||
-                                                  element == '\r' ||
-                                                  element.split(";")[0] ==
-                                                      "Total" ||
-                                                  element.split(";")[0] ==
-                                                      "Data" ||
-                                                  element
-                                                          .split(" ")[0]
-                                                          .split(';')[1] ==
-                                                      "�ltimos" ||
-                                                  element.split(" ")[0] ==
-                                                      ";Saldos" ||
-                                                  element
-                                                          .split(';')[1]
-                                                          .split(' ')[0] ==
-                                                      'SALDO');
-                                              for (var element in datas) {
-                                                List<String?> list =
-                                                    element.split(";");
-                                                csvList.add(
-                                                  Conciliacao(
-                                                    conta,
-                                                    list[0]!,
-                                                    list[1]!,
-                                                    list[2]!,
-                                                    list[3] != ""
-                                                        ? list[3] != null
-                                                            ? list[3]!
-                                                                .replaceAll(
-                                                                    ".", "")
-                                                                .replaceAll(
-                                                                    ",", "")
-                                                            : list[4]!
-                                                                .replaceAll(
-                                                                    ".", "")
-                                                                .replaceAll(
-                                                                    ",", "")
-                                                        : list[4]!
-                                                            .replaceAll(".", "")
-                                                            .replaceAll(
-                                                                ",", ""),
-                                                  ),
-                                                );
-                                              }
-                                            }
-                                            String jsonCsvEncoded =
-                                                jsonEncode(csvList);
-                                            List<Map<String, String>>
-                                                jsonCsvDecoded =
-                                                jsonDecode(jsonCsvEncoded);
-                                            List<String> text = acms
-                                                ? [
-                                                    "Bank	BankAccountNumber	Date	Description	Value"
-                                                  ]
-                                                : [];
-                                            for (var element
-                                                in jsonCsvDecoded) {
-                                              if (acms) {
-                                                text.add(
-                                                    "237	${element["conta"]}${poupanca ? "1" : ""}	${element["data"]}	${element["lancamento"]} - ${element["doc"]}	${element["valor"]}");
-                                              } else {
-                                                List<String> letters =
-                                                    element["valor"]!
-                                                        .split('')
-                                                        .reversed
-                                                        .toList();
-                                                letters.insert(2, ',');
-                                                text.add(
-                                                    "${element["data"]};${element["lancamento"]};${element["doc"]};${element["valor"]!.contains('-') ? '' : letters.reversed.join()};${element["valor"]!.contains('-') ? letters.reversed.join().replaceAll("-", '') : ''}");
-                                              }
-                                            }
-                                            var anchor;
-                                            var url;
-                                            // prepare
-                                            final bytes =
-                                                utf8.encode(text.join("\n"));
-                                            final blob = html.Blob([bytes]);
-                                            url = html.Url
-                                                .createObjectUrlFromBlob(blob);
-                                            anchor = html.document
-                                                    .createElement('a')
-                                                as html.AnchorElement
-                                              ..href = url
-                                              ..style.display = 'none'
-                                              ..download =
-                                                  'Conciliacao.${acms ? 'txt' : 'csv'}';
-                                            html.document.body!.children
-                                                .add(anchor);
-
-                                            // download
-                                            anchor.click();
-
-                                            // cleanup
-                                            html.document.body!.children
-                                                .remove(anchor);
-                                            html.Url.revokeObjectUrl(url);
-                                            Navigator.of(context).pop();
-                                          },
-                                        ),
-                                      ),
-                                      Expanded(
-                                        child: Container(),
-                                      ),
-                                      Expanded(
-                                        flex: 1,
-                                        child: Button(
-                                          color: Colors.blue,
-                                          label: "Sair",
-                                          onPressed: () {
-                                            Navigator.of(context).pop();
-                                          },
-                                        ),
-                                      ),
-                                    ],
-                                  )
-                                ],
-                              );
-                            },
-                          );
-                        },
-                      );
-                    }
                   },
-                ),
-              )
-            : Container()
-        : Container(),
-    tela == "home"
-        ? kisWeb
-            ? Tooltip(
-                message: 'Lições',
-                child: IconButton(
-                  icon: Icon(Icons.menu_book),
-                  onPressed: () async {
-                    String? escolhido;
-                    showDialog(
-                      context: context,
-                      builder: (context) {
-                        List<DropdownMenuItem> distritos = [
-                          DropdownMenuItem(
-                            child: Text(
-                              "Trimestre",
-                            ),
-                          ),
-                        ];
-                        for (var i = 0; i < 4; i++) {
-                          distritos.add(
-                            DropdownMenuItem(
-                              value: "${i + 1}º Trimestre",
-                              child: Text(
-                                "${i + 1}º Trimestre",
-                              ),
-                            ),
-                          );
-                        }
-                        return AlertDialog(
-                          title: Text("Escolha o trimestre:"),
-                          content: DropdownButtonFormField(
-                            decoration: inputDecoration,
-                            onChanged: (dynamic value) {
-                              escolhido = value;
-                              Printing.layoutPdf(
-                                onLayout: (format) => generateLicaoPdf(
-                                  format,
-                                  escolhido,
-                                ),
-                              );
-                            },
-                            hint: Text("Trimestre"),
-                            items: distritos,
-                            value: escolhido,
-                            validator: (dynamic value) {
-                              if (value == null) {
-                                return "Escolha algum trimestre";
-                              }
-                              return null;
-                            },
-                          ),
-                        );
-                      },
-                    );
-                  },
-                ),
-              )
-            : Container()
-        : Container(),
-    tela == 'home'
-        ? Tooltip(
-            message: 'Pesquisa por conta',
-            child: IconButton(
-                icon: Icon(
-                  Icons.search,
-                ),
-                onPressed: () async {
-                  String result = await DefaultAssetBundle.of(context)
-                      .loadString('assets/contas.json');
-                  String conta = "";
-                  String searched = "espera";
-                  String igrejaCod = "";
-                  bool bancaria = true;
-                  showDialog(
-                    context: context,
-                    builder: (context) {
-                      return StatefulBuilder(
-                        builder: (context, setState) {
-                          return AlertDialog(
-                            title: Text(
-                              searched == "espera"
-                                  ? bancaria
-                                      ? "Conta Bancária"
-                                      : "Código Igreja"
-                                  : searched == "achou"
-                                      ? igrejaCod
-                                      : bancaria
-                                          ? "Conta não existente"
-                                          : "Código não existente",
-                              textAlign: TextAlign.center,
-                            ),
-                            content: TextField(
-                              focusNode: FocusNode(),
-                              onSubmitted: (value) {
-                                List<Map<String, String>> jsonList =
-                                    json.decode(result.toString());
-                                if (jsonList.indexWhere((element) =>
-                                        element["conta"]!.split("-")[0] ==
-                                            value &&
-                                        bancaria) !=
-                                    -1) {
-                                  setState(() {
-                                    igrejaCod =
-                                        "${jsonList[jsonList.indexWhere((element) => element["conta"]!.split("-")[0] == value)]["cod"]} - ${jsonList[jsonList.indexWhere((element) => element["conta"]!.split("-")[0] == value)]["nome"]}";
-                                    searched = "achou";
-                                  });
-                                } else if (jsonList.indexWhere(
-                                          (element) =>
-                                              element["cod"] == value,
-                                        ) !=
-                                        -1 &&
-                                    !bancaria) {
-                                  setState(() {
-                                    igrejaCod =
-                                        "${jsonList[jsonList.indexWhere((element) => element["cod"] == value)]["conta"]} - ${jsonList[jsonList.indexWhere((element) => element["cod"] == value)]["nome"]}";
-                                    searched = "achou";
-                                  });
-                                } else {
-                                  setState(() {
-                                    searched = "erro";
-                                  });
-                                }
-                              },
-                              onChanged: (value) {
-                                setState(() {
-                                  conta = value;
-                                });
-                              },
-                              textAlign: TextAlign.center,
-                              decoration: inputDecoration,
-                            ),
-                            actions: [
-                              Row(
-                                children: [
-                                  Expanded(
-                                    flex: 1,
-                                    child: Button(
-                                      color: Colors.orange,
-                                      onPressed: () {
-                                        setState(() {
-                                          searched = "espera";
-                                          bancaria = !bancaria;
-                                        });
-                                      },
-                                      label: bancaria
-                                          ? "Conta Banc."
-                                          : "Cod. Igreja",
-                                    ),
-                                  ),
-                                  Expanded(
-                                    child: Container(),
-                                  ),
-                                  Expanded(
-                                    flex: 1,
-                                    child: Button(
-                                      color: Colors.lightGreen,
-                                      label: "Pesquisar",
-                                      onPressed: () async {
-                                        List<Map<String, String>> jsonList =
-                                            json.decode(result.toString());
-                                        if (jsonList.indexWhere((element) =>
-                                                element["conta"]!
-                                                        .split("-")[0] ==
-                                                    conta &&
-                                                bancaria) !=
-                                            -1) {
-                                          setState(() {
-                                            igrejaCod =
-                                                "${jsonList[jsonList.indexWhere((element) => element["conta"]!.split("-")[0] == conta)]["cod"]} - ${jsonList[jsonList.indexWhere((element) => element["conta"]!.split("-")[0] == conta)]["nome"]}";
-                                            searched = "achou";
-                                          });
-                                        } else if (jsonList.indexWhere(
-                                                    (element) =>
-                                                        element["cod"] ==
-                                                        conta) !=
-                                                -1 &&
-                                            !bancaria) {
-                                          setState(() {
-                                            igrejaCod =
-                                                "${jsonList[jsonList.indexWhere((element) => element["cod"] == conta)]["conta"]} - ${jsonList[jsonList.indexWhere((element) => element["cod"] == conta)]["nome"]}";
-                                            searched = "achou";
-                                          });
-                                        } else {
-                                          setState(() {
-                                            searched = "erro";
-                                          });
-                                        }
-                                      },
-                                    ),
-                                  ),
-                                  Expanded(
-                                    child: Container(),
-                                  ),
-                                  Expanded(
-                                    flex: 1,
-                                    child: Button(
-                                      color: Colors.blue,
-                                      label: "Sair",
-                                      onPressed: () {
-                                        Navigator.of(context).pop();
-                                      },
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          );
-                        },
-                      );
-                    },
-                  );
-                }),
-          )
-        : Container(),
+                );
+              },
+            );
+          }),
+    ),
     tela == 'adicionar'
         ? Tooltip(
             message: igreja! ? 'Igreja' : 'Distrito',
@@ -597,36 +566,7 @@ List<Widget> actions(String gerenciador, BuildContext context, String tela,
                 }),
           )
         : Container(),
-    tela != 'home' && kisWeb
-        ? Tooltip(
-            message: '7Rank',
-            child: IconButton(
-                icon: Icon(Icons.home),
-                onPressed: () {
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => Home(),
-                    ),
-                  );
-                }),
-          )
-        : Container(),
-    /*tela != 'nada' ? 
-        Tooltip(
-            message: 'Lição',
-            child: IconButton(
-                icon: Icon(Icons.menu_book),
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => LicaoPreview(),
-                    ),
-                  );
-                }),
-          ) : Container(),*/
-    tela != 'coelba' && kisWeb
+    tela != 'coelba'
         ? gerenciador == 'gerenciador'
             ? Tooltip(
                 message: 'Coelba/Embasa',
@@ -645,24 +585,22 @@ List<Widget> actions(String gerenciador, BuildContext context, String tela,
               )
             : Container()
         : Container(),
-    tela == 'home' && kisWeb
-        ? gerenciador == 'gerenciador'
-            ? Tooltip(
-                message: 'Depositos Manuais',
-                child: IconButton(
-                    icon: Icon(Icons.monetization_on_sharp),
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => Deposito(c as Cache<String, List<String>?>),
-                        ),
-                      );
-                    }),
-              )
-            : Container()
+    gerenciador == 'gerenciador'
+        ? Tooltip(
+            message: 'Depositos Manuais',
+            child: IconButton(
+                icon: Icon(Icons.monetization_on_sharp),
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => Deposito(c),
+                    ),
+                  );
+                }),
+          )
         : Container(),
-    tela == 'home' && kisWeb
+    kIsWeb
         ? gerenciador == 'gerenciador'
             ? Tooltip(
                 message: 'Protocolo Caixa',
@@ -672,14 +610,15 @@ List<Widget> actions(String gerenciador, BuildContext context, String tela,
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => Dinheiro(c as Cache<String, List<List<String?>>?>),
+                          builder: (context) => Dinheiro(
+                              c as Cache<String, List<List<String?>>?>),
                         ),
                       );
                     }),
               )
             : Container()
         : Container(),
-    tela != 'registrar' && kisWeb
+    tela != 'registrar'
         ? gerenciador == 'gerenciador'
             ? Tooltip(
                 message: 'Registrar',
@@ -697,7 +636,7 @@ List<Widget> actions(String gerenciador, BuildContext context, String tela,
               )
             : Container()
         : Container(),
-    tela != 'adicionar' && kisWeb
+    tela != 'adicionar'
         ? gerenciador == 'gerenciador'
             ? Tooltip(
                 message: 'Adicionar',
@@ -720,14 +659,14 @@ List<Widget> actions(String gerenciador, BuildContext context, String tela,
 }
 
 drawer(String gerenciador, BuildContext context, String tela,
-    {auth, Function? setDistrito, bool? igreja, kisWeb}) {
+    {auth, Function? setDistrito, bool? igreja}) {
   return Drawer(
     child: ListView(
       padding: EdgeInsets.zero,
       children: <Widget>[
         DrawerHeader(
           child: Text(
-            'Coelba/Embasa',
+            '7Rank',
             style: TextStyle(color: Colors.white, fontSize: 20),
           ),
           decoration: BoxDecoration(
@@ -815,22 +754,21 @@ drawer(String gerenciador, BuildContext context, String tela,
                               Expanded(
                                 flex: 1,
                                 child: Button(
-                                      color: Colors.lightGreen,
-                                      label: 'Gerar',
-                                      onPressed: () {
-                                        Printing.layoutPdf(
-                                          onLayout: (format) {
-                                            return buildPdfEtiqueta(
-                                              distritoEtiqueta,
-                                              currentDate(dataAtual: true)
-                                                  .split("/")[2],
-                                            );
-                                          },
+                                  color: Colors.lightGreen,
+                                  label: 'Gerar',
+                                  onPressed: () {
+                                    Printing.layoutPdf(
+                                      onLayout: (format) {
+                                        return buildPdfEtiqueta(
+                                          distritoEtiqueta,
+                                          currentDate(dataAtual: true)
+                                              .split("/")[2],
                                         );
-                                        Navigator.of(context).pop();
-                                        distritoEtiqueta = "";
                                       },
-                                    
+                                    );
+                                    Navigator.of(context).pop();
+                                    distritoEtiqueta = "";
+                                  },
                                 ),
                               ),
                               Expanded(
@@ -855,450 +793,407 @@ drawer(String gerenciador, BuildContext context, String tela,
                 },
               )
             : Container(),
-        tela == "home"
-            ? kisWeb
-                ? ListTile(
-                    title: Text("Conciliação Bancária"),
-                    leading: Icon(Icons.insert_drive_file_rounded),
-                    onTap: () async {
-                      FilePickerResult? result =
-                          await FilePicker.platform.pickFiles(
-                        type: FileType.custom,
-                        allowMultiple: true,
-                        allowedExtensions: [
-                          'csv',
-                        ],
-                      );
-                      if (result != null) {
-                        List<PlatformFile> files = result.files;
-                        bool poupanca = false;
-                        bool acms = true;
+        ListTile(
+          title: Text("Conciliação Bancária"),
+          leading: Icon(Icons.insert_drive_file_rounded),
+          onTap: () async {
+            FilePickerResult? result = await FilePicker.platform.pickFiles(
+              type: FileType.custom,
+              allowMultiple: true,
+              allowedExtensions: [
+                'csv',
+              ],
+            );
+            if (result != null) {
+              List<PlatformFile> files = result.files;
+              bool poupanca = false;
+              bool acms = true;
 
-                        showDialog(
-                          context: context,
-                          builder: (context) {
-                            return StatefulBuilder(
-                              builder: (context, setState) {
-                                return AlertDialog(
-                                  title: Text("Confirme o(s) arquivo(s)"),
-                                  content: Text("${files[0].name} e outros"),
-                                  actions: [
-                                    Row(
-                                      children: [
-                                        Expanded(
-                                          flex: 1,
-                                          child: Button(
-                                            color: Colors.deepOrange,
-                                            onPressed: () {
-                                              setState(() {
-                                                poupanca = !poupanca;
-                                              });
-                                            },
-                                            label: poupanca
-                                                ? "Poupança"
-                                                : "Corrente",
-                                          ),
-                                        ),
-                                        Expanded(
-                                          child: Container(),
-                                        ),
-                                        Expanded(
-                                          flex: 1,
-                                          child: Button(
-                                            color: Colors.orange,
-                                            onPressed: () {
-                                              setState(() {
-                                                acms = !acms;
-                                              });
-                                            },
-                                            label: acms ? "ACMS" : "AASI",
-                                          ),
-                                        ),
-                                        Expanded(
-                                          child: Container(),
-                                        ),
-                                        Expanded(
-                                          flex: 1,
-                                          child: Button(
-                                            color: Colors.lightGreen,
-                                            label: "Gerar",
-                                            onPressed: () async {
-                                              List<Conciliacao> csvList = [];
-                                              for (var file in files) {
-                                                String csvData =
-                                                    File.fromRawPath(file.bytes!)
-                                                        .path;
-                                                List<String> datas = csvData
-                                                    .replaceAll('\r\n', '\r')
-                                                    .replaceAll('\n', '\r')
-                                                    .split("\r");
-                                                datas.removeAt(0);
-                                                String conta = datas.first
-                                                    .split(' ')[6]
-                                                    .split('-')[0];
-                                                datas.removeRange(0, 2);
-                                                datas.removeWhere((element) =>
-                                                    element == ' ' ||
-                                                    element == '' ||
-                                                    element == '\r' ||
-                                                    element.split(";")[0] ==
-                                                        "Total" ||
-                                                    element.split(";")[0] ==
-                                                        "Data" ||
-                                                    element
-                                                            .split(" ")[0]
-                                                            .split(';')[1] ==
-                                                        "�ltimos" ||
-                                                    element.split(" ")[0] ==
-                                                        ";Saldos" ||
-                                                    element
-                                                            .split(';')[1]
-                                                            .split(' ')[0] ==
-                                                        'SALDO');
-                                                for (var element in datas) {
-                                                  List<String?> list =
-                                                      element.split(";");
-                                                  csvList.add(
-                                                    Conciliacao(
-                                                      conta,
-                                                      list[0]!,
-                                                      list[1]!,
-                                                      list[2]!,
-                                                      list[3] != ""
-                                                          ? list[3] != null
-                                                              ? list[3]!
-                                                                  .replaceAll(
-                                                                      ".", "")
-                                                                  .replaceAll(
-                                                                      ",", "")
-                                                              : list[4]!
-                                                                  .replaceAll(
-                                                                      ".", "")
-                                                                  .replaceAll(
-                                                                      ",", "")
-                                                          : list[4]!
-                                                              .replaceAll(
-                                                                  ".", "")
-                                                              .replaceAll(
-                                                                  ",", ""),
-                                                    ),
-                                                  );
-                                                }
-                                              }
-                                              String jsonCsvEncoded =
-                                                  jsonEncode(csvList);
-                                              List<Map<String, String>>
-                                                  jsonCsvDecoded =
-                                                  jsonDecode(jsonCsvEncoded);
-                                              List<String> text = acms
-                                                  ? [
-                                                      "Bank	BankAccountNumber	Date	Description	Value"
-                                                    ]
-                                                  : [];
-                                              for (var element
-                                                  in jsonCsvDecoded) {
-                                                if (acms) {
-                                                  text.add(
-                                                      "237	${element["conta"]}${poupanca ? "1" : ""}	${element["data"]}	${element["lancamento"]} - ${element["doc"]}	${element["valor"]}");
-                                                } else {
-                                                  List<String> letters =
-                                                      element["valor"]!
-                                                          .split('')
-                                                          .reversed
-                                                          .toList();
-                                                  letters.insert(2, ',');
-                                                  text.add(
-                                                      "${element["data"]};${element["lancamento"]};${element["doc"]};${element["valor"]!.contains('-') ? '' : letters.reversed.join()};${element["valor"]!.contains('-') ? letters.reversed.join().replaceAll("-", '') : ''}");
-                                                }
-                                              }
-                                              if (kIsWeb) {
-                                                var anchor;
-                                                var url;
-                                                // prepare
-                                                final bytes = utf8
-                                                    .encode(text.join("\n"));
-                                                final blob = html.Blob([bytes]);
-                                                url = html.Url
-                                                    .createObjectUrlFromBlob(
-                                                        blob);
-                                                anchor = html.document
-                                                        .createElement('a')
-                                                    as html.AnchorElement
-                                                  ..href = url
-                                                  ..style.display = 'none'
-                                                  ..download =
-                                                      'Conciliacao.${acms ? 'txt' : 'csv'}';
-                                                html.document.body!.children
-                                                    .add(anchor);
-
-                                                // download
-                                                anchor.click();
-
-                                                // cleanup
-                                                html.document.body!.children
-                                                    .remove(anchor);
-                                                html.Url.revokeObjectUrl(url);
-                                              } else {
-                                                final file = await File(
-                                                        'Conciliacao.${acms ? 'txt' : 'csv'}')
-                                                    .writeAsString(
-                                                  text.join("\n"),
-                                                );
-                                                await file.open();
-                                              }
-                                              Navigator.of(context).pop();
-                                            },
-                                          ),
-                                        ),
-                                        Expanded(
-                                          child: Container(),
-                                        ),
-                                        Expanded(
-                                            flex: 1,
-                                            child: Button(
-                                              color: Colors.blue,
-                                              label: "Sair",
-                                              onPressed: () {
-                                                Navigator.of(context).pop();
-                                              },
-                                            )),
-                                      ],
-                                    )
-                                  ],
-                                );
-                              },
-                            );
-                          },
-                        );
-                      }
-                    },
-                  )
-                : Container()
-            : Container(),
-        tela == "home"
-            ? kisWeb
-                ? ListTile(
-                    title: Text('Lições'),
-                    leading: Icon(Icons.menu_book),
-                    onTap: () async {
-                      String? escolhido;
-                      showDialog(
-                        context: context,
-                        builder: (context) {
-                          List<DropdownMenuItem> distritos = [
-                            DropdownMenuItem(
-                              child: Text(
-                                "Trimestre",
-                              ),
-                            ),
-                          ];
-                          for (var i = 0; i < 4; i++) {
-                            distritos.add(
-                              DropdownMenuItem(
-                                value: "${i + 1}º Trimestre",
-                                child: Text(
-                                  "${i + 1}º Trimestre",
+              showDialog(
+                context: context,
+                builder: (context) {
+                  return StatefulBuilder(
+                    builder: (context, setState) {
+                      return AlertDialog(
+                        title: Text("Confirme o(s) arquivo(s)"),
+                        content: Text("${files[0].name} e outros"),
+                        actions: [
+                          Row(
+                            children: [
+                              Expanded(
+                                flex: 1,
+                                child: Button(
+                                  color: Colors.deepOrange,
+                                  onPressed: () {
+                                    setState(() {
+                                      poupanca = !poupanca;
+                                    });
+                                  },
+                                  label: poupanca ? "Poupança" : "Corrente",
                                 ),
                               ),
-                            );
-                          }
-                          return AlertDialog(
-                            title: Text("Escolha o trimestre:"),
-                            content: DropdownButtonFormField(
-                              decoration: inputDecoration,
-                              onChanged: (dynamic value) {
-                                escolhido = value;
-                                Printing.layoutPdf(
-                                  onLayout: (format) => generateLicaoPdf(
-                                    format,
-                                    escolhido,
-                                  ),
-                                );
-                              },
-                              hint: Text("Trimestre"),
-                              items: distritos,
-                              value: escolhido,
-                              validator: (dynamic value) {
-                                if (value == null) {
-                                  return "Escolha algum trimestre";
-                                }
-                                return null;
-                              },
-                            ),
-                          );
-                        },
-                      );
-                    },
-                  )
-                : Container()
-            : Container(),
-        tela == 'home'
-            ? ListTile(
-                title: Text('Pesquisa por conta'),
-                leading: Icon(
-                  Icons.search,
-                ),
-                onTap: () async {
-                  String result = await DefaultAssetBundle.of(context)
-                      .loadString('assets/contas.json');
-                  String conta = "";
-                  String searched = "espera";
-                  String igrejaCod = "";
-                  bool bancaria = true;
-                  showDialog(
-                    context: context,
-                    builder: (context) {
-                      return StatefulBuilder(
-                        builder: (context, setState) {
-                          return AlertDialog(
-                            title: Text(
-                              searched == "espera"
-                                  ? bancaria
-                                      ? "Conta Bancária"
-                                      : "Código Igreja"
-                                  : searched == "achou"
-                                      ? igrejaCod
-                                      : bancaria
-                                          ? "Conta não existente"
-                                          : "Código não existente",
-                              textAlign: TextAlign.center,
-                            ),
-                            content: TextField(
-                              focusNode: FocusNode(),
-                              onSubmitted: (value) {
-                                List<Map<String, String>> jsonList =
-                                    json.decode(result.toString());
-                                if (jsonList.indexWhere((element) =>
-                                        element["conta"]!.split("-")[0] ==
-                                            value &&
-                                        bancaria) !=
-                                    -1) {
-                                  setState(() {
-                                    igrejaCod =
-                                        "${jsonList[jsonList.indexWhere((element) => element["conta"]!.split("-")[0] == value)]["cod"]} - ${jsonList[jsonList.indexWhere((element) => element["conta"]!.split("-")[0] == value)]["nome"]}";
-                                    searched = "achou";
-                                  });
-                                } else if (jsonList.indexWhere(
-                                          (element) =>
-                                              element["cod"] == value,
-                                        ) !=
-                                        -1 &&
-                                    !bancaria) {
-                                  setState(() {
-                                    igrejaCod =
-                                        "${jsonList[jsonList.indexWhere((element) => element["cod"] == value)]["conta"]} - ${jsonList[jsonList.indexWhere((element) => element["cod"] == value)]["nome"]}";
-                                    searched = "achou";
-                                  });
-                                } else {
-                                  setState(() {
-                                    searched = "erro";
-                                  });
-                                }
-                              },
-                              onChanged: (value) {
-                                setState(() {
-                                  conta = value;
-                                });
-                              },
-                              textAlign: TextAlign.center,
-                              decoration: inputDecoration,
-                            ),
-                            actions: [
-                              Row(
-                                children: [
-                                  Expanded(
-                                    flex: 1,
-                                    child: Button(
-                                      color: Colors.orange,
-                                      onPressed: () {
-                                        setState(() {
-                                          searched = "espera";
-                                          bancaria = !bancaria;
-                                        });
-                                      },
-                                      label: bancaria
-                                          ? "Conta Banc."
-                                          : "Cod. Igreja",
-                                    ),
-                                  ),
-                                  Expanded(
-                                    child: Container(),
-                                  ),
-                                  Expanded(
-                                    flex: 1,
-                                    child: Button(
-                                      color: Colors.lightGreen,
-                                      label: "Pesquisar",
-                                      onPressed: () async {
-                                        List<Map<String, String>> jsonList =
-                                            json.decode(result.toString());
-                                        if (jsonList.indexWhere((element) =>
-                                                element["conta"]!
-                                                        .split("-")[0] ==
-                                                    conta &&
-                                                bancaria) !=
-                                            -1) {
-                                          setState(() {
-                                            igrejaCod =
-                                                "${jsonList[jsonList.indexWhere((element) => element["conta"]!.split("-")[0] == conta)]["cod"]} - ${jsonList[jsonList.indexWhere((element) => element["conta"]!.split("-")[0] == conta)]["nome"]}";
-                                            searched = "achou";
-                                          });
-                                        } else if (jsonList.indexWhere(
-                                                    (element) =>
-                                                        element["cod"] ==
-                                                        conta) !=
-                                                -1 &&
-                                            !bancaria) {
-                                          setState(() {
-                                            igrejaCod =
-                                                "${jsonList[jsonList.indexWhere((element) => element["cod"] == conta)]["conta"]} - ${jsonList[jsonList.indexWhere((element) => element["cod"] == conta)]["nome"]}";
-                                            searched = "achou";
-                                          });
-                                        } else {
-                                          setState(() {
-                                            searched = "erro";
-                                          });
-                                        }
-                                      },
-                                    ),
-                                  ),
-                                  Expanded(
-                                    child: Container(),
-                                  ),
-                                  Expanded(
-                                    flex: 1,
-                                    child: Button(
-                                      color: Colors.blue,
-                                      label: "Sair",
-                                      onPressed: () {
-                                        Navigator.of(context).pop();
-                                      },
-                                    ),
-                                  ),
-                                ],
+                              Expanded(
+                                child: Container(),
                               ),
+                              Expanded(
+                                flex: 1,
+                                child: Button(
+                                  color: Colors.orange,
+                                  onPressed: () {
+                                    setState(() {
+                                      acms = !acms;
+                                    });
+                                  },
+                                  label: acms ? "ACMS" : "AASI",
+                                ),
+                              ),
+                              Expanded(
+                                child: Container(),
+                              ),
+                              Expanded(
+                                flex: 1,
+                                child: Button(
+                                  color: Colors.lightGreen,
+                                  label: "Gerar",
+                                  onPressed: () async {
+                                    List<Conciliacao> csvList = [];
+                                    for (var file in files) {
+                                      String csvData =
+                                          File.fromRawPath(file.bytes!).path;
+                                      List<String> datas = csvData
+                                          .replaceAll('\r\n', '\r')
+                                          .replaceAll('\n', '\r')
+                                          .split("\r");
+                                      datas.removeAt(0);
+                                      String conta = datas.first
+                                          .split(' ')[6]
+                                          .split('-')[0];
+                                      datas.removeRange(0, 2);
+                                      datas.removeWhere((element) =>
+                                          element == ' ' ||
+                                          element == '' ||
+                                          element == '\r' ||
+                                          element.split(";")[0] == "Total" ||
+                                          element.split(";")[0] == "Data" ||
+                                          element.split(" ")[0].split(';')[1] ==
+                                              "�ltimos" ||
+                                          element.split(" ")[0] == ";Saldos" ||
+                                          element.split(';')[1].split(' ')[0] ==
+                                              'SALDO');
+                                      for (var element in datas) {
+                                        List<String?> list = element.split(";");
+                                        csvList.add(
+                                          Conciliacao(
+                                            conta,
+                                            list[0]!,
+                                            list[1]!,
+                                            list[2]!,
+                                            list[3] != ""
+                                                ? list[3] != null
+                                                    ? list[3]!
+                                                        .replaceAll(".", "")
+                                                        .replaceAll(",", "")
+                                                    : list[4]!
+                                                        .replaceAll(".", "")
+                                                        .replaceAll(",", "")
+                                                : list[4]!
+                                                    .replaceAll(".", "")
+                                                    .replaceAll(",", ""),
+                                          ),
+                                        );
+                                      }
+                                    }
+                                    String jsonCsvEncoded = jsonEncode(csvList);
+                                    List<Map<String, String>> jsonCsvDecoded =
+                                        jsonDecode(jsonCsvEncoded);
+                                    List<String> text = acms
+                                        ? [
+                                            "Bank	BankAccountNumber	Date	Description	Value"
+                                          ]
+                                        : [];
+                                    for (var element in jsonCsvDecoded) {
+                                      if (acms) {
+                                        text.add(
+                                            "237	${element["conta"]}${poupanca ? "1" : ""}	${element["data"]}	${element["lancamento"]} - ${element["doc"]}	${element["valor"]}");
+                                      } else {
+                                        List<String> letters = element["valor"]!
+                                            .split('')
+                                            .reversed
+                                            .toList();
+                                        letters.insert(2, ',');
+                                        text.add(
+                                            "${element["data"]};${element["lancamento"]};${element["doc"]};${element["valor"]!.contains('-') ? '' : letters.reversed.join()};${element["valor"]!.contains('-') ? letters.reversed.join().replaceAll("-", '') : ''}");
+                                      }
+                                    }
+                                    if (kIsWeb) {
+                                      var anchor;
+                                      var url;
+                                      // prepare
+                                      final bytes =
+                                          utf8.encode(text.join("\n"));
+                                      final blob = html.Blob([bytes]);
+                                      url = html.Url.createObjectUrlFromBlob(
+                                          blob);
+                                      anchor = html.document.createElement('a')
+                                          as html.AnchorElement
+                                        ..href = url
+                                        ..style.display = 'none'
+                                        ..download =
+                                            'Conciliacao.${acms ? 'txt' : 'csv'}';
+                                      html.document.body!.children.add(anchor);
+
+                                      // download
+                                      anchor.click();
+
+                                      // cleanup
+                                      html.document.body!.children
+                                          .remove(anchor);
+                                      html.Url.revokeObjectUrl(url);
+                                    } else {
+                                      final file = await File(
+                                              'Conciliacao.${acms ? 'txt' : 'csv'}')
+                                          .writeAsString(
+                                        text.join("\n"),
+                                      );
+                                      await file.open();
+                                    }
+                                    Navigator.of(context).pop();
+                                  },
+                                ),
+                              ),
+                              Expanded(
+                                child: Container(),
+                              ),
+                              Expanded(
+                                  flex: 1,
+                                  child: Button(
+                                    color: Colors.blue,
+                                    label: "Sair",
+                                    onPressed: () {
+                                      Navigator.of(context).pop();
+                                    },
+                                  )),
                             ],
-                          );
-                        },
+                          )
+                        ],
                       );
                     },
                   );
-                })
-            : Container(),
-        tela == 'home' && kisWeb
-            ? gerenciador == 'gerenciador'
-                ? ListTile(
-                    title: Text('Depositos Manuais'),
-                    leading: Icon(Icons.monetization_on_sharp),
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => Deposito(c as Cache<String, List<String>?>),
+                },
+              );
+            }
+          },
+        ),
+        ListTile(
+          title: Text('Lições'),
+          leading: Icon(Icons.menu_book),
+          onTap: () async {
+            String? escolhido;
+            showDialog(
+              context: context,
+              builder: (context) {
+                List<DropdownMenuItem> distritos = [
+                  DropdownMenuItem(
+                    child: Text(
+                      "Trimestre",
+                    ),
+                  ),
+                ];
+                for (var i = 0; i < 4; i++) {
+                  distritos.add(
+                    DropdownMenuItem(
+                      value: "${i + 1}º Trimestre",
+                      child: Text(
+                        "${i + 1}º Trimestre",
+                      ),
+                    ),
+                  );
+                }
+                return AlertDialog(
+                  title: Text("Escolha o trimestre:"),
+                  content: DropdownButtonFormField(
+                    decoration: inputDecoration,
+                    onChanged: (dynamic value) {
+                      escolhido = value;
+                      Printing.layoutPdf(
+                        onLayout: (format) => generateLicaoPdf(
+                          format,
+                          escolhido,
                         ),
                       );
-                    })
-                : Container()
+                    },
+                    hint: Text("Trimestre"),
+                    items: distritos,
+                    value: escolhido,
+                    validator: (dynamic value) {
+                      if (value == null) {
+                        return "Escolha algum trimestre";
+                      }
+                      return null;
+                    },
+                  ),
+                );
+              },
+            );
+          },
+        ),
+        ListTile(
+            title: Text('Pesquisa por conta'),
+            leading: Icon(
+              Icons.search,
+            ),
+            onTap: () async {
+              String result = await DefaultAssetBundle.of(context)
+                  .loadString('assets/contas.json');
+              String conta = "";
+              String searched = "espera";
+              String igrejaCod = "";
+              bool bancaria = true;
+              showDialog(
+                context: context,
+                builder: (context) {
+                  return StatefulBuilder(
+                    builder: (context, setState) {
+                      return AlertDialog(
+                        title: Text(
+                          searched == "espera"
+                              ? bancaria
+                                  ? "Conta Bancária"
+                                  : "Código Igreja"
+                              : searched == "achou"
+                                  ? igrejaCod
+                                  : bancaria
+                                      ? "Conta não existente"
+                                      : "Código não existente",
+                          textAlign: TextAlign.center,
+                        ),
+                        content: TextField(
+                          focusNode: FocusNode(),
+                          onSubmitted: (value) {
+                            List<Map<String, String>> jsonList =
+                                json.decode(result.toString());
+                            if (jsonList.indexWhere((element) =>
+                                    element["conta"]!.split("-")[0] == value &&
+                                    bancaria) !=
+                                -1) {
+                              setState(() {
+                                igrejaCod =
+                                    "${jsonList[jsonList.indexWhere((element) => element["conta"]!.split("-")[0] == value)]["cod"]} - ${jsonList[jsonList.indexWhere((element) => element["conta"]!.split("-")[0] == value)]["nome"]}";
+                                searched = "achou";
+                              });
+                            } else if (jsonList.indexWhere(
+                                      (element) => element["cod"] == value,
+                                    ) !=
+                                    -1 &&
+                                !bancaria) {
+                              setState(() {
+                                igrejaCod =
+                                    "${jsonList[jsonList.indexWhere((element) => element["cod"] == value)]["conta"]} - ${jsonList[jsonList.indexWhere((element) => element["cod"] == value)]["nome"]}";
+                                searched = "achou";
+                              });
+                            } else {
+                              setState(() {
+                                searched = "erro";
+                              });
+                            }
+                          },
+                          onChanged: (value) {
+                            setState(() {
+                              conta = value;
+                            });
+                          },
+                          textAlign: TextAlign.center,
+                          decoration: inputDecoration,
+                        ),
+                        actions: [
+                          Row(
+                            children: [
+                              Expanded(
+                                flex: 1,
+                                child: Button(
+                                  color: Colors.orange,
+                                  onPressed: () {
+                                    setState(() {
+                                      searched = "espera";
+                                      bancaria = !bancaria;
+                                    });
+                                  },
+                                  label:
+                                      bancaria ? "Conta Banc." : "Cod. Igreja",
+                                ),
+                              ),
+                              Expanded(
+                                child: Container(),
+                              ),
+                              Expanded(
+                                flex: 1,
+                                child: Button(
+                                  color: Colors.lightGreen,
+                                  label: "Pesquisar",
+                                  onPressed: () async {
+                                    List<Map<String, String>> jsonList =
+                                        json.decode(result.toString());
+                                    if (jsonList.indexWhere((element) =>
+                                            element["conta"]!.split("-")[0] ==
+                                                conta &&
+                                            bancaria) !=
+                                        -1) {
+                                      setState(() {
+                                        igrejaCod =
+                                            "${jsonList[jsonList.indexWhere((element) => element["conta"]!.split("-")[0] == conta)]["cod"]} - ${jsonList[jsonList.indexWhere((element) => element["conta"]!.split("-")[0] == conta)]["nome"]}";
+                                        searched = "achou";
+                                      });
+                                    } else if (jsonList.indexWhere((element) =>
+                                                element["cod"] == conta) !=
+                                            -1 &&
+                                        !bancaria) {
+                                      setState(() {
+                                        igrejaCod =
+                                            "${jsonList[jsonList.indexWhere((element) => element["cod"] == conta)]["conta"]} - ${jsonList[jsonList.indexWhere((element) => element["cod"] == conta)]["nome"]}";
+                                        searched = "achou";
+                                      });
+                                    } else {
+                                      setState(() {
+                                        searched = "erro";
+                                      });
+                                    }
+                                  },
+                                ),
+                              ),
+                              Expanded(
+                                child: Container(),
+                              ),
+                              Expanded(
+                                flex: 1,
+                                child: Button(
+                                  color: Colors.blue,
+                                  label: "Sair",
+                                  onPressed: () {
+                                    Navigator.of(context).pop();
+                                  },
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      );
+                    },
+                  );
+                },
+              );
+            }),
+        gerenciador == 'gerenciador'
+            ? ListTile(
+                title: Text('Depositos Manuais'),
+                leading: Icon(Icons.monetization_on_sharp),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => Deposito(c),
+                    ),
+                  );
+                })
             : Container(),
       ],
     ),

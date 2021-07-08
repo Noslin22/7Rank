@@ -1,11 +1,11 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:remessa/models/pages/SignModel.dart';
+import 'package:remessa/models/Auth.dart';
+import 'package:remessa/models/pages/SignPage.dart';
 import 'package:remessa/models/widgets/BottomNavigator.dart';
 import 'package:remessa/models/widgets/Loading.dart';
 import 'package:remessa/models/widgets/consts.dart';
-import 'package:remessa/views/Tabs/Autenticate/Registro/RegistroAdm.dart';
-import 'package:remessa/views/Tabs/Autenticate/Registro/RegistroGerenciador.dart';
-import 'package:remessa/views/Tabs/Autenticate/Registro/RegistroPastor.dart';
+import 'package:provider/provider.dart';
 
 class Registro extends StatefulWidget {
   final String gerenciador;
@@ -15,17 +15,8 @@ class Registro extends StatefulWidget {
 }
 
 class _RegistroState extends State<Registro> {
-  int tabIndex = 0;
   late List<Widget> listScreens;
-  @override
-  void initState() {
-    super.initState();
-    listScreens = [
-      RegistroPastor(carregar),
-      RegistroGerenciador(carregar),
-      RegistroAdm(carregar),
-    ];
-  }
+  int tabIndex = 0;
 
   void carregar(value) {
     setState(() {
@@ -43,15 +34,39 @@ class _RegistroState extends State<Registro> {
 
   @override
   Widget build(BuildContext context) {
+    Auth _auth = context.read<Auth>();
+    double width = MediaQuery.of(context).size.width;
+    print(width);
+    final Map<int, String> types = {
+      0: 'pastor',
+      1: 'gerenciador',
+      2: 'adm',
+    };
+
+    listScreens = List.generate(
+      3,
+      (index) => SignPage(
+        model: SignModel(
+          register: false,
+          carregar: carregar,
+          type: types[index]!,
+          code: _auth.error != null ? _auth.error!.code : null,
+        ),
+      ),
+    );
     return carregando
         ? Loading()
         : Scaffold(
             appBar: AppBar(
               title: Text("Resgistro"),
               centerTitle: true,
-              actions: actions(widget.gerenciador, context, 'registrar', kisWeb: kIsWeb),
+              actions: width <= 750
+                  ? null
+                  : actions(widget.gerenciador, context, 'registrar'),
             ),
-            drawer: kIsWeb ? null : drawer(widget.gerenciador, context, 'registrar'),
+            drawer: width >= 750
+                ? null
+                : drawer(widget.gerenciador, context, 'registrar'),
             body: SingleChildScrollView(
               child: listScreens[tabIndex],
             ),

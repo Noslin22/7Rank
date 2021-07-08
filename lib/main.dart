@@ -16,6 +16,10 @@ void main() async {
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    User? initialUser;
+    Auth(auth: FirebaseAuth.instance).user.single.then((value) {
+      initialUser = value;
+    });
     return MultiProvider(
       providers: [
         Provider<Auth>(
@@ -23,7 +27,7 @@ class MyApp extends StatelessWidget {
         ),
         StreamProvider<User?>(
           create: (context) => context.read<Auth>().user,
-          initialData: null,
+          initialData: initialUser,
         ),
       ],
       child: MaterialApp(

@@ -8,7 +8,7 @@ import 'dart:convert';
 import 'dart:html' as html;
 
 class Deposito extends StatefulWidget {
-  final Cache<String, List<String>?> cache;
+  final SimpleCache<String, List<String>?> cache;
   Deposito(this.cache);
   @override
   _DepositoState createState() => _DepositoState();
@@ -31,8 +31,8 @@ class _DepositoState extends State<Deposito> {
   ScrollController _scrollController = new ScrollController();
   String? title = "Código da Igreja";
   Map<String, String> igrejas = {};
-  List<String>? depositos = [];
-  List<String>? amostra = [];
+  List<String> depositos = [];
+  List<String> amostra = [];
   FocusNode? myFocusNode;
   String? conta = "128076-7";
   bool caixa = false;
@@ -46,10 +46,10 @@ class _DepositoState extends State<Deposito> {
       });
     });
     if (widget.cache.get("depositos") != null) {
-      depositos = widget.cache.get("depositos");
+      depositos = widget.cache.get("depositos")!;
     }
     if (widget.cache.get("amostra") != null) {
-      amostra = widget.cache.get("amostra");
+      amostra = widget.cache.get("amostra")!;
     }
   }
 
@@ -93,17 +93,19 @@ class _DepositoState extends State<Deposito> {
 
   @override
   Widget build(BuildContext context) {
-    bool showCentered = MediaQuery.of(context).size.width > 960;
+    bool showCentered = MediaQuery.of(context).size.width > 1110;
     return Scaffold(
       appBar: AppBar(
         title: Text("Depositos Manuais"),
       ),
       body: Row(
         children: [
-          showCentered ? Expanded(
-            child: Container(),
-            flex: 1,
-          ) : Container(),
+          showCentered
+              ? Expanded(
+                  child: Container(),
+                  flex: 1,
+                )
+              : Container(),
           Expanded(
             child: Container(
               padding: EdgeInsets.fromLTRB(10, 50, 10, 20),
@@ -303,12 +305,12 @@ class _DepositoState extends State<Deposito> {
                       widget.cache.set("depositos", depositos);
                       widget.cache.set("amostra", amostra);
                       setState(() {
-                        depositos!.insert(
+                        depositos.insert(
                             0,
                             caixa
                                 ? "${date[0]}	${date[1]}	${date[2]}	Recibo Caixa ${controllerDc.text} - Rm ${controllerRM.text}	${controllerCod.text}	${controllerDc.text}	$vl"
                                 : "${date[0]}	${date[1]}	${date[2]}	Deposito em ${controllerDate.text} - Rm ${controllerRM.text} - ${controllerDc.text}	${controllerCod.text}	${controllerDc.text}	$vl");
-                        amostra!.insert(0,
+                        amostra.insert(0,
                             "${igrejas[controllerCod.text]} - ${controllerCod.text} - ${controllerDate.text} - Remessa ${controllerRM.text} - Doc ${controllerDc.text} - R\$ ${controllerVl.text}");
                         controllerCod.text = '';
                         controllerDc.text = '';
@@ -332,7 +334,7 @@ class _DepositoState extends State<Deposito> {
                             label: "Exportar",
                             onPressed: () {
                               if (depositos != []) {
-                                _write(depositos!);
+                                _write(depositos);
                                 setState(() {
                                   controllerCod.text = '';
                                   controllerDate.text = '';
@@ -374,13 +376,13 @@ class _DepositoState extends State<Deposito> {
                   ),
                   Expanded(
                     child: ListView.builder(
-                        itemCount: amostra!.length,
+                        itemCount: amostra.length,
                         controller: _scrollController,
                         shrinkWrap: true,
                         reverse: true,
                         itemBuilder: (context, index) {
                           return ListTile(
-                            title: Text(amostra![index]),
+                            title: Text(amostra[index]),
                             trailing: Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
@@ -392,8 +394,8 @@ class _DepositoState extends State<Deposito> {
                                   color: Colors.red,
                                   onPressed: () {
                                     setState(() {
-                                      amostra!.removeAt(index);
-                                      depositos!.removeAt(index);
+                                      amostra.removeAt(index);
+                                      depositos.removeAt(index);
                                     });
                                   },
                                 ),
@@ -408,10 +410,10 @@ class _DepositoState extends State<Deposito> {
                                   color: Colors.orange,
                                   onPressed: () {
                                     List<String> text =
-                                        amostra![index].split("-");
+                                        amostra[index].split("-");
                                     setState(() {
-                                      amostra!.removeAt(index);
-                                      depositos!.removeAt(index);
+                                      amostra.removeAt(index);
+                                      depositos.removeAt(index);
                                       title =
                                           igrejas[text[1].replaceAll(" ", "")];
                                       controllerCod.text =
@@ -440,10 +442,12 @@ class _DepositoState extends State<Deposito> {
             ),
             flex: 2,
           ),
-          showCentered ? Expanded(
-            child: Container(),
-            flex: 1,
-          ) : Container(),
+          showCentered
+              ? Expanded(
+                  child: Container(),
+                  flex: 1,
+                )
+              : Container(),
         ],
       ),
     );

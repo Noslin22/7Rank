@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:remessa/models/Auth.dart';
+import 'package:remessa/models/pages/SignModel.dart';
+import 'package:remessa/models/pages/SignPage.dart';
 import 'package:remessa/models/widgets/BottomNavigator.dart';
 import 'package:remessa/models/widgets/Loading.dart';
-import 'package:remessa/views/Tabs/Autenticate/Login/LoginAdm.dart';
 import 'package:provider/provider.dart';
-import 'package:remessa/views/Tabs/Autenticate/Login/LoginGerenciador.dart';
-import 'package:remessa/views/Tabs/Autenticate/Login/LoginPastor.dart';
 
 class Login extends StatefulWidget {
   @override
@@ -33,21 +32,26 @@ class _LoginState extends State<Login> {
   @override
   Widget build(BuildContext context) {
     Auth _auth = context.read<Auth>();
+    final Map<int, String> types = {
+      0: 'pastor',
+      1: 'gerenciador',
+      2: 'adm',
+    };
 
-    listScreens = [
-      LoginPastor(
-        carregar,
-        code: _auth.error != null ? _auth.error!.code : null,
-      ),
-      LoginGerenciador(
-        carregar,
-        code: _auth.error != null ? _auth.error!.code : null,
-      ),
-      LoginAdm(
-        carregar,
-        code: _auth.error != null ? _auth.error!.code : null,
-      ),
-    ];
+    listScreens = List.generate(
+      3,
+      (index) {
+        return SignPage(
+          model: SignModel(
+            register: false,
+            carregar: carregar,
+            type: types[index]!,
+            code: _auth.error != null ? _auth.error!.code : null,
+          ),
+        );
+      },
+    );
+
     return carregando
         ? Loading()
         : Scaffold(

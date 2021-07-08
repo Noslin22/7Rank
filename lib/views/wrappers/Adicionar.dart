@@ -76,7 +76,7 @@ class _AdicionarState extends State<Adicionar> {
         centerTitle: true,
         actions: kIsWeb
             ? actions(widget.gerenciador, context, 'adicionar',
-                setDistrito: setAtualizar, igreja: igreja, kisWeb: kIsWeb)
+                setDistrito: setAtualizar, igreja: igreja)
             : [
                 Tooltip(
                   message: igreja ? 'Igreja' : 'Distrito',

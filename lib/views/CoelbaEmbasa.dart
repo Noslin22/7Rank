@@ -18,8 +18,10 @@ class CoelbaEmbasa extends StatefulWidget {
 
 class _CoelbaEmbasaState extends State<CoelbaEmbasa> {
   TextEditingController _controllerPesquisa = TextEditingController();
-  StreamController<QuerySnapshot> _controllerIgreja = StreamController.broadcast();
-  StreamController<QuerySnapshot> _controllerRank = StreamController.broadcast();
+  StreamController<QuerySnapshot> _controllerIgreja =
+      StreamController.broadcast();
+  StreamController<QuerySnapshot> _controllerRank =
+      StreamController.broadcast();
   TextEditingController _controller = TextEditingController();
   FirebaseStorage storage = FirebaseStorage.instance;
   List<String> igrejas = [];
@@ -31,8 +33,8 @@ class _CoelbaEmbasaState extends State<CoelbaEmbasa> {
 
   void getIgrejas() {
     db.collection("igrejas").orderBy("cod").get().then((value) {
-      List<String> values = value.docs
-          .map((e) => "${e["cod"].toString()} - ${e["nome"].toString()}") as List<String>;
+      Iterable<String> values = value.docs
+          .map((e) => "${e["cod"].toString()} - ${e["nome"].toString()}");
       igrejas.addAll(values);
     });
   }
@@ -68,22 +70,22 @@ class _CoelbaEmbasaState extends State<CoelbaEmbasa> {
     });
   }
 
-  Future<String> _pegarImagem() async {
-    print(
-        "${nome.toLowerCase().replaceAll(" ", '-')}_${_coelba ? "contrato" : "matricula"}.png");
-    return storage
-        .ref(
-            "${nome.toLowerCase().replaceAll(" ", '-')}_${_coelba ? "contrato" : "matricula"}.png")
-        .getDownloadURL()
-        .then((value) {
-      print(value);
-      return value;
-    // ignore: argument_type_not_assignable_to_error_handler
-    }).catchError(() {
-      print('olá');
-      return 'https://firebasestorage.googleapis.com/v0/b/igreja-4019a.appspot.com/o/imagem-error.png?alt=media&token=98e9452b-dc41-4ef8-83db-4c6d2738aad7';
-    });
-  }
+  // Future<String> _pegarImagem() async {
+  //   print(
+  //       "${nome.toLowerCase().replaceAll(" ", '-')}_${_coelba ? "contrato" : "matricula"}.png");
+  //   return storage
+  //       .ref(
+  //           "${nome.toLowerCase().replaceAll(" ", '-')}_${_coelba ? "contrato" : "matricula"}.png")
+  //       .getDownloadURL()
+  //       .then((value) {
+  //     print(value);
+  //     return value;
+  //     // ignore: argument_type_not_assignable_to_error_handler
+  //   }).catchError(() {
+  //     print('olá');
+  //     return 'https://firebasestorage.googleapis.com/v0/b/igreja-4019a.appspot.com/o/imagem-error.png?alt=media&token=98e9452b-dc41-4ef8-83db-4c6d2738aad7';
+  //   });
+  // }
 
   Stream<QuerySnapshot>? _pegarIgreja() {
     Stream<QuerySnapshot> igreja = db
@@ -110,7 +112,7 @@ class _CoelbaEmbasaState extends State<CoelbaEmbasa> {
       appBar: AppBar(
         title: Text(_coelba ? "Coelba" : "Embasa"),
         centerTitle: true,
-        actions: actions(widget.gerenciador, context, 'coelba', kisWeb: kIsWeb),
+        actions: actions(widget.gerenciador, context, 'coelba'),
       ),
       drawer: kIsWeb ? null : drawer(widget.gerenciador, context, 'coelba'),
       body: SingleChildScrollView(
@@ -174,12 +176,12 @@ class _CoelbaEmbasaState extends State<CoelbaEmbasa> {
                   onPressed: () {
                     _pegarDados();
                     setState(() {
-                            mostrar = true;
-                            mostrar2 = false;
-                          });
+                      mostrar = true;
+                      mostrar2 = false;
+                    });
                   },
                   label: "Pesquisar",
-                    style: TextStyles.bigWhite,
+                  style: TextStyles.bigWhite,
                   color: Colors.blue,
                 ),
                 SizedBox(
@@ -213,7 +215,7 @@ class _CoelbaEmbasaState extends State<CoelbaEmbasa> {
                     });
                   },
                   label: "Pesquisar",
-                    style: TextStyles.bigWhite,
+                  style: TextStyles.bigWhite,
                   color: Colors.blue,
                 ),
                 SizedBox(
@@ -236,6 +238,9 @@ class _CoelbaEmbasaState extends State<CoelbaEmbasa> {
                       _controllerPesquisa.text = suggestion;
                       _getIgreja(suggestion.split(" ")[0]);
                     },
+                    noItemsFoundBuilder: (context) => ListTile(
+                      title: Text('Nenhuma igreja encontrada'),
+                    ),
                     itemBuilder: (context, itemData) => ListTile(
                       title: Text("$itemData"),
                     ),
@@ -348,7 +353,7 @@ class _CoelbaEmbasaState extends State<CoelbaEmbasa> {
                       } else {
                         var snackbar =
                             SnackBar(content: Text("Igreja não encontrada"));
-                        
+
                         ScaffoldMessenger.of(context).showSnackBar(snackbar);
                       }
                       return Container();
@@ -369,28 +374,28 @@ class _CoelbaEmbasaState extends State<CoelbaEmbasa> {
               color: Colors.blue,
               label: "Ir para o Site",
             ),
-            mostrar || mostrar2
-                ? Flexible(
-                    child: ConstrainedBox(
-                    constraints: BoxConstraints(
-                        maxHeight:
-                            ((MediaQuery.of(context).size.height / 5) * 3) -
-                                100),
-                    child: FutureBuilder<String>(
-                      future: _pegarImagem(),
-                      builder: (context, snapshot) {
-                        if (snapshot.hasData) {
-                          return Image.network(
-                            snapshot.data!,
-                            fit: BoxFit.contain,
-                          );
-                        } else {
-                          return Container();
-                        }
-                      },
-                    ),
-                  ))
-                : Container()
+            // mostrar || mostrar2
+            //     ? Flexible(
+            //         child: ConstrainedBox(
+            //         constraints: BoxConstraints(
+            //             maxHeight:
+            //                 ((MediaQuery.of(context).size.height / 5) * 3) -
+            //                     100),
+            //         child: FutureBuilder<String>(
+            //           future: _pegarImagem(),
+            //           builder: (context, snapshot) {
+            //             if (snapshot.hasData) {
+            //               return Image.network(
+            //                 snapshot.data!,
+            //                 fit: BoxFit.contain,
+            //               );
+            //             } else {
+            //               return Container();
+            //             }
+            //           },
+            //         ),
+            //       ))
+            //     : Container()
           ],
         ),
       )),

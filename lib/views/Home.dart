@@ -122,7 +122,7 @@ class _HomeState extends State<Home> {
       appBar: AppBar(
         title: Text("$usuario"),
         actions: actions(currentUser(), context, 'home',
-            auth: _auth, kisWeb: kIsWeb),
+            auth: _auth),
       ),
       drawer: kIsWeb ? null : drawer(currentUser(), context, 'home'),
       body: Form(
