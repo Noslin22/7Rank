@@ -22,6 +22,8 @@ import 'package:remessa/views/wrappers/Adicionar.dart';
 import 'package:remessa/views/wrappers/WrappersAutenticate/Login.dart';
 import 'package:remessa/views/wrappers/WrappersAutenticate/Registro.dart';
 
+import '../Auth.dart';
+
 final FirebaseFirestore db = FirebaseFirestore.instance;
 
 List<DropdownMenuItem> distritos = [];
@@ -42,7 +44,7 @@ SimpleCache<String, List<List<String?>>?> c2 =
 );
 
 final navigatorKey = GlobalKey<NavigatorState>();
-void initialize() {
+void initialize(BuildContext context) {
   db.collection("distritos").get().then((value) {
     value.docs.forEach((element) {
       distritos.add(
@@ -71,8 +73,8 @@ currentDate({String? date, bool dateTime = true, bool dataAtual = false}) {
 }
 
 List<Widget> actions(String gerenciador, BuildContext context, String tela,
-    {auth, Function? setDistrito, bool? igreja}) {
-  initialize();
+    {Auth? auth, Function? setDistrito, bool? igreja}) {
+  initialize(context);
   return [
     tela != 'home'
         ? Tooltip(
@@ -95,7 +97,7 @@ List<Widget> actions(String gerenciador, BuildContext context, String tela,
             child: IconButton(
                 icon: Icon(Icons.person),
                 onPressed: () async {
-                  await auth.signOut();
+                  await auth!.signOut();
                   Navigator.pushReplacement(
                     context,
                     MaterialPageRoute(
@@ -580,22 +582,20 @@ List<Widget> actions(String gerenciador, BuildContext context, String tela,
                       Navigator.pushReplacement(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => CoelbaEmbasa(
-                            gerenciador,
-                          ),
+                          builder: (context) => CoelbaEmbasa(gerenciador),
                         ),
                       );
                     }),
               )
             : Container()
         : Container(),
-    gerenciador == 'gerenciador'
+    gerenciador == 'gerenciador' && tela != 'depositos'
         ? Tooltip(
             message: 'Depositos Manuais',
             child: IconButton(
                 icon: Icon(Icons.monetization_on_sharp),
                 onPressed: () {
-                  Navigator.push(
+                  Navigator.pushReplacement(
                     context,
                     MaterialPageRoute(
                       builder: (context) => Deposito(c1),
@@ -605,13 +605,13 @@ List<Widget> actions(String gerenciador, BuildContext context, String tela,
           )
         : Container(),
     kIsWeb
-        ? gerenciador == 'gerenciador'
+        ? gerenciador == 'gerenciador' && tela != 'dinheiro'
             ? Tooltip(
                 message: 'Protocolo Caixa',
                 child: IconButton(
                     icon: Icon(Icons.calculate),
                     onPressed: () {
-                      Navigator.push(
+                      Navigator.pushReplacement(
                         context,
                         MaterialPageRoute(
                           builder: (context) => Dinheiro(c2),
@@ -631,9 +631,7 @@ List<Widget> actions(String gerenciador, BuildContext context, String tela,
                       Navigator.pushReplacement(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => Registro(
-                              gerenciador,
-                            ),
+                            builder: (context) => Registro(),
                           ));
                     }),
               )
@@ -649,9 +647,7 @@ List<Widget> actions(String gerenciador, BuildContext context, String tela,
                       Navigator.pushReplacement(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => Adicionar(
-                            gerenciador,
-                          ),
+                          builder: (context) => Adicionar(),
                         ),
                       );
                     }),
@@ -661,8 +657,7 @@ List<Widget> actions(String gerenciador, BuildContext context, String tela,
   ];
 }
 
-drawer(String gerenciador, BuildContext context, String tela,
-    {auth, Function? setDistrito, bool? igreja}) {
+drawer(String gerenciador, BuildContext context, String tela, {Auth? auth}) {
   return Drawer(
     child: ListView(
       padding: EdgeInsets.zero,
@@ -704,6 +699,21 @@ drawer(String gerenciador, BuildContext context, String tela,
                   )
                 : Container()
             : Container(),
+        tela != 'adicionar'
+            ? gerenciador == "gerenciador"
+                ? ListTile(
+                    title: Text('Adicionar'),
+                    leading: Icon(Icons.add),
+                    onTap: () {
+                      Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => Adicionar(),
+                          ));
+                    },
+                  )
+                : Container()
+            : Container(),
         tela != 'registrar'
             ? gerenciador == "gerenciador"
                 ? ListTile(
@@ -713,89 +723,86 @@ drawer(String gerenciador, BuildContext context, String tela,
                       Navigator.pushReplacement(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => Registro(gerenciador),
+                            builder: (context) => Registro(),
                           ));
                     },
                   )
                 : Container()
             : Container(),
-        tela == 'home'
-            ? ListTile(
-                title: Text('Etiqueta'),
-                leading: Icon(Icons.local_offer),
-                onTap: () {
-                  Navigator.pop(context);
-                  showDialog(
-                    context: context,
-                    builder: (context) {
-                      return AlertDialog(
-                        title: Text(
-                          "Escolha um distrito",
-                          textAlign: TextAlign.center,
+        ListTile(
+          title: Text('Etiqueta'),
+          leading: Icon(Icons.local_offer),
+          onTap: () {
+            Navigator.pop(context);
+            showDialog(
+              context: context,
+              builder: (context) {
+                return AlertDialog(
+                  title: Text(
+                    "Escolha um distrito",
+                    textAlign: TextAlign.center,
+                  ),
+                  content: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      DropdownButtonFormField(
+                        onChanged: (dynamic value) {
+                          distritoEtiqueta = value;
+                        },
+                        onSaved: (dynamic value) {
+                          distritoEtiqueta = value;
+                        },
+                        hint: Text("Distritos"),
+                        items: distritos,
+                        value: distritoEtiqueta,
+                      ),
+                    ],
+                  ),
+                  actions: [
+                    Row(
+                      mainAxisSize: MainAxisSize.max,
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Expanded(
+                          flex: 1,
+                          child: Button(
+                            color: Colors.lightGreen,
+                            label: 'Gerar',
+                            onPressed: () {
+                              Printing.layoutPdf(
+                                onLayout: (format) {
+                                  return buildPdfEtiqueta(
+                                    distritoEtiqueta,
+                                    currentDate(dataAtual: true).split("/")[2],
+                                  );
+                                },
+                              );
+                              Navigator.of(context).pop();
+                              distritoEtiqueta = "";
+                            },
+                          ),
                         ),
-                        content: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            DropdownButtonFormField(
-                              onChanged: (dynamic value) {
-                                distritoEtiqueta = value;
-                              },
-                              onSaved: (dynamic value) {
-                                distritoEtiqueta = value;
-                              },
-                              hint: Text("Distritos"),
-                              items: distritos,
-                              value: distritoEtiqueta,
-                            ),
-                          ],
+                        Expanded(
+                          child: Container(),
                         ),
-                        actions: [
-                          Row(
-                            mainAxisSize: MainAxisSize.max,
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Expanded(
-                                flex: 1,
-                                child: Button(
-                                  color: Colors.lightGreen,
-                                  label: 'Gerar',
-                                  onPressed: () {
-                                    Printing.layoutPdf(
-                                      onLayout: (format) {
-                                        return buildPdfEtiqueta(
-                                          distritoEtiqueta,
-                                          currentDate(dataAtual: true)
-                                              .split("/")[2],
-                                        );
-                                      },
-                                    );
-                                    Navigator.of(context).pop();
-                                    distritoEtiqueta = "";
-                                  },
-                                ),
-                              ),
-                              Expanded(
-                                child: Container(),
-                              ),
-                              Expanded(
-                                flex: 1,
-                                child: Button(
-                                  color: Colors.blue,
-                                  label: 'Cancelar',
-                                  onPressed: () {
-                                    Navigator.of(context).pop();
-                                  },
-                                ),
-                              ),
-                            ],
-                          )
-                        ],
-                      );
-                    },
-                  );
-                },
-              )
-            : Container(),
+                        Expanded(
+                          flex: 1,
+                          child: Button(
+                            color: Colors.blue,
+                            label: 'Cancelar',
+                            onPressed: () {
+                              Navigator.of(context).pop();
+                            },
+                          ),
+                        ),
+                      ],
+                    )
+                  ],
+                );
+              },
+            );
+          },
+        ),
         ListTile(
           title: Text("Conciliação Bancária"),
           leading: Icon(Icons.insert_drive_file_rounded),
@@ -1185,19 +1192,6 @@ drawer(String gerenciador, BuildContext context, String tela,
                 },
               );
             }),
-        gerenciador == 'gerenciador'
-            ? ListTile(
-                title: Text('Depositos Manuais'),
-                leading: Icon(Icons.monetization_on_sharp),
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => Deposito(c1),
-                    ),
-                  );
-                })
-            : Container(),
       ],
     ),
   );

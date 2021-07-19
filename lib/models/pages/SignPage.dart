@@ -115,7 +115,7 @@ class _SignState extends State<SignPage> {
                       myFocusNode = FocusNode();
                       myFocusNode!.requestFocus();
                     },
-                    autofillHints: [AutofillHints.username],
+                    autofillHints: [AutofillHints.newUsername],
                     onChanged: (newValue) {
                       setState(() => nome = _auth.removerAcentos(newValue));
                     },
@@ -157,6 +157,7 @@ class _SignState extends State<SignPage> {
                         });
                       }
                     },
+                    autofillHints: [AutofillHints.password],
                     obscureText: true,
                     decoration: inputDecoration.copyWith(
                       labelText: "Senha",

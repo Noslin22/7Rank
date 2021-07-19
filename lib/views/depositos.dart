@@ -93,11 +93,15 @@ class _DepositoState extends State<Deposito> {
 
   @override
   Widget build(BuildContext context) {
+    double width = MediaQuery.of(context).size.width;
+    bool mobile = width <= 750;
     bool showCentered = MediaQuery.of(context).size.width > 1110;
     return Scaffold(
       appBar: AppBar(
         title: Text("Depositos Manuais"),
+        actions: mobile ? null : actions('gerenciador', context, 'depositos'),
       ),
+      drawer: mobile ? drawer('gerenciador', context, 'depositos') : null,
       body: Row(
         children: [
           showCentered

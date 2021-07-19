@@ -8,8 +8,6 @@ import 'package:remessa/models/widgets/consts.dart';
 import 'package:provider/provider.dart';
 
 class Registro extends StatefulWidget {
-  final String gerenciador;
-  const Registro(this.gerenciador);
   @override
   _RegistroState createState() => _RegistroState();
 }
@@ -34,9 +32,9 @@ class _RegistroState extends State<Registro> {
 
   @override
   Widget build(BuildContext context) {
-    Auth _auth = context.read<Auth>();
     double width = MediaQuery.of(context).size.width;
-    print(width);
+    bool mobile = width <= 750;
+    Auth _auth = context.read<Auth>();
     final Map<int, String> types = {
       0: 'pastor',
       1: 'gerenciador',
@@ -60,13 +58,13 @@ class _RegistroState extends State<Registro> {
             appBar: AppBar(
               title: Text("Resgistro"),
               centerTitle: true,
-              actions: width <= 750
+              actions: mobile
                   ? null
-                  : actions(widget.gerenciador, context, 'registrar'),
+                  : actions('gerenciador', context, 'registrar'),
             ),
-            drawer: width >= 750
-                ? null
-                : drawer(widget.gerenciador, context, 'registrar'),
+            drawer: mobile
+                ? drawer('gerenciador', context, 'registrar')
+                : null,
             body: SingleChildScrollView(
               child: listScreens[tabIndex],
             ),

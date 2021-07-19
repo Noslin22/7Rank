@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:printing/printing.dart';
 import 'package:remessa/models/Auth.dart';
@@ -11,7 +10,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
 import 'package:remessa/views/Rank.dart';
-    import 'package:provider/provider.dart';
+import 'package:provider/provider.dart';
 import 'dart:async';
 
 class Home extends StatefulWidget {
@@ -20,9 +19,12 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
-  StreamController<QuerySnapshot> _controllerDistritos = StreamController.broadcast();
-  StreamController<QuerySnapshot> _controllerIgrejas = StreamController.broadcast();
-  StreamController<QuerySnapshot> _controllerRank = StreamController.broadcast();
+  StreamController<QuerySnapshot> _controllerDistritos =
+      StreamController.broadcast();
+  StreamController<QuerySnapshot> _controllerIgrejas =
+      StreamController.broadcast();
+  StreamController<QuerySnapshot> _controllerRank =
+      StreamController.broadcast();
   ScrollController _controllerScroll = ScrollController();
   FirebaseAuth auth = FirebaseAuth.instance;
   final _formKey = GlobalKey<FormState>();
@@ -116,15 +118,22 @@ class _HomeState extends State<Home> {
 
   @override
   Widget build(BuildContext context) {
-    
+    double width = MediaQuery.of(context).size.width;
+    bool mobile = width <= 750;
     Auth _auth = context.read<Auth>();
     return Scaffold(
       appBar: AppBar(
         title: Text("$usuario"),
-        actions: actions(currentUser(), context, 'home',
-            auth: _auth),
+        actions: mobile
+            ? null
+            : actions(
+                currentUser(),
+                context,
+                'home',
+                auth: _auth,
+              ),
       ),
-      drawer: kIsWeb ? null : drawer(currentUser(), context, 'home'),
+      drawer: mobile ? drawer(currentUser(), context, 'home') : null,
       body: Form(
         key: _formKey,
         child: Container(

@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:remessa/models/theme/TextStyles.dart';
@@ -11,7 +10,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 class CoelbaEmbasa extends StatefulWidget {
   final String gerenciador;
-  const CoelbaEmbasa(this.gerenciador);
+  CoelbaEmbasa(this.gerenciador);
   @override
   _CoelbaEmbasaState createState() => _CoelbaEmbasaState();
 }
@@ -70,23 +69,6 @@ class _CoelbaEmbasaState extends State<CoelbaEmbasa> {
     });
   }
 
-  // Future<String> _pegarImagem() async {
-  //   print(
-  //       "${nome.toLowerCase().replaceAll(" ", '-')}_${_coelba ? "contrato" : "matricula"}.png");
-  //   return storage
-  //       .ref(
-  //           "${nome.toLowerCase().replaceAll(" ", '-')}_${_coelba ? "contrato" : "matricula"}.png")
-  //       .getDownloadURL()
-  //       .then((value) {
-  //     print(value);
-  //     return value;
-  //     // ignore: argument_type_not_assignable_to_error_handler
-  //   }).catchError(() {
-  //     print('olá');
-  //     return 'https://firebasestorage.googleapis.com/v0/b/igreja-4019a.appspot.com/o/imagem-error.png?alt=media&token=98e9452b-dc41-4ef8-83db-4c6d2738aad7';
-  //   });
-  // }
-
   Stream<QuerySnapshot>? _pegarIgreja() {
     Stream<QuerySnapshot> igreja = db
         .collection("igrejas")
@@ -108,13 +90,15 @@ class _CoelbaEmbasaState extends State<CoelbaEmbasa> {
 
   @override
   Widget build(BuildContext context) {
+    double width = MediaQuery.of(context).size.width;
+    bool mobile = width <= 750;
     return Scaffold(
       appBar: AppBar(
         title: Text(_coelba ? "Coelba" : "Embasa"),
         centerTitle: true,
-        actions: actions(widget.gerenciador, context, 'coelba'),
+        actions: mobile ? null : actions(widget.gerenciador, context, 'coelba'),
       ),
-      drawer: kIsWeb ? null : drawer(widget.gerenciador, context, 'coelba'),
+      drawer: mobile ? drawer(widget.gerenciador, context, 'coelba') : null,
       body: SingleChildScrollView(
           child: Container(
         padding: EdgeInsets.all(10),

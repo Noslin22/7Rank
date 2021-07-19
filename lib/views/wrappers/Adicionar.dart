@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:remessa/models/widgets/BottomNavigator.dart';
 import 'package:remessa/models/widgets/consts.dart';
@@ -10,8 +9,6 @@ import 'package:remessa/views/Tabs/Adicionar/Igrejas/AtualizarIgreja.dart';
 import 'package:remessa/views/Tabs/Adicionar/Igrejas/DeletarIgreja.dart';
 
 class Adicionar extends StatefulWidget {
-  final String gerenciador;
-  Adicionar(this.gerenciador);
   @override
   _AdicionarState createState() => _AdicionarState();
 }
@@ -19,47 +16,11 @@ class Adicionar extends StatefulWidget {
 class _AdicionarState extends State<Adicionar> {
   bool igreja = true;
   int tabIndex = 0;
-  List<Widget> listScreens = [
-    AdicionarIgreja(),
-    AtualizarIgreja(),
-    DeletarIgreja(),
-  ];
-  List<String> listNames = [
-    'Adicionar Igreja',
-    'Atualizar Igreja',
-    'Deletar Igreja',
-  ];
 
   void setDistrito() {
     setState(() {
       igreja = !igreja;
     });
-  }
-
-  void setAtualizar() {
-    setDistrito();
-    listScreens = igreja
-        ? [
-            AdicionarIgreja(),
-            AtualizarIgreja(),
-            DeletarIgreja(),
-          ]
-        : [
-            AdicionarDistrito(),
-            AtualizarDistrito(),
-            DeletarDistrito(),
-          ];
-    listNames = igreja
-        ? [
-            'Adicionar Igreja',
-            'Atualizar Igreja',
-            'Deletar Igreja',
-          ]
-        : [
-            'Adicionar Distrito',
-            'Atualizar Distrito',
-            'Deletar Distrito',
-          ];
   }
 
   void setIndex(value) {
@@ -70,14 +31,36 @@ class _AdicionarState extends State<Adicionar> {
 
   @override
   Widget build(BuildContext context) {
+    double width = MediaQuery.of(context).size.width;
+    bool mobile = width <= 750;
+    List<Widget> listScreens = igreja
+        ? [
+            AdicionarIgreja(),
+            AtualizarIgreja(),
+            DeletarIgreja(),
+          ]
+        : [
+            AdicionarDistrito(),
+            AtualizarDistrito(),
+            DeletarDistrito(),
+          ];
+    List<String> listNames = igreja
+        ? [
+            'Adicionar Igreja',
+            'Atualizar Igreja',
+            'Deletar Igreja',
+          ]
+        : [
+            'Adicionar Distrito',
+            'Atualizar Distrito',
+            'Deletar Distrito',
+          ];
     return Scaffold(
       appBar: AppBar(
         title: Text(listNames[tabIndex]),
         centerTitle: true,
-        actions: kIsWeb
-            ? actions(widget.gerenciador, context, 'adicionar',
-                setDistrito: setAtualizar, igreja: igreja)
-            : [
+        actions: mobile
+            ? [
                 Tooltip(
                   message: igreja ? 'Igreja' : 'Distrito',
                   child: IconButton(
@@ -85,33 +68,24 @@ class _AdicionarState extends State<Adicionar> {
                           Icon(igreja ? Icons.account_balance : Icons.business),
                       onPressed: () {
                         setDistrito();
-                        listScreens = igreja
-                            ? [
-                                AdicionarIgreja(),
-                                AtualizarIgreja(),
-                                DeletarIgreja(),
-                              ]
-                            : [
-                                AdicionarDistrito(),
-                                AtualizarDistrito(),
-                                DeletarDistrito(),
-                              ];
-                        listNames = igreja
-                            ? [
-                                'Adicionar Igreja',
-                                'Atualizar Igreja',
-                                'Deletar Igreja',
-                              ]
-                            : [
-                                'Adicionar Distrito',
-                                'Atualizar Distrito',
-                                'Deletar Distrito',
-                              ];
                       }),
                 )
-              ],
+              ]
+            : actions(
+                'gerenciador',
+                context,
+                'adicionar',
+                setDistrito: setDistrito,
+                igreja: igreja,
+              ),
       ),
-      drawer: kIsWeb ? null : drawer(widget.gerenciador, context, 'adicionar'),
+      drawer: mobile
+          ? drawer(
+              'gerenciador',
+              context,
+              'adicionar',
+            )
+          : null,
       bottomNavigationBar: BottomNavigator(
         tabIndex,
         setIndex,
