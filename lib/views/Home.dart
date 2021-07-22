@@ -34,6 +34,15 @@ class _HomeState extends State<Home> {
   String? escolhido;
   String? usuario;
 
+  @override
+  void dispose() {
+    _controllerDistritos.close();
+    _controllerIgrejas.close();
+    _controllerRank.close();
+    _controllerScroll.dispose();
+    super.dispose();
+  }
+
   save() {
     if (_formKey.currentState != null && _formKey.currentState!.validate()) {
       _formKey.currentState!.save();

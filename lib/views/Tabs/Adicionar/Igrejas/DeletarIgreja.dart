@@ -24,6 +24,12 @@ class _DeletarIgrejaState extends State<DeletarIgreja> {
   }
 
   @override
+  void dispose() {
+    _controllerCod.dispose();
+    super.dispose();
+  }
+
+  @override
   void initState() {
     super.initState();
     getIgrejas();

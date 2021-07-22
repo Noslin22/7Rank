@@ -32,6 +32,12 @@ class _RankState extends State<Rank> {
   int _total = 0;
   int total = 0;
 
+  @override
+  void dispose() {
+    _controller.close();
+    super.dispose();
+  }
+
   pdf({bool rank = true}) {
     return rank
         ? buildPdf(distritos, _total, widget.date, _simples)

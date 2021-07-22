@@ -189,6 +189,23 @@ class _DinheiroState extends State<Dinheiro> {
   @override
   void dispose() {
     myFocusNode!.dispose();
+    controller200.dispose();
+    controller100.dispose();
+    controller50.dispose();
+    controller20.dispose();
+    controller10.dispose();
+    controller5.dispose();
+    controller2.dispose();
+    controller1.dispose();
+    controller050.dispose();
+    controller025.dispose();
+    controller010.dispose();
+    controller05.dispose();
+    controllerCheque1.dispose();
+    controllerCheque2.dispose();
+    controllerCheque3.dispose();
+    controllerCheque4.dispose();
+    controllerCheque5.dispose();
     super.dispose();
   }
 

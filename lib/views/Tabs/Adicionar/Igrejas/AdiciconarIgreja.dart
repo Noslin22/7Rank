@@ -27,9 +27,14 @@ class _AdicionarIgrejaState extends State<AdicionarIgreja> {
   }
 
   @override
+  void dispose() {
+    _controllerDistrito.close();
+    super.dispose();
+  }
+
+  @override
   void initState() {
     super.initState();
-    // widget.setName('Adicionar Igreja');
     getData();
   }
 

@@ -31,6 +31,16 @@ class _AtualizarIgrejaState extends State<AtualizarIgreja> {
     });
   }
 
+  @override
+  void dispose() {
+    _controllerDistritos.close();
+    _controllerCod.dispose();
+    _controllerNome.dispose();
+    _controllerContrato.dispose();
+    _controllerMatricula.dispose();
+    super.dispose();
+  }
+
   void getIgrejas() {
     db.collection("igrejas").orderBy("cod").get().then((value) {
       List<String> values = value.docs

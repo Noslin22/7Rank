@@ -21,6 +21,12 @@ class _DeletarDistritoState extends State<DeletarDistrito> {
     getData();
   }
 
+  @override
+  void dispose() {
+    _controllerDistritos.close();
+    super.dispose();
+  }
+
   getData() {
     Stream<QuerySnapshot> distritos = db.collection("distritos").snapshots();
 

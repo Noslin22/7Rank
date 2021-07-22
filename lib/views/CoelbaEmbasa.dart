@@ -30,6 +30,15 @@ class _CoelbaEmbasaState extends State<CoelbaEmbasa> {
   String nome = '';
   late String valor;
 
+  @override
+  void dispose() {
+    _controller.dispose();
+    _controllerRank.close();
+    _controllerIgreja.close();
+    _controllerPesquisa.dispose();
+    super.dispose();
+  }
+
   void getIgrejas() {
     db.collection("igrejas").orderBy("cod").get().then((value) {
       Iterable<String> values = value.docs

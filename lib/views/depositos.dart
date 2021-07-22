@@ -88,6 +88,12 @@ class _DepositoState extends State<Deposito> {
   @override
   void dispose() {
     myFocusNode!.dispose();
+    controllerCod.dispose();
+    controllerDate.dispose();
+    controllerDc.dispose();
+    controllerRM.dispose();
+    controllerVl.dispose();
+    _scrollController.dispose();
     super.dispose();
   }
 

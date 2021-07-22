@@ -26,6 +26,15 @@ class _AtualizarDistritoState extends State<AtualizarDistrito> {
     getData();
   }
 
+  @override
+  void dispose() {
+    _controllerDistritos.close();
+    _controllerDistrito.dispose();
+    _controllerPastor.dispose();
+    _controllerRegiao.dispose();
+    super.dispose();
+  }
+
   getData() {
     Stream<QuerySnapshot> distritos = db.collection("distritos").snapshots();
 
