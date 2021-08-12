@@ -18,7 +18,8 @@ class _DeletarIgrejaState extends State<DeletarIgreja> {
   void getIgrejas() {
     db.collection("igrejas").orderBy("cod").get().then((value) {
       List<String> values = value.docs
-          .map((e) => "${e["cod"].toString()} - ${e["nome"].toString()}") as List<String>;
+          .map((e) => "${e["cod"].toString()} - ${e["nome"].toString()}")
+          .toList();
       igrejas.addAll(values);
     });
   }
@@ -91,7 +92,7 @@ class _DeletarIgrejaState extends State<DeletarIgreja> {
                       var snackbar = SnackBar(
                           content: Text(
                               "${"Igreja $igreja foi deletada com sucesso"}"));
-                        ScaffoldMessenger.of(context).showSnackBar(snackbar);
+                      ScaffoldMessenger.of(context).showSnackBar(snackbar);
                       Timer(Duration(seconds: 6), () {
                         Navigator.pushReplacementNamed(context, 'home');
                       });

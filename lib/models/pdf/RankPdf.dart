@@ -3,7 +3,7 @@ import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:remessa/models/widgets/consts.dart';
 
-class Distrito implements Comparable<Distrito> {
+class Distrito {
   Distrito({
     this.id,
     this.pastor,
@@ -29,15 +29,6 @@ class Distrito implements Comparable<Distrito> {
     }
     return '';
   }
-
-  @override
-  int compareTo(Distrito other) {
-    DateTime? adate = currentDate(date: other.data);
-    DateTime? bdate = currentDate(date: other.data);
-    return this.faltam == 0
-        ? adate!.compareTo(bdate!)
-        : this.faltam!.compareTo(other.faltam!);
-  }
 }
 
 class IgrejaModel {
@@ -60,7 +51,7 @@ class IgrejaModel {
   }
 }
 
-Future<Uint8List> buildPdf2(List<IgrejaModel> igrejas, String data) async {
+Future<Uint8List> buildPdf2(List<IgrejaModel> igrejas) async {
   final pw.Document doc = pw.Document();
   final baseColor = PdfColors.blue;
   const _darkColor = PdfColors.blueGrey800;
@@ -79,7 +70,7 @@ Future<Uint8List> buildPdf2(List<IgrejaModel> igrejas, String data) async {
                 child: pw.Row(
                   children: [
                     pw.Text(
-                      'Rank Atualizado $data',
+                      'Rank Atualizado ${currentDate(dataAtual: true)}',
                       style: pw.TextStyle(color: PdfColors.black, fontSize: 14),
                     ),
                   ],
@@ -140,7 +131,7 @@ Future<Uint8List> buildPdf2(List<IgrejaModel> igrejas, String data) async {
 }
 
 Future<Uint8List> buildPdf(
-    List<Distrito> distritos, int total, String date, bool simples) async {
+    List<Distrito> distritos, int total, bool simples) async {
   final pw.Document doc = pw.Document();
   final baseColor = PdfColors.blue;
   const _darkColor = PdfColors.blueGrey800;
@@ -167,7 +158,7 @@ Future<Uint8List> buildPdf(
                 child: pw.Row(
                   children: [
                     pw.Text(
-                      'Rank Atualizado $date',
+                      'Rank Atualizado ${currentDate(dataAtual: true)}',
                       style: pw.TextStyle(color: PdfColors.black, fontSize: 14),
                     ),
                   ],

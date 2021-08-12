@@ -93,11 +93,12 @@ class _AdicionarDistritoState extends State<AdicionarDistrito> {
                         "faltam": 0,
                         "pastor": pastor,
                         "regiao": regiao,
+                        "data": null,
                       });
                       var snackbar = SnackBar(
                           content: Text(
                               "${"Distrito $distrito foi adicionado com sucesso"}"));
-                        ScaffoldMessenger.of(context).showSnackBar(snackbar);
+                      ScaffoldMessenger.of(context).showSnackBar(snackbar);
                       Timer(Duration(seconds: 6), () {
                         Navigator.pushReplacementNamed(context, 'home');
                       });

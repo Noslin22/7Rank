@@ -25,7 +25,7 @@ class _SignState extends State<SignPage> {
   String type = '';
   String nome = '';
   int focus = 0;
-  String? code;
+  FirebaseAuthException? code;
 
   void captalize(String tipo) {
     List<String> letters = tipo.split('');
@@ -174,8 +174,17 @@ class _SignState extends State<SignPage> {
                 if (_formKey.currentState != null &&
                     _formKey.currentState!.validate()) {
                   widget.model.carregar(true);
-                  User? result = await _auth.signIn(
-                      email: nome, senha: senha, tipo: widget.model.type);
+                  User? result;
+
+                  if (widget.model.register) {
+                    print('register');
+                    result = await _auth.register(
+                        email: nome, senha: senha, tipo: widget.model.type);
+                  } else {
+                    print('login');
+                    result = await _auth.signIn(
+                        email: nome, senha: senha, tipo: widget.model.type);
+                  }
 
                   Timer(Duration(seconds: 3), () {
                     widget.model.carregar(false);
@@ -191,7 +200,7 @@ class _SignState extends State<SignPage> {
                 }
               },
               color: Colors.blue,
-              label: 'Login',
+              label: !widget.model.register ? 'Login' : 'Registrar',
             ),
           ],
         ),

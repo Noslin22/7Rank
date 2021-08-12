@@ -45,10 +45,10 @@ class _RegistroState extends State<Registro> {
       3,
       (index) => SignPage(
         model: SignModel(
-          register: false,
+          register: true,
           carregar: carregar,
           type: types[index]!,
-          code: _auth.error != null ? _auth.error!.code : null,
+          code: _auth.error,
         ),
       ),
     );

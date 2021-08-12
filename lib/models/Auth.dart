@@ -38,7 +38,7 @@ class Auth {
   }
 
   Future<User?> register(
-      {required String email, String? senha, String? tipo}) async {
+      {required String email, String? senha, required String? tipo}) async {
     if (email.contains(" ")) {
       email = email.trimRight().replaceAll(" ", "_").toLowerCase();
     }

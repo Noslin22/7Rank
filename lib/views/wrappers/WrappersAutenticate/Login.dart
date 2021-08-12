@@ -46,7 +46,7 @@ class _LoginState extends State<Login> {
             register: false,
             carregar: carregar,
             type: types[index]!,
-            code: _auth.error != null ? _auth.error!.code : null,
+            code: _auth.error,
           ),
         );
       },

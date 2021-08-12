@@ -40,9 +40,9 @@ class _RankState extends State<Rank> {
 
   pdf({bool rank = true}) {
     return rank
-        ? buildPdf(distritos, _total, widget.date, _simples)
+        ? buildPdf(distritos, _total, _simples)
         : igrejas.isNotEmpty
-            ? buildPdf2(igrejas, widget.date)
+            ? buildPdf2(igrejas)
             : null;
   }
 
@@ -88,7 +88,7 @@ class _RankState extends State<Rank> {
 
   Future _shareFile() async {
     final dir = (await getApplicationDocumentsDirectory()).path;
-    final file = File('$dir/Rank Atualizado.pdf');
+    final file = File('$dir/Rank - ${widget.date}.pdf');
     file.writeAsBytesSync(await pdf());
     Share.shareFiles([file.path]);
   }
@@ -96,7 +96,7 @@ class _RankState extends State<Rank> {
   void func() {
     Printing.sharePdf(
       bytes: pdf(),
-      filename: 'Rank Atualizado.pdf',
+      filename: 'Rank - ${widget.date}.pdf',
     );
     Printing.layoutPdf(
       name: 'Faltas Rank',
@@ -158,7 +158,7 @@ class _RankState extends State<Rank> {
         title: FittedBox(
           fit: BoxFit.fitWidth,
           child: Text(
-            "Data: ${widget.date}",
+            "Data: ${currentDate(dataAtual: true)}",
           ),
         ),
         actions: [
@@ -184,7 +184,7 @@ class _RankState extends State<Rank> {
                   icon: Icon(Icons.print),
                   onPressed: () {
                     Printing.layoutPdf(
-                      name: 'Rank Atualizado ${widget.date}',
+                      name: 'Rank - ${widget.date}',
                       onLayout: (PdfPageFormat format) {
                         return pdf();
                       },

@@ -1,7 +1,9 @@
+import 'package:firebase_auth/firebase_auth.dart';
+
 class SignModel {
   final Function carregar;
   final bool register;
-  final String? code;
+  final FirebaseAuthException? code;
   final String type;
   SignModel({
     required this.carregar,

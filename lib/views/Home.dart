@@ -29,7 +29,7 @@ class _HomeState extends State<Home> {
   FirebaseAuth auth = FirebaseAuth.instance;
   final _formKey = GlobalKey<FormState>();
   List<IgrejaPdf> igrejas = [];
-  String _data = DateFormat("dd/MM/yyyy").format(DateTime.now());
+  String _data = DateFormat("ddMMyyyy - hh'h'mm").format(DateTime.now());
   bool _distrito = false;
   String? escolhido;
   String? usuario;
@@ -284,12 +284,12 @@ class _HomeState extends State<Home> {
                             padding: EdgeInsets.all(10),
                             onPressed: () {
                               Printing.layoutPdf(
-                                name: 'Distrito $escolhido Dia $_data',
+                                name: '$escolhido ${_data.replaceAll("/", "")}',
                                 onLayout: (format) {
                                   return buildPdfDistrito(
                                     igrejas: igrejas,
                                     distrito: escolhido,
-                                    data: _data,
+                                    data: currentDate(dataAtual: true),
                                   );
                                 },
                               );

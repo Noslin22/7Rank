@@ -80,7 +80,6 @@ class _DeletarDistritoState extends State<DeletarDistrito> {
                               });
                             },
                             hint: Text("Distritos"),
-                            onSaved: (dynamic newValue) {},
                             items: distritos,
                             value: antigoDistrito,
                             validator: (dynamic value) {
@@ -106,6 +105,7 @@ class _DeletarDistritoState extends State<DeletarDistrito> {
                     if (_formKey.currentState != null &&
                         _formKey.currentState!.validate()) {
                       _formKey.currentState!.save();
+                      antigoDistrito = null;
                       db.collection("distritos").doc(antigoDistrito).delete();
                       var snackbar = SnackBar(
                           content: Text(
