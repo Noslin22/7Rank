@@ -10,7 +10,8 @@ class AdicionarIgreja extends StatefulWidget {
 }
 
 class _AdicionarIgrejaState extends State<AdicionarIgreja> {
-  StreamController<QuerySnapshot> _controllerDistrito = StreamController.broadcast();
+  StreamController<QuerySnapshot> _controllerDistrito =
+      StreamController.broadcast();
   final _formKey = GlobalKey<FormState>();
   String? nome;
   late String cod;
@@ -179,6 +180,15 @@ class _AdicionarIgrejaState extends State<AdicionarIgreja> {
                           'distrito': distrito,
                           'data': null,
                           'marcado': false,
+                        });
+                        db
+                            .collection("distritos")
+                            .doc(distrito)
+                            .get()
+                            .then((value) {
+                          db.collection("distritos").doc(distrito).update({
+                            'faltam': value['faltam'] + 1,
+                          });
                         });
                         var snackbar = SnackBar(
                             content: Text(

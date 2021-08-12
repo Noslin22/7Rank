@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:remessa/models/widgets/Button.dart';
 import 'package:remessa/models/widgets/consts.dart';
@@ -93,7 +94,7 @@ class _AdicionarDistritoState extends State<AdicionarDistrito> {
                         "faltam": 0,
                         "pastor": pastor,
                         "regiao": regiao,
-                        "data": null,
+                        "data": Timestamp.now(),
                       });
                       var snackbar = SnackBar(
                           content: Text(

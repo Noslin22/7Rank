@@ -15,9 +15,9 @@ const RESOURCES = {
 "assets/NOTICES": "6b9f8d84e790ac7079f9b6f8376fb60a",
 "icons/7Rank192.png": "d2f1645ec3f33b9febe9a387484097d3",
 "icons/7Rank512.png": "59922ba70621409a7e789c3767265e3d",
-"index.html": "a16c084a5f8b8df82e02fcfd46e8c851",
-"/": "a16c084a5f8b8df82e02fcfd46e8c851",
-"main.dart.js": "9dd3b1f0173037dc99e77a2ddaf11008",
+"index.html": "7ac45b6b23bb00bc66aa1af0630968db",
+"/": "7ac45b6b23bb00bc66aa1af0630968db",
+"main.dart.js": "7232b12b1317fa05d68dde9b5cf5f1fa",
 "manifest.json": "06d3041dd687eb87a86d50293d9fb4a5",
 "version.json": "4639302361f56de9af8af6013d368ab3"
 };
