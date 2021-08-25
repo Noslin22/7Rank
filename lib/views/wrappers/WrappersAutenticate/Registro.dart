@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:remessa/models/pages/SignModel.dart';
 import 'package:remessa/models/Auth.dart';
-import 'package:remessa/models/pages/SignPage.dart';
+import 'package:remessa/models/pages/sign/SignModel.dart';
+import 'package:remessa/models/pages/sign/SignPage.dart';
 import 'package:remessa/models/widgets/BottomNavigator.dart';
 import 'package:remessa/models/widgets/Loading.dart';
 import 'package:remessa/models/widgets/consts.dart';
