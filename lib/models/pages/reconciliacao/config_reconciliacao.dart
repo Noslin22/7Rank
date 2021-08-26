@@ -11,7 +11,7 @@ class ConfigReconciliacao extends StatefulWidget {
 }
 
 class _ConfigReconciliacaoState extends State<ConfigReconciliacao> {
-  late FocusNode focusNode;
+  List nodes = List.generate(12, (index) => FocusNode());
   TextEditingController historicoController = TextEditingController();
   TextEditingController contaCredController = TextEditingController();
   TextEditingController contaDepController = TextEditingController();
@@ -25,12 +25,6 @@ class _ConfigReconciliacaoState extends State<ConfigReconciliacao> {
   TextEditingController fundoDepController = TextEditingController();
   TextEditingController avisoController = TextEditingController();
   int focus = 0;
-
-  @override
-  void initState() {
-    super.initState();
-    focusNode = FocusNode();
-  }
 
   @override
   void dispose() {
@@ -96,13 +90,11 @@ class _ConfigReconciliacaoState extends State<ConfigReconciliacao> {
                       decoration: inputDecoration.copyWith(
                         labelText: "Historíco",
                       ),
-                      focusNode: focus == 0 ? focusNode : null,
+                      autofocus: true,
+                      focusNode: nodes[0],
                       onSubmitted: (value) {
-                        setState(() {
-                          focus = 1;
-                        });
-                        focusNode = FocusNode();
-                        focusNode.nextFocus();
+                        focus = 1;
+                        FocusScope.of(context).requestFocus(nodes[focus]);
                       },
                     ),
                   ),
@@ -119,13 +111,11 @@ class _ConfigReconciliacaoState extends State<ConfigReconciliacao> {
                                   decoration: inputDecoration.copyWith(
                                     labelText: "Conta Cred.",
                                   ),
-                                  focusNode: focus == 1 ? focusNode : null,
+                                  focusNode: nodes[1],
                                   onSubmitted: (value) {
-                                    setState(() {
-                                      focus = 2;
-                                    });
-                                    focusNode = FocusNode();
-                                    focusNode.nextFocus();
+                                    focus = 2;
+                                    FocusScope.of(context)
+                                        .requestFocus(nodes[focus]);
                                   },
                                 ),
                               ),
@@ -136,13 +126,11 @@ class _ConfigReconciliacaoState extends State<ConfigReconciliacao> {
                                   decoration: inputDecoration.copyWith(
                                     labelText: "Sub-Conta Cred.",
                                   ),
-                                  focusNode: focus == 2 ? focusNode : null,
+                                  focusNode: nodes[2],
                                   onSubmitted: (value) {
-                                    setState(() {
-                                      focus = 3;
-                                    });
-                                    focusNode = FocusNode();
-                                    focusNode.nextFocus();
+                                    focus = 3;
+                                    FocusScope.of(context)
+                                        .requestFocus(nodes[focus]);
                                   },
                                 ),
                               ),
@@ -153,13 +141,11 @@ class _ConfigReconciliacaoState extends State<ConfigReconciliacao> {
                                   decoration: inputDecoration.copyWith(
                                     labelText: "Departamento Cred.",
                                   ),
-                                  focusNode: focus == 3 ? focusNode : null,
+                                  focusNode: nodes[3],
                                   onSubmitted: (value) {
-                                    setState(() {
-                                      focus = 4;
-                                    });
-                                    focusNode = FocusNode();
-                                    focusNode.nextFocus();
+                                    focus = 4;
+                                    FocusScope.of(context)
+                                        .requestFocus(nodes[focus]);
                                   },
                                 ),
                               ),
@@ -170,13 +156,11 @@ class _ConfigReconciliacaoState extends State<ConfigReconciliacao> {
                                   decoration: inputDecoration.copyWith(
                                     labelText: "Tipo Cred.",
                                   ),
-                                  focusNode: focus == 4 ? focusNode : null,
+                                  focusNode: nodes[4],
                                   onSubmitted: (value) {
-                                    setState(() {
-                                      focus = 5;
-                                    });
-                                    focusNode = FocusNode();
-                                    focusNode.nextFocus();
+                                    focus = 5;
+                                    FocusScope.of(context)
+                                        .requestFocus(nodes[focus]);
                                   },
                                 ),
                               ),
@@ -187,13 +171,11 @@ class _ConfigReconciliacaoState extends State<ConfigReconciliacao> {
                                   decoration: inputDecoration.copyWith(
                                     labelText: "Fundo Cred.",
                                   ),
-                                  focusNode: focus == 5 ? focusNode : null,
+                                  focusNode: nodes[5],
                                   onSubmitted: (value) {
-                                    setState(() {
-                                      focus = 6;
-                                    });
-                                    focusNode = FocusNode();
-                                    focusNode.nextFocus();
+                                    focus = 6;
+                                    FocusScope.of(context)
+                                        .requestFocus(nodes[focus]);
                                   },
                                 ),
                               ),
@@ -210,13 +192,11 @@ class _ConfigReconciliacaoState extends State<ConfigReconciliacao> {
                                   decoration: inputDecoration.copyWith(
                                     labelText: "Conta Dep.",
                                   ),
-                                  focusNode: focus == 6 ? focusNode : null,
+                                  focusNode: nodes[6],
                                   onSubmitted: (value) {
-                                    setState(() {
-                                      focus = 7;
-                                    });
-                                    focusNode = FocusNode();
-                                    focusNode.nextFocus();
+                                    focus = 7;
+                                    FocusScope.of(context)
+                                        .requestFocus(nodes[focus]);
                                   },
                                 ),
                               ),
@@ -227,13 +207,11 @@ class _ConfigReconciliacaoState extends State<ConfigReconciliacao> {
                                   decoration: inputDecoration.copyWith(
                                     labelText: "Sub-Conta Dep.",
                                   ),
-                                  focusNode: focus == 7 ? focusNode : null,
+                                  focusNode: nodes[7],
                                   onSubmitted: (value) {
-                                    setState(() {
-                                      focus = 8;
-                                    });
-                                    focusNode = FocusNode();
-                                    focusNode.nextFocus();
+                                    focus = 8;
+                                    FocusScope.of(context)
+                                        .requestFocus(nodes[focus]);
                                   },
                                 ),
                               ),
@@ -244,13 +222,11 @@ class _ConfigReconciliacaoState extends State<ConfigReconciliacao> {
                                   decoration: inputDecoration.copyWith(
                                     labelText: "Departamento Dep.",
                                   ),
-                                  focusNode: focus == 8 ? focusNode : null,
+                                  focusNode: nodes[8],
                                   onSubmitted: (value) {
-                                    setState(() {
-                                      focus = 9;
-                                    });
-                                    focusNode = FocusNode();
-                                    focusNode.nextFocus();
+                                    focus = 9;
+                                    FocusScope.of(context)
+                                        .requestFocus(nodes[focus]);
                                   },
                                 ),
                               ),
@@ -261,13 +237,11 @@ class _ConfigReconciliacaoState extends State<ConfigReconciliacao> {
                                   decoration: inputDecoration.copyWith(
                                     labelText: "Tipo Dep.",
                                   ),
-                                  focusNode: focus == 9 ? focusNode : null,
+                                  focusNode: nodes[9],
                                   onSubmitted: (value) {
-                                    setState(() {
-                                      focus = 10;
-                                    });
-                                    focusNode = FocusNode();
-                                    focusNode.nextFocus();
+                                    focus = 10;
+                                    FocusScope.of(context)
+                                        .requestFocus(nodes[focus]);
                                   },
                                 ),
                               ),
@@ -278,13 +252,11 @@ class _ConfigReconciliacaoState extends State<ConfigReconciliacao> {
                                   decoration: inputDecoration.copyWith(
                                     labelText: "Fundo Dep.",
                                   ),
-                                  focusNode: focus == 10 ? focusNode : null,
+                                  focusNode: nodes[10],
                                   onSubmitted: (value) {
-                                    setState(() {
-                                      focus = 11;
-                                    });
-                                    focusNode = FocusNode();
-                                    focusNode.nextFocus();
+                                    focus = 11;
+                                    FocusScope.of(context)
+                                        .requestFocus(nodes[focus]);
                                   },
                                 ),
                               ),
@@ -301,11 +273,9 @@ class _ConfigReconciliacaoState extends State<ConfigReconciliacao> {
                       decoration: inputDecoration.copyWith(
                         labelText: "Aviso",
                       ),
-                      focusNode: focus == 11 ? focusNode : null,
+                      focusNode: nodes[11],
                       onSubmitted: (value) {
-                        setState(() {
-                          focus = 0;
-                        });
+                        focus = 0;
                         db.collection("contabeis").add({
                           'historico': historicoController.text,
                           'contaCred': contaCredController.text,
@@ -321,8 +291,7 @@ class _ConfigReconciliacaoState extends State<ConfigReconciliacao> {
                           'aviso': avisoController.text,
                         });
                         limparCampos();
-                        focusNode = FocusNode();
-                        focusNode.nextFocus();
+                        FocusScope.of(context).requestFocus(nodes[focus]);
                       },
                     ),
                   ),
@@ -331,7 +300,7 @@ class _ConfigReconciliacaoState extends State<ConfigReconciliacao> {
                     label: "Adicionar",
                     onPressed: () {
                       db.collection("contabeis").add({
-                        'Controller.te': historicoController.text,
+                        'historico': historicoController.text,
                         'contaCred': contaCredController.text,
                         'contaDep': contaDepController.text,
                         'subContaCred': subContaCredController.text,
