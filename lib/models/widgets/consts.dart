@@ -270,12 +270,13 @@ List<Widget> actions(String gerenciador, BuildContext context, String tela,
                                             'SALDO');
                                     for (var element in datas) {
                                       List<String?> list = element.split(";");
-                                      csvList.add(
+                                      if(element[0] != null || element[0] != "" || element[0] != " "){
+                                        csvList.add(
                                         Conciliacao(
                                           conta,
                                           list[0]!,
                                           list[1]!,
-                                          list[2]!,
+                                          list[2] != null || list[2] != "" ? list[2]! : "",
                                           list[3] != ""
                                               ? list[3] != null
                                                   ? list[3]!
@@ -287,8 +288,9 @@ List<Widget> actions(String gerenciador, BuildContext context, String tela,
                                               : list[4]!
                                                   .replaceAll(".", "")
                                                   .replaceAll(",", ""),
-                                        ),
-                                      );
+                                          ),
+                                        );
+                                      }
                                     }
                                   }
                                   String jsonCsvEncoded = jsonEncode(csvList);
