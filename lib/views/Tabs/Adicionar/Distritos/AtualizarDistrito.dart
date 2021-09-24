@@ -13,7 +13,8 @@ class _AtualizarDistritoState extends State<AtualizarDistrito> {
   TextEditingController _controllerDistrito = TextEditingController();
   TextEditingController _controllerPastor = TextEditingController();
   TextEditingController _controllerRegiao = TextEditingController();
-  StreamController<QuerySnapshot> _controllerDistritos = StreamController.broadcast();
+  StreamController<QuerySnapshot> _controllerDistritos =
+      StreamController.broadcast();
   final _formKey = GlobalKey<FormState>();
   String? antigoDistrito;
   String? novoDistrito;
@@ -173,18 +174,30 @@ class _AtualizarDistritoState extends State<AtualizarDistrito> {
                     if (_formKey.currentState != null &&
                         _formKey.currentState!.validate()) {
                       _formKey.currentState!.save();
+                      int faltam = 0;
+                      db
+                          .collection("distritos")
+                          .where("distrito", isEqualTo: antigoDistrito)
+                          .get()
+                          .then((value) {
+                        faltam = value.docs.length;
+                        value.docs.forEach((element) {
+                          element.reference.update({"distrito": novoDistrito});
+                        });
+                      });
                       db.collection("distritos").doc(antigoDistrito).delete();
                       db.collection("distritos").doc(novoDistrito).set({
-                        "faltam": 0,
+                        "faltam": faltam,
                         "pastor": pastor,
                         "regiao": regiao,
+                        "data": Timestamp.now(),
                       });
                       var snackbar = SnackBar(
                         content: Text(
                           "Distrito $novoDistrito foi atualizado com sucesso",
                         ),
                       );
-                        ScaffoldMessenger.of(context).showSnackBar(snackbar);
+                      ScaffoldMessenger.of(context).showSnackBar(snackbar);
                       Timer(Duration(seconds: 6), () {
                         Navigator.pushReplacementNamed(context, 'home');
                       });

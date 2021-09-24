@@ -90,8 +90,16 @@ class _AdicionarDistritoState extends State<AdicionarDistrito> {
                     if (_formKey.currentState != null &&
                         _formKey.currentState!.validate()) {
                       _formKey.currentState!.save();
+                      int faltam = 0;
+                      db
+                          .collection("distritos")
+                          .where("distrito", isEqualTo: distrito)
+                          .get()
+                          .then((value) {
+                        faltam = value.docs.length;
+                      });
                       db.collection("distritos").doc(distrito).set({
-                        "faltam": 0,
+                        "faltam": faltam,
                         "pastor": pastor,
                         "regiao": regiao,
                         "data": Timestamp.now(),

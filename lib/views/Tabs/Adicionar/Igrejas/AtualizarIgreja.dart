@@ -43,8 +43,8 @@ class _AtualizarIgrejaState extends State<AtualizarIgreja> {
 
   void getIgrejas() {
     db.collection("igrejas").orderBy("cod").get().then((value) {
-      List<String> values = value.docs
-          .map((e) => "${e["cod"].toString()} - ${e["nome"].toString()}") as List<String>;
+      Iterable<String> values = value.docs
+          .map((e) => "${e["cod"].toString()} - ${e["nome"].toString()}");
       igrejas.addAll(values);
     });
   }

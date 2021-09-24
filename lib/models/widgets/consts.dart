@@ -1,6 +1,4 @@
 import 'dart:convert';
-// ignore: avoid_web_libraries_in_flutter
-import 'dart:html' as html;
 import 'dart:io';
 import 'package:collection/collection.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -22,8 +20,10 @@ import 'package:remessa/views/dinheiro.dart';
 import 'package:remessa/views/wrappers/Adicionar.dart';
 import 'package:remessa/views/wrappers/WrappersAutenticate/Login.dart';
 import 'package:remessa/views/wrappers/WrappersAutenticate/Registro.dart';
+import 'package:universal_html/html.dart' as html;
 
 import '../Auth.dart';
+import 'Conciliacao.dart';
 
 final FirebaseFirestore db = FirebaseFirestore.instance;
 
@@ -48,6 +48,7 @@ final navigatorKey = GlobalKey<NavigatorState>();
 void initialize(BuildContext context) {
   db.collection("distritos").get().then((value) {
     value.docs.forEach((element) {
+      print(element.id);
       distritos.add(
         DropdownMenuItem(
           child: Text(element.id),
@@ -245,95 +246,63 @@ List<Widget> actions(String gerenciador, BuildContext context, String tela,
                                 color: Colors.lightGreen,
                                 label: "Gerar",
                                 onPressed: () async {
-                                  List<Conciliacao> csvList = [];
                                   for (var file in files) {
-                                    String csvData =
-                                        File.fromRawPath(file.bytes!).path;
-                                    List<String> datas = csvData
-                                        .replaceAll('\r\n', '\r')
-                                        .replaceAll('\n', '\r')
-                                        .split("\r");
-                                    datas.removeAt(0);
-                                    String conta =
-                                        datas.first.split(' ')[6].split('-')[0];
-                                    datas.removeRange(0, 2);
-                                    datas.removeWhere((element) =>
-                                        element == ' ' ||
-                                        element == '' ||
-                                        element == '\r' ||
-                                        element.split(";")[0] == "Total" ||
-                                        element.split(";")[0] == "Data" ||
-                                        element.split(" ")[0].split(';')[1] ==
-                                            "�ltimos" ||
-                                        element.split(" ")[0] == ";Saldos" ||
-                                        element.split(';')[1].split(' ')[0] ==
-                                            'SALDO');
-                                    for (var element in datas) {
-                                      List<String?> list = element.split(";");
-                                      csvList.add(
-                                        Conciliacao(
-                                          conta,
-                                          list[0]!,
-                                          list[1]!,
-                                          list[2]!,
-                                          list[3] != ""
-                                              ? list[3] != null
-                                                  ? list[3]!
-                                                      .replaceAll(".", "")
-                                                      .replaceAll(",", "")
-                                                  : list[4]!
-                                                      .replaceAll(".", "")
-                                                      .replaceAll(",", "")
-                                              : list[4]!
-                                                  .replaceAll(".", "")
-                                                  .replaceAll(",", ""),
-                                        ),
-                                      );
-                                    }
-                                  }
-                                  String jsonCsvEncoded = jsonEncode(csvList);
-                                  List<dynamic> jsonCsvDecoded =
-                                      jsonDecode(jsonCsvEncoded);
-                                  List<String> text = acms
-                                      ? [
-                                          "Bank	BankAccountNumber	Date	Description	Value"
-                                        ]
-                                      : [];
-                                  for (var element in jsonCsvDecoded) {
-                                    if (acms) {
-                                      text.add(
-                                          "237	${element["conta"]}${poupanca ? "1" : ""}	${element["data"]}	${element["lancamento"]} - ${element["doc"]}	${element["valor"]}");
-                                    } else {
-                                      List<String> letters = element["valor"]!
-                                          .split('')
-                                          .reversed
-                                          .toList();
-                                      letters.insert(2, ',');
-                                      text.add(
-                                          "${element["data"]};${element["lancamento"]};${element["doc"]};${element["valor"]!.contains('-') ? '' : letters.reversed.join()};${element["valor"]!.contains('-') ? letters.reversed.join().replaceAll("-", '') : ''}");
-                                    }
-                                  }
-                                  var anchor;
-                                  var url;
-                                  // prepare
-                                  final bytes = utf8.encode(text.join("\n"));
-                                  final blob = html.Blob([bytes]);
-                                  url = html.Url.createObjectUrlFromBlob(blob);
-                                  anchor = html.document.createElement('a')
-                                      as html.AnchorElement
-                                    ..href = url
-                                    ..style.display = 'none'
-                                    ..download =
-                                        'Conciliacao.${acms ? 'txt' : 'csv'}';
-                                  html.document.body!.children.add(anchor);
+                                      List<String> text = acms
+                                          ? [
+                                              "Bank	BankAccountNumber	Date	Description	Value"
+                                            ]
+                                          : [];
+                                      for (var element in organizeFile(file)) {
+                                        if (acms) {
+                                          text.add(
+                                              "237	${element["conta"]}${poupanca ? "1" : ""}	${element["data"]}	${element["lancamento"]} - ${element["doc"]}	${element["valor"]}");
+                                        } else {
+                                          List<String> letters =
+                                              element["valor"]!
+                                                  .split('')
+                                                  .reversed
+                                                  .toList();
+                                          letters.insert(2, ',');
+                                          text.add(
+                                              "${element["data"]};${element["lancamento"]};${element["doc"]};${element["valor"]!.contains('-') ? '' : letters.reversed.join()};${element["valor"]!.contains('-') ? letters.reversed.join().replaceAll("-", '') : ''}");
+                                        }
+                                      }
+                                      if (kIsWeb) {
+                                        var anchor;
+                                        var url;
+                                        // prepare
+                                        final bytes =
+                                            utf8.encode(text.join("\n"));
+                                        final blob = html.Blob([bytes]);
+                                        url = html.Url.createObjectUrlFromBlob(
+                                            blob);
+                                        anchor = html.document
+                                                .createElement('a')
+                                            as html.AnchorElement
+                                          ..href = url
+                                          ..style.display = 'none'
+                                          ..download =
+                                              'Conciliacao.${acms ? 'txt' : 'csv'}';
+                                        html.document.body!.children
+                                            .add(anchor);
 
-                                  // download
-                                  anchor.click();
+                                        // download
+                                        anchor.click();
 
-                                  // cleanup
-                                  html.document.body!.children.remove(anchor);
-                                  html.Url.revokeObjectUrl(url);
-                                  Navigator.of(context).pop();
+                                        // cleanup
+                                        html.document.body!.children
+                                            .remove(anchor);
+                                        html.Url.revokeObjectUrl(url);
+                                      } else {
+                                        final file = await File(
+                                                'Conciliacao.${acms ? 'txt' : 'csv'}')
+                                            .writeAsString(
+                                          text.join("\n"),
+                                        );
+                                        await file.open();
+                                      }
+                                    }
+                                    Navigator.of(context).pop();
                                 },
                               ),
                             ),
@@ -448,82 +417,13 @@ List<Widget> actions(String gerenciador, BuildContext context, String tela,
                               color: Colors.lightGreen,
                               label: "Gerar",
                               onPressed: () async {
-                                List<Conciliacao> csvList = [];
-                                String csvData =
-                                    File.fromRawPath(file!.bytes!).path;
-                                List<String> datas = csvData
-                                    .replaceAll('\r\n', '\r')
-                                    .replaceAll('\n', '\r')
-                                    .split("\r");
-                                datas.removeAt(0);
-                                String conta =
-                                    datas.first.split(' ')[6].split('-')[0];
-                                datas.removeRange(0, 2);
-                                datas.removeWhere((element) =>
-                                    element == ' ' ||
-                                    element == '' ||
-                                    element == '\r' ||
-                                    element.split(";")[0] == "Data" ||
-                                    element.split(" ")[0].split(';')[1] ==
-                                        "�ltimos" ||
-                                    element.split(" ")[0] == ";Saldos" ||
-                                    element.split(';')[1].split(' ')[0] ==
-                                        'SALDO');
-
-                                datas.removeRange(
-                                  datas.indexWhere((element) =>
-                                      element.split(";")[0] == "Total"),
-                                  datas.length - 1,
-                                );
-                                datas.removeLast();
-                                String removerAcentos(String texto) {
-                                  String comAcentos =
-                                      "ÁÂÀÃáâàãÉÊéêÍÎíîÓÔÕóôõÚÛúûÇç";
-                                  String semAcentos =
-                                      "AAAAaaaaEEeeIIiiOOOoooUUuuCc";
-
-                                  for (int i = 0; i < comAcentos.length; i++) {
-                                    texto = texto.replaceAll(
-                                        comAcentos[i].toString(),
-                                        semAcentos[i].toString());
-                                  }
-                                  return texto;
-                                }
-
-                                for (var element in datas) {
-                                  List<String?> list = element.split(";");
-                                  csvList.add(
-                                    Conciliacao(
-                                      conta,
-                                      list[0]!,
-                                      removerAcentos(list[1]!),
-                                      list[2]!,
-                                      list[3] != ""
-                                          ? list[3] != null
-                                              ? list[3]!
-                                                  .replaceAll(".", "")
-                                                  .replaceAll(",", "")
-                                              : list[4]!
-                                                  .replaceAll(".", "")
-                                                  .replaceAll(",", "")
-                                                  .replaceAll("-", "")
-                                          : list[4]!
-                                              .replaceAll(".", "")
-                                              .replaceAll(",", "")
-                                              .replaceAll("-", ""),
-                                    ),
-                                  );
-                                }
                                 List<String> text = [];
                                 text.add(entidade);
-                                String jsonCsvEncoded = jsonEncode(csvList);
-                                List<dynamic> jsonCsvDecoded =
-                                    jsonDecode(jsonCsvEncoded);
 
                                 QuerySnapshot<Map<String, dynamic>> rules =
                                     await db.collection("contabeis").get();
-                                for (var element in jsonCsvDecoded) {
-                                  Contabil rule = Contabil.fromMap(
+                                for (var element in organizeFile(file!)) {
+                                  Configuration rule = Configuration.fromMap(
                                       rules.docs.firstWhereOrNull(
                                     (rule) {
                                       return element["lancamento"]
@@ -1093,106 +993,61 @@ drawer(String gerenciador, BuildContext context, String tela, {Auth? auth}) {
                                   color: Colors.lightGreen,
                                   label: "Gerar",
                                   onPressed: () async {
-                                    List<Conciliacao> csvList = [];
                                     for (var file in files) {
-                                      String csvData =
-                                          File.fromRawPath(file.bytes!).path;
-                                      List<String> datas = csvData
-                                          .replaceAll('\r\n', '\r')
-                                          .replaceAll('\n', '\r')
-                                          .split("\r");
-                                      datas.removeAt(0);
-                                      String conta = datas.first
-                                          .split(' ')[6]
-                                          .split('-')[0];
-                                      datas.removeRange(0, 2);
-                                      datas.removeWhere((element) =>
-                                          element == ' ' ||
-                                          element == '' ||
-                                          element == '\r' ||
-                                          element.split(";")[0] == "Total" ||
-                                          element.split(";")[0] == "Data" ||
-                                          element.split(" ")[0].split(';')[1] ==
-                                              "�ltimos" ||
-                                          element.split(" ")[0] == ";Saldos" ||
-                                          element.split(';')[1].split(' ')[0] ==
-                                              'SALDO');
-                                      for (var element in datas) {
-                                        List<String?> list = element.split(";");
-                                        csvList.add(
-                                          Conciliacao(
-                                            conta,
-                                            list[0]!,
-                                            list[1]!,
-                                            list[2]!,
-                                            list[3] != ""
-                                                ? list[3] != null
-                                                    ? list[3]!
-                                                        .replaceAll(".", "")
-                                                        .replaceAll(",", "")
-                                                    : list[4]!
-                                                        .replaceAll(".", "")
-                                                        .replaceAll(",", "")
-                                                : list[4]!
-                                                    .replaceAll(".", "")
-                                                    .replaceAll(",", ""),
-                                          ),
-                                        );
+                                      List<String> text = acms
+                                          ? [
+                                              "Bank	BankAccountNumber	Date	Description	Value"
+                                            ]
+                                          : [];
+                                      for (var element in organizeFile(file)) {
+                                        if (acms) {
+                                          text.add(
+                                              "237	${element["conta"]}${poupanca ? "1" : ""}	${element["data"]}	${element["lancamento"]} - ${element["doc"]}	${element["valor"]}");
+                                        } else {
+                                          List<String> letters =
+                                              element["valor"]!
+                                                  .split('')
+                                                  .reversed
+                                                  .toList();
+                                          letters.insert(2, ',');
+                                          text.add(
+                                              "${element["data"]};${element["lancamento"]};${element["doc"]};${element["valor"]!.contains('-') ? '' : letters.reversed.join()};${element["valor"]!.contains('-') ? letters.reversed.join().replaceAll("-", '') : ''}");
+                                        }
                                       }
-                                    }
-                                    String jsonCsvEncoded = jsonEncode(csvList);
-                                    List<Map<String, String>> jsonCsvDecoded =
-                                        jsonDecode(jsonCsvEncoded);
-                                    List<String> text = acms
-                                        ? [
-                                            "Bank	BankAccountNumber	Date	Description	Value"
-                                          ]
-                                        : [];
-                                    for (var element in jsonCsvDecoded) {
-                                      if (acms) {
-                                        text.add(
-                                            "237	${element["conta"]}${poupanca ? "1" : ""}	${element["data"]}	${element["lancamento"]} - ${element["doc"]}	${element["valor"]}");
+                                      if (kIsWeb) {
+                                        var anchor;
+                                        var url;
+                                        // prepare
+                                        final bytes =
+                                            utf8.encode(text.join("\n"));
+                                        final blob = html.Blob([bytes]);
+                                        url = html.Url.createObjectUrlFromBlob(
+                                            blob);
+                                        anchor = html.document
+                                                .createElement('a')
+                                            as html.AnchorElement
+                                          ..href = url
+                                          ..style.display = 'none'
+                                          ..download =
+                                              'Conciliacao.${acms ? 'txt' : 'csv'}';
+                                        html.document.body!.children
+                                            .add(anchor);
+
+                                        // download
+                                        anchor.click();
+
+                                        // cleanup
+                                        html.document.body!.children
+                                            .remove(anchor);
+                                        html.Url.revokeObjectUrl(url);
                                       } else {
-                                        List<String> letters = element["valor"]!
-                                            .split('')
-                                            .reversed
-                                            .toList();
-                                        letters.insert(2, ',');
-                                        text.add(
-                                            "${element["data"]};${element["lancamento"]};${element["doc"]};${element["valor"]!.contains('-') ? '' : letters.reversed.join()};${element["valor"]!.contains('-') ? letters.reversed.join().replaceAll("-", '') : ''}");
+                                        final file = await File(
+                                                'Conciliacao.${acms ? 'txt' : 'csv'}')
+                                            .writeAsString(
+                                          text.join("\n"),
+                                        );
+                                        await file.open();
                                       }
-                                    }
-                                    if (kIsWeb) {
-                                      var anchor;
-                                      var url;
-                                      // prepare
-                                      final bytes =
-                                          utf8.encode(text.join("\n"));
-                                      final blob = html.Blob([bytes]);
-                                      url = html.Url.createObjectUrlFromBlob(
-                                          blob);
-                                      anchor = html.document.createElement('a')
-                                          as html.AnchorElement
-                                        ..href = url
-                                        ..style.display = 'none'
-                                        ..download =
-                                            'Conciliacao.${acms ? 'txt' : 'csv'}';
-                                      html.document.body!.children.add(anchor);
-
-                                      // download
-                                      anchor.click();
-
-                                      // cleanup
-                                      html.document.body!.children
-                                          .remove(anchor);
-                                      html.Url.revokeObjectUrl(url);
-                                    } else {
-                                      final file = await File(
-                                              'Conciliacao.${acms ? 'txt' : 'csv'}')
-                                          .writeAsString(
-                                        text.join("\n"),
-                                      );
-                                      await file.open();
                                     }
                                     Navigator.of(context).pop();
                                   },
@@ -1422,66 +1277,4 @@ drawer(String gerenciador, BuildContext context, String tela, {Auth? auth}) {
       ],
     ),
   );
-}
-
-class Conciliacao {
-  final String conta;
-  final String data;
-  final String lancamento;
-  final String documento;
-  final String valor;
-
-  Conciliacao(
-      this.conta, this.data, this.lancamento, this.documento, this.valor);
-  Map toJson() => {
-        'conta': conta,
-        'data': data,
-        'lancamento': lancamento,
-        'doc': documento,
-        'valor': valor,
-      };
-}
-
-class Contabil {
-  final String contaCred;
-  final String contaDep;
-  final String subContaCred;
-  final String subContaDep;
-  final String departCred;
-  final String departDep;
-  final String tipoCred;
-  final String tipoDep;
-  final String fundoCred;
-  final String fundoDep;
-  final String aviso;
-
-  Contabil({
-    required this.contaCred,
-    required this.contaDep,
-    required this.subContaCred,
-    required this.subContaDep,
-    required this.departCred,
-    required this.departDep,
-    required this.tipoCred,
-    required this.tipoDep,
-    required this.fundoCred,
-    required this.fundoDep,
-    required this.aviso,
-  });
-
-  factory Contabil.fromMap(QueryDocumentSnapshot<Map<String, dynamic>>? map) {
-    return Contabil(
-      contaCred: map != null ? map['contaCred'] : "FALTA CADASTRAR",
-      contaDep: map != null ? map['contaDep'] : "FALTA CADASTRAR",
-      subContaCred: map != null ? map['subContaCred'] : "!",
-      subContaDep: map != null ? map['subContaDep'] : "!",
-      departCred: map != null ? map['departCred'] : "!",
-      departDep: map != null ? map['departDep'] : "!",
-      tipoCred: map != null ? map['tipoCred'] : "!",
-      tipoDep: map != null ? map['tipoDep'] : "!",
-      fundoCred: map != null ? map['fundoCred'] : "!",
-      fundoDep: map != null ? map['fundoDep'] : "!",
-      aviso: map != null ? map['aviso'] : "!",
-    );
-  }
 }

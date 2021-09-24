@@ -67,8 +67,8 @@ List<Widget> _buildSheet(String? distrito, Document doc, String? ano,
               ),
               Text(
                 distrito!,
-                style: TextStyle(fontSize: 48),
                 textAlign: TextAlign.center,
+                style: TextStyle(fontSize: 48),
               ),
               Divider(
                 height: 60,
