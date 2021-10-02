@@ -185,7 +185,7 @@ List<Widget> actions(String gerenciador, BuildContext context, String tela,
     Tooltip(
       message: 'Conciliação Bancária',
       child: IconButton(
-        icon: Icon(Icons.insert_drive_file_sharp),
+        icon: Icon(Icons.insert_drive_file_rounded),
         onPressed: () async {
           FilePickerResult? result = await FilePicker.platform.pickFiles(
             type: FileType.custom,

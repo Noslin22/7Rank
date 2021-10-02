@@ -15,16 +15,12 @@ organizeFile(PlatformFile file) {
   datas.removeWhere((element) =>
       element == ' ' ||
       element == '' ||
-      element == '	' ||
       element.isEmpty ||
       element == '\r' ||
-      element == '\n' ||
       element.split(";")[0] == "Total" ||
       element.split(";")[0] == "Data" ||
       element.split(" ")[0].split(';')[1] == "�ltimos" ||
       element.split(" ")[0] == ";Saldos" ||
-      element.split(" ")[0] == ";Não" ||
-      element.split(" ")[0] == ";N�o" ||
       element.split(';')[1].split(' ')[0] == 'SALDO');
   for (var element in datas) {
     List<String?> list = element.split(";");
@@ -34,13 +30,11 @@ organizeFile(PlatformFile file) {
         list[0]!,
         removerAcentos(list[1]!),
         list[2]!,
-        list[3] != null
-            ? list[3]!.contains(",")
+        list[3] != ""
+            ? list[3] != null
                 ? list[3]!.replaceAll(".", "").replaceAll(",", "")
-                : list[3]!.replaceAll(".", "") + "00"
-            : list[4]!.contains(",") 
-                ? list[4]!.replaceAll(".", "").replaceAll(",", "") 
-                : list[4]!.replaceAll(".", "") + "00",
+                : list[4]!.replaceAll(".", "").replaceAll(",", "")
+            : list[4]!.replaceAll(".", "").replaceAll(",", ""),
       ),
     );
   }
