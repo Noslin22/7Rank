@@ -22,12 +22,12 @@ organizeFile(PlatformFile file) {
         list[2]!,
         list[3] != null && list[3] != ""
             ? list[3]!.contains(",")
-                ? list[3]!.split(",").lenght == 1 ?
+                ? list[3]!.split(",").length == 1 ?
                 list[3]!.replaceAll(".", "").replaceAll(",", "") + "0"
                 : list[3]!.replaceAll(".", "").replaceAll(",", "")
                 : list[3]!.replaceAll(".", "") + "00"
             : list[4]!.contains(",") && list[4] != ""
-                ? list[4]!.split(",").lenght == 1 ?
+                ? list[4]!.split(",").length == 1 ?
                 list[4]!.replaceAll(".", "").replaceAll(",", "") + "0"
                 : list[4]!.replaceAll(".", "").replaceAll(",", "")
                 : list[4]!.replaceAll(".", "") + "00",
