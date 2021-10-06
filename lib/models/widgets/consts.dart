@@ -246,12 +246,12 @@ List<Widget> actions(String gerenciador, BuildContext context, String tela,
                                 color: Colors.lightGreen,
                                 label: "Gerar",
                                 onPressed: () async {
+                                  List<String> text = acms
+                                      ? [
+                                          "Bank	BankAccountNumber	Date	Description	Value"
+                                        ]
+                                      : [];
                                   for (var file in files) {
-                                    List<String> text = acms
-                                        ? [
-                                            "Bank	BankAccountNumber	Date	Description	Value"
-                                          ]
-                                        : [];
                                     for (var element in organizeFile(file)) {
                                       if (acms) {
                                         text.add(
@@ -266,39 +266,38 @@ List<Widget> actions(String gerenciador, BuildContext context, String tela,
                                             "${element["data"]};${element["lancamento"]};${element["doc"]};${element["valor"]!.contains('-') ? '' : letters.reversed.join()};${element["valor"]!.contains('-') ? letters.reversed.join().replaceAll("-", '') : ''}");
                                       }
                                     }
-                                    if (kIsWeb) {
-                                      var anchor;
-                                      var url;
-                                      // prepare
-                                      final bytes =
-                                          utf8.encode(text.join("\n"));
-                                      final blob = html.Blob([bytes]);
-                                      url = html.Url.createObjectUrlFromBlob(
-                                          blob);
-                                      anchor = html.document.createElement('a')
-                                          as html.AnchorElement
-                                        ..href = url
-                                        ..style.display = 'none'
-                                        ..download =
-                                            'Conciliacao.${acms ? 'txt' : 'csv'}';
-                                      html.document.body!.children.add(anchor);
-
-                                      // download
-                                      anchor.click();
-
-                                      // cleanup
-                                      html.document.body!.children
-                                          .remove(anchor);
-                                      html.Url.revokeObjectUrl(url);
-                                    } else {
-                                      final file = await File(
-                                              'Conciliacao.${acms ? 'txt' : 'csv'}')
-                                          .writeAsString(
-                                        text.join("\n"),
-                                      );
-                                      await file.open();
-                                    }
                                   }
+                                  if (kIsWeb) {
+                                    var anchor;
+                                    var url;
+                                    // prepare
+                                    final bytes = utf8.encode(text.join("\n"));
+                                    final blob = html.Blob([bytes]);
+                                    url =
+                                        html.Url.createObjectUrlFromBlob(blob);
+                                    anchor = html.document.createElement('a')
+                                        as html.AnchorElement
+                                      ..href = url
+                                      ..style.display = 'none'
+                                      ..download =
+                                          'Conciliacao.${acms ? 'txt' : 'csv'}';
+                                    html.document.body!.children.add(anchor);
+
+                                    // download
+                                    anchor.click();
+
+                                    // cleanup
+                                    html.document.body!.children.remove(anchor);
+                                    html.Url.revokeObjectUrl(url);
+                                  } else {
+                                    final file = await File(
+                                            'Conciliacao.${acms ? 'txt' : 'csv'}')
+                                        .writeAsString(
+                                      text.join("\n"),
+                                    );
+                                    await file.open();
+                                  }
+
                                   Navigator.of(context).pop();
                                 },
                               ),
