@@ -48,7 +48,6 @@ final navigatorKey = GlobalKey<NavigatorState>();
 void initialize(BuildContext context) {
   db.collection("distritos").get().then((value) {
     value.docs.forEach((element) {
-      print(element.id);
       distritos.add(
         DropdownMenuItem(
           child: Text(element.id),

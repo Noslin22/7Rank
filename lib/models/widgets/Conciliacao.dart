@@ -28,7 +28,6 @@ organizeFile(PlatformFile file) {
         element.split(" ")[0] == ";N�o" ||
         element.split(';')[1].split(' ')[0] == 'SALDO',
   );
-  print(datas[0]);
   for (var element in datas) {
     List<String?> list = element.split(";");
     csv.add(
