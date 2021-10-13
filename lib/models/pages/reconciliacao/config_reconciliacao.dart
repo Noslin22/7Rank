@@ -1,4 +1,6 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:remessa/models/theme/ButtonColors.dart';
 import 'package:remessa/models/widgets/Button.dart';
 import 'package:remessa/models/widgets/consts.dart';
 
@@ -11,56 +13,31 @@ class ConfigReconciliacao extends StatefulWidget {
 }
 
 class _ConfigReconciliacaoState extends State<ConfigReconciliacao> {
+  List<TextEditingController> controllers = List.generate(
+    12,
+    (index) => TextEditingController(),
+  );
   List nodes = List.generate(12, (index) => FocusNode());
-  TextEditingController historicoController = TextEditingController();
-  TextEditingController contaCredController = TextEditingController();
-  TextEditingController contaDepController = TextEditingController();
-  TextEditingController subContaCredController = TextEditingController();
-  TextEditingController subContaDepController = TextEditingController();
-  TextEditingController departCredController = TextEditingController();
-  TextEditingController departDepController = TextEditingController();
-  TextEditingController tipoCredController = TextEditingController();
-  TextEditingController tipoDepController = TextEditingController();
-  TextEditingController fundoCredController = TextEditingController();
-  TextEditingController fundoDepController = TextEditingController();
-  TextEditingController avisoController = TextEditingController();
+  String lancamento = "";
+  int size = 0;
   int focus = 0;
 
   @override
   void dispose() {
     super.dispose();
-    historicoController.dispose();
-    contaCredController.dispose();
-    contaDepController.dispose();
-    subContaCredController.dispose();
-    subContaDepController.dispose();
-    departCredController.dispose();
-    departDepController.dispose();
-    tipoCredController.dispose();
-    tipoDepController.dispose();
-    fundoCredController.dispose();
-    fundoDepController.dispose();
-    avisoController.dispose();
+    controllers.forEach(
+      (element) => element.dispose(),
+    );
   }
 
   void limparCampos() {
-    historicoController.clear();
-    contaCredController.clear();
-    contaDepController.clear();
-    subContaCredController.clear();
-    subContaDepController.clear();
-    departCredController.clear();
-    departDepController.clear();
-    tipoCredController.clear();
-    tipoDepController.clear();
-    fundoCredController.clear();
-    fundoDepController.clear();
-    avisoController.clear();
+    controllers.forEach(
+      (element) => element.clear(),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    bool showCentered = MediaQuery.of(context).size.width > 1110;
     double width = MediaQuery.of(context).size.width;
     bool mobile = width <= 750;
 
@@ -71,22 +48,16 @@ class _ConfigReconciliacaoState extends State<ConfigReconciliacao> {
             mobile ? null : actions(widget.gerenciador, context, 'rec_config'),
       ),
       body: Container(
+        padding: EdgeInsets.all(16),
         child: Row(
           children: [
-            showCentered
-                ? Expanded(
-                    child: Container(),
-                    flex: 1,
-                  )
-                : Container(),
             Expanded(
-              flex: 2,
               child: Column(
                 children: [
                   SizedBox(height: 20),
                   Flexible(
                     child: TextField(
-                      controller: historicoController,
+                      controller: controllers[0],
                       decoration: inputDecoration.copyWith(
                         labelText: "Historíco",
                       ),
@@ -107,7 +78,7 @@ class _ConfigReconciliacaoState extends State<ConfigReconciliacao> {
                             children: [
                               Flexible(
                                 child: TextField(
-                                  controller: contaCredController,
+                                  controller: controllers[1],
                                   decoration: inputDecoration.copyWith(
                                     labelText: "Conta Cred.",
                                   ),
@@ -122,7 +93,7 @@ class _ConfigReconciliacaoState extends State<ConfigReconciliacao> {
                               SizedBox(height: 10),
                               Flexible(
                                 child: TextField(
-                                  controller: subContaCredController,
+                                  controller: controllers[2],
                                   decoration: inputDecoration.copyWith(
                                     labelText: "Sub-Conta Cred.",
                                   ),
@@ -137,7 +108,7 @@ class _ConfigReconciliacaoState extends State<ConfigReconciliacao> {
                               SizedBox(height: 10),
                               Flexible(
                                 child: TextField(
-                                  controller: departCredController,
+                                  controller: controllers[3],
                                   decoration: inputDecoration.copyWith(
                                     labelText: "Departamento Cred.",
                                   ),
@@ -152,7 +123,7 @@ class _ConfigReconciliacaoState extends State<ConfigReconciliacao> {
                               SizedBox(height: 10),
                               Flexible(
                                 child: TextField(
-                                  controller: tipoCredController,
+                                  controller: controllers[4],
                                   decoration: inputDecoration.copyWith(
                                     labelText: "Tipo Cred.",
                                   ),
@@ -167,7 +138,7 @@ class _ConfigReconciliacaoState extends State<ConfigReconciliacao> {
                               SizedBox(height: 10),
                               Flexible(
                                 child: TextField(
-                                  controller: fundoCredController,
+                                  controller: controllers[5],
                                   decoration: inputDecoration.copyWith(
                                     labelText: "Fundo Cred.",
                                   ),
@@ -188,7 +159,7 @@ class _ConfigReconciliacaoState extends State<ConfigReconciliacao> {
                             children: [
                               Flexible(
                                 child: TextField(
-                                  controller: contaDepController,
+                                  controller: controllers[6],
                                   decoration: inputDecoration.copyWith(
                                     labelText: "Conta Dep.",
                                   ),
@@ -203,7 +174,7 @@ class _ConfigReconciliacaoState extends State<ConfigReconciliacao> {
                               SizedBox(height: 10),
                               Flexible(
                                 child: TextField(
-                                  controller: subContaDepController,
+                                  controller: controllers[7],
                                   decoration: inputDecoration.copyWith(
                                     labelText: "Sub-Conta Dep.",
                                   ),
@@ -218,7 +189,7 @@ class _ConfigReconciliacaoState extends State<ConfigReconciliacao> {
                               SizedBox(height: 10),
                               Flexible(
                                 child: TextField(
-                                  controller: departDepController,
+                                  controller: controllers[8],
                                   decoration: inputDecoration.copyWith(
                                     labelText: "Departamento Dep.",
                                   ),
@@ -233,7 +204,7 @@ class _ConfigReconciliacaoState extends State<ConfigReconciliacao> {
                               SizedBox(height: 10),
                               Flexible(
                                 child: TextField(
-                                  controller: tipoDepController,
+                                  controller: controllers[9],
                                   decoration: inputDecoration.copyWith(
                                     labelText: "Tipo Dep.",
                                   ),
@@ -248,7 +219,7 @@ class _ConfigReconciliacaoState extends State<ConfigReconciliacao> {
                               SizedBox(height: 10),
                               Flexible(
                                 child: TextField(
-                                  controller: fundoDepController,
+                                  controller: controllers[10],
                                   decoration: inputDecoration.copyWith(
                                     labelText: "Fundo Dep.",
                                   ),
@@ -269,27 +240,54 @@ class _ConfigReconciliacaoState extends State<ConfigReconciliacao> {
                   SizedBox(height: 10),
                   Flexible(
                     child: TextField(
-                      controller: avisoController,
+                      controller: controllers[11],
                       decoration: inputDecoration.copyWith(
                         labelText: "Aviso",
                       ),
                       focusNode: nodes[11],
                       onSubmitted: (value) {
                         focus = 0;
-                        db.collection("contabeis").add({
-                          'historico': historicoController.text,
-                          'contaCred': contaCredController.text,
-                          'contaDep': contaDepController.text,
-                          'subContaCred': subContaCredController.text,
-                          'subContaDep': subContaDepController.text,
-                          'departCred': departCredController.text,
-                          'departDep': departDepController.text,
-                          'tipoCred': tipoCredController.text,
-                          'tipoDep': tipoDepController.text,
-                          'fundoCred': fundoCredController.text,
-                          'fundoDep': fundoDepController.text,
-                          'aviso': avisoController.text,
-                        });
+
+                        Future<QuerySnapshot> query = db
+                            .collection("contabeis")
+                            .where("historico", isEqualTo: lancamento)
+                            .get();
+
+                        query.then((value) => size = value.size);
+                        if (size == 0) {
+                          db.collection("contabeis").add({
+                            'historico': controllers[0].text,
+                            'contaCred': controllers[1].text,
+                            'contaDep': controllers[6].text,
+                            'subContaCred': controllers[2].text,
+                            'subContaDep': controllers[7].text,
+                            'departCred': controllers[3].text,
+                            'departDep': controllers[8].text,
+                            'tipoCred': controllers[4].text,
+                            'tipoDep': controllers[9].text,
+                            'fundoCred': controllers[5].text,
+                            'fundoDep': controllers[10].text,
+                            'aviso': controllers[11].text,
+                          });
+                        } else {
+                          String doc = "";
+                          query.then((value) => doc = value.docs.first.id);
+                          db.collection("contabeis").doc(doc).update({
+                            'historico': controllers[0].text,
+                            'contaCred': controllers[1].text,
+                            'contaDep': controllers[6].text,
+                            'subContaCred': controllers[2].text,
+                            'subContaDep': controllers[7].text,
+                            'departCred': controllers[3].text,
+                            'departDep': controllers[8].text,
+                            'tipoCred': controllers[4].text,
+                            'tipoDep': controllers[9].text,
+                            'fundoCred': controllers[5].text,
+                            'fundoDep': controllers[10].text,
+                            'aviso': controllers[11].text,
+                          });
+                        }
+                        setState(() {});
                         limparCampos();
                         FocusScope.of(context).requestFocus(nodes[focus]);
                       },
@@ -298,33 +296,126 @@ class _ConfigReconciliacaoState extends State<ConfigReconciliacao> {
                   SizedBox(height: 10),
                   Button.blue10(
                     label: "Adicionar",
-                    onPressed: () {
-                      db.collection("contabeis").add({
-                        'historico': historicoController.text,
-                        'contaCred': contaCredController.text,
-                        'contaDep': contaDepController.text,
-                        'subContaCred': subContaCredController.text,
-                        'subContaDep': subContaDepController.text,
-                        'departCred': departCredController.text,
-                        'departDep': departDepController.text,
-                        'tipoCred': tipoCredController.text,
-                        'tipoDep': tipoDepController.text,
-                        'fundoCred': fundoCredController.text,
-                        'fundoDep': fundoDepController.text,
-                        'aviso': avisoController.text,
-                      });
+                    onPressed: () async {
+                      focus = 0;
+
+                      Future<QuerySnapshot> query = db
+                          .collection("contabeis")
+                          .where("historico", isEqualTo: lancamento)
+                          .get();
+
+                      await query.then((value) => size = value.size);
+                      if (size == 0) {
+                        db.collection("contabeis").add({
+                          'historico': controllers[0].text,
+                          'contaCred': controllers[1].text,
+                          'contaDep': controllers[6].text,
+                          'subContaCred': controllers[2].text,
+                          'subContaDep': controllers[7].text,
+                          'departCred': controllers[3].text,
+                          'departDep': controllers[8].text,
+                          'tipoCred': controllers[4].text,
+                          'tipoDep': controllers[9].text,
+                          'fundoCred': controllers[5].text,
+                          'fundoDep': controllers[10].text,
+                          'aviso': controllers[11].text,
+                        });
+                      } else {
+                        String doc = "";
+                        await query.then((value) => doc = value.docs.first.id);
+                        db.collection("contabeis").doc(doc).update({
+                          'historico': controllers[0].text,
+                          'contaCred': controllers[1].text,
+                          'contaDep': controllers[6].text,
+                          'subContaCred': controllers[2].text,
+                          'subContaDep': controllers[7].text,
+                          'departCred': controllers[3].text,
+                          'departDep': controllers[8].text,
+                          'tipoCred': controllers[4].text,
+                          'tipoDep': controllers[9].text,
+                          'fundoCred': controllers[5].text,
+                          'fundoDep': controllers[10].text,
+                          'aviso': controllers[11].text,
+                        });
+                      }
+                      setState(() {});
                       limparCampos();
+                      FocusScope.of(context).requestFocus(nodes[focus]);
                     },
                   ),
                 ],
               ),
             ),
-            showCentered
-                ? Expanded(
-                    child: Container(),
-                    flex: 1,
-                  )
-                : Container(),
+            SizedBox(width: 10),
+            Expanded(
+              child: FutureBuilder<QuerySnapshot<Map<String, dynamic>>>(
+                  future: db.collection("contabeis").get(),
+                  builder: (context, snapshot) {
+                    if (snapshot.hasError) {
+                      return Text("Houve um erro, tente novamente mais tarde");
+                    } else if (snapshot.hasData) {
+                      List<QueryDocumentSnapshot> configs = snapshot.data!.docs;
+                      return ListView.builder(
+                        itemBuilder: (context, index) {
+                          var document = configs[index];
+                          String historico = document["historico"];
+                          return ListTile(
+                            title: Row(
+                              children: [
+                                Expanded(
+                                  child: Text(historico),
+                                ),
+                                ElevatedButton.icon(
+                                  onPressed: () {
+                                    lancamento = document["historico"];
+                                    controllers[0].text = document["historico"];
+                                    controllers[1].text = document["contaCred"];
+                                    controllers[6].text = document["contaDep"];
+                                    controllers[2].text =
+                                        document["subContaCred"];
+                                    controllers[7].text =
+                                        document["subContaDep"];
+                                    controllers[3].text =
+                                        document["departCred"];
+                                    controllers[8].text = document["departDep"];
+                                    controllers[4].text = document["tipoCred"];
+                                    controllers[9].text = document["tipoDep"];
+                                    controllers[5].text = document["fundoCred"];
+                                    controllers[10].text = document["fundoDep"];
+                                    controllers[11].text = document["aviso"];
+                                  },
+                                  style: orangeColor,
+                                  icon: Icon(Icons.edit),
+                                  label: Text("Editar"),
+                                ),
+                                SizedBox(
+                                  width: 10,
+                                ),
+                                ElevatedButton.icon(
+                                  onPressed: () {
+                                    db
+                                        .collection("contabeis")
+                                        .doc(document.id)
+                                        .delete();
+                                    setState(() {});
+                                  },
+                                  style: redColor,
+                                  icon: Icon(Icons.delete),
+                                  label: Text("Excluir"),
+                                ),
+                              ],
+                            ),
+                          );
+                        },
+                        itemCount: configs.length,
+                      );
+                    } else {
+                      return Center(
+                        child: CircularProgressIndicator(),
+                      );
+                    }
+                  }),
+            ),
           ],
         ),
       ),
