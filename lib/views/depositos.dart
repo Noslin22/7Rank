@@ -310,7 +310,7 @@ class _DepositoState extends State<Deposito> {
                     focusNode: focus == 4 ? myFocusNode : null,
                     onSubmitted: (value) {
                       List date = controllerDate.text.split('/');
-                      String vl = controllerVl.text.replaceAll(",", "").replaceAll(".", "");
+                      String vl = controllerVl.text.split(" ")[1].replaceAll(",", "").replaceAll(".", "");
                       _scrollController.animateTo(
                         0.0,
                         curve: Curves.easeOut,
@@ -328,7 +328,7 @@ class _DepositoState extends State<Deposito> {
                             "${igrejas[controllerCod.text]} - ${controllerCod.text} - ${controllerDate.text} - Remessa ${controllerRM.text} - Doc ${controllerDc.text} - ${controllerVl.text}");
                         controllerCod.text = '';
                         controllerDc.text = '';
-                        controllerVl.text = '';
+                        controllerVl.text = "R\$ 0,00";
                         title = "Código da Igreja";
                         focus = 0;
                       });
