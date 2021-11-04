@@ -3,6 +3,7 @@ import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 import 'package:remessa/models/widgets/Button.dart';
 import 'package:remessa/models/widgets/consts.dart';
 import "package:flutter/material.dart";
+import 'package:flutter_masked_text2/flutter_masked_text2.dart';
 import 'dart:convert';
 import 'package:universal_html/html.dart' as html;
 
