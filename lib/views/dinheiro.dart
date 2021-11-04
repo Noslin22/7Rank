@@ -114,6 +114,7 @@ class _DinheiroState extends State<Dinheiro> {
     if (widget.cache.get("protocolo") != null) {
       protocolo = widget.cache.get("protocolo")!;
     }
+    igrejas["3"] = "ABaC";
   }
 
   _clearForm() {

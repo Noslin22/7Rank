@@ -21,6 +21,7 @@ environment:
   sdk: '>=2.12.0 <3.0.0'
 
 dependencies:
+  flutter_masked_text2: 
   cloud_firestore: ^2.3.0
   collection: ^1.15.0
   csv: ^5.0.0

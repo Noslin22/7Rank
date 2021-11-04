@@ -26,7 +26,12 @@ class _DepositoState extends State<Deposito> {
   TextEditingController controllerCod = TextEditingController();
   TextEditingController controllerRM = TextEditingController();
   TextEditingController controllerDc = TextEditingController();
-  TextEditingController controllerVl = TextEditingController();
+  TextEditingController controllerVl = MoneyMaskedTextController(
+  decimalSeparator: ",",
+  thousandSeparator: ".",
+  precision: 2,
+  leftSymbol: "R\$ ",
+);
   ScrollController _scrollController = new ScrollController();
   String? title = "Código da Igreja";
   Map<String, String> igrejas = {};
@@ -305,7 +310,7 @@ class _DepositoState extends State<Deposito> {
                     focusNode: focus == 4 ? myFocusNode : null,
                     onSubmitted: (value) {
                       List date = controllerDate.text.split('/');
-                      String vl = controllerVl.text.replaceAll(",", "");
+                      String vl = controllerVl.text.replaceAll(",", "").replaceAll(".", "");
                       _scrollController.animateTo(
                         0.0,
                         curve: Curves.easeOut,
@@ -320,7 +325,7 @@ class _DepositoState extends State<Deposito> {
                                 ? "${date[0]}	${date[1]}	${date[2]}	Recibo Caixa ${controllerDc.text} - Rm ${controllerRM.text}	${controllerCod.text}	${controllerDc.text}	$vl"
                                 : "${date[0]}	${date[1]}	${date[2]}	Deposito em ${controllerDate.text} - Rm ${controllerRM.text} - ${controllerDc.text}	${controllerCod.text}	${controllerDc.text}	$vl");
                         amostra.insert(0,
-                            "${igrejas[controllerCod.text]} - ${controllerCod.text} - ${controllerDate.text} - Remessa ${controllerRM.text} - Doc ${controllerDc.text} - R\$ ${controllerVl.text}");
+                            "${igrejas[controllerCod.text]} - ${controllerCod.text} - ${controllerDate.text} - Remessa ${controllerRM.text} - Doc ${controllerDc.text} - ${controllerVl.text}");
                         controllerCod.text = '';
                         controllerDc.text = '';
                         controllerVl.text = '';
