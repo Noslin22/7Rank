@@ -43,6 +43,10 @@ SimpleCache<String, List<List<String?>>?> c2 =
     SimpleCache<String, List<List<String?>>?>(
   storage: InMemoryStorage(3),
 );
+SimpleCache<String, double> c3 =
+    SimpleCache<String, double>(
+  storage: InMemoryStorage(3),
+);
 
 final navigatorKey = GlobalKey<NavigatorState>();
 void initialize(BuildContext context) {
@@ -468,7 +472,7 @@ List<Widget> actions(String gerenciador, BuildContext context, String tela,
                       Navigator.pushReplacement(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => Dinheiro(c2),
+                          builder: (context) => Dinheiro(c2, c3),
                         ),
                       );
                     }),
