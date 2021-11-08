@@ -3,6 +3,7 @@ import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 import 'package:remessa/models/widgets/Button.dart';
 import 'package:remessa/models/widgets/consts.dart';
 import "package:flutter/material.dart";
+import 'package:flutter_masked_text2/flutter_masked_text2.dart';
 import 'dart:convert';
 import 'package:universal_html/html.dart' as html;
 
@@ -26,7 +27,12 @@ class _DepositoState extends State<Deposito> {
   TextEditingController controllerCod = TextEditingController();
   TextEditingController controllerRM = TextEditingController();
   TextEditingController controllerDc = TextEditingController();
-  TextEditingController controllerVl = TextEditingController();
+  TextEditingController controllerVl = MoneyMaskedTextController(
+  decimalSeparator: ",",
+  thousandSeparator: ".",
+  precision: 2,
+  leftSymbol: "R\$ ",
+);
   ScrollController _scrollController = new ScrollController();
   String? title = "Código da Igreja";
   Map<String, String> igrejas = {};
@@ -305,7 +311,7 @@ class _DepositoState extends State<Deposito> {
                     focusNode: focus == 4 ? myFocusNode : null,
                     onSubmitted: (value) {
                       List date = controllerDate.text.split('/');
-                      String vl = controllerVl.text.replaceAll(",", "");
+                      String vl = controllerVl.text.split(" ")[1].replaceAll(",", "").replaceAll(".", "");
                       _scrollController.animateTo(
                         0.0,
                         curve: Curves.easeOut,
@@ -320,10 +326,10 @@ class _DepositoState extends State<Deposito> {
                                 ? "${date[0]}	${date[1]}	${date[2]}	Recibo Caixa ${controllerDc.text} - Rm ${controllerRM.text}	${controllerCod.text}	${controllerDc.text}	$vl"
                                 : "${date[0]}	${date[1]}	${date[2]}	Deposito em ${controllerDate.text} - Rm ${controllerRM.text} - ${controllerDc.text}	${controllerCod.text}	${controllerDc.text}	$vl");
                         amostra.insert(0,
-                            "${igrejas[controllerCod.text]} - ${controllerCod.text} - ${controllerDate.text} - Remessa ${controllerRM.text} - Doc ${controllerDc.text} - R\$ ${controllerVl.text}");
+                            "${igrejas[controllerCod.text]} - ${controllerCod.text} - ${controllerDate.text} - Remessa ${controllerRM.text} - Doc ${controllerDc.text} - ${controllerVl.text}");
                         controllerCod.text = '';
                         controllerDc.text = '';
-                        controllerVl.text = '';
+                        controllerVl.text = "R\$ 0,00";
                         title = "Código da Igreja";
                         focus = 0;
                       });

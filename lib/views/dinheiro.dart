@@ -122,6 +122,7 @@ class _DinheiroState extends State<Dinheiro> {
     if (widget.totalCache.get("total") != null) {
       totalAmostra = widget.totalCache.get("total")!;
     }
+    igrejas["3"] = "ABaC";
   }
 
   _clearForm() {
