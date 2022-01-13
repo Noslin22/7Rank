@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'package:collection/collection.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dcache/dcache.dart';
 import 'package:file_picker/file_picker.dart';
@@ -7,7 +6,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:printing/printing.dart';
-import 'package:remessa/models/pages/reconciliacao/config_reconciliacao.dart';
+import 'package:remessa/functionalities/etiqueta.dart';
 
 import 'package:remessa/models/pdf/EtiquetaPdf.dart';
 import 'package:remessa/models/pdf/LicaoPdf.dart';
@@ -15,20 +14,17 @@ import 'package:remessa/models/widgets/Button.dart';
 import 'package:remessa/models/widgets/Reconciliacao.dart';
 import 'package:remessa/views/CoelbaEmbasa.dart';
 import 'package:remessa/views/Home.dart';
-import 'package:remessa/views/depositos.dart';
+import 'package:remessa/views/deposito/depositos.dart';
 import 'package:remessa/views/dinheiro.dart';
 import 'package:remessa/views/wrappers/Adicionar.dart';
 import 'package:remessa/views/wrappers/WrappersAutenticate/Login.dart';
 import 'package:remessa/views/wrappers/WrappersAutenticate/Registro.dart';
-import 'package:universal_html/html.dart' as html;
 
 import '../Auth.dart';
 import 'Conciliacao.dart';
 
 final FirebaseFirestore db = FirebaseFirestore.instance;
 
-List<DropdownMenuItem> distritos = [];
-String? distritoEtiqueta;
 final inputDecoration = InputDecoration(
   border: OutlineInputBorder(
     borderSide: BorderSide(color: Colors.blue, width: 3),
@@ -43,24 +39,11 @@ SimpleCache<String, List<List<String?>>?> c2 =
     SimpleCache<String, List<List<String?>>?>(
   storage: InMemoryStorage(3),
 );
-SimpleCache<String, double> c3 =
-    SimpleCache<String, double>(
+SimpleCache<String, double> c3 = SimpleCache<String, double>(
   storage: InMemoryStorage(3),
 );
 
 final navigatorKey = GlobalKey<NavigatorState>();
-void initialize(BuildContext context) {
-  db.collection("distritos").get().then((value) {
-    value.docs.forEach((element) {
-      distritos.add(
-        DropdownMenuItem(
-          child: Text(element.id),
-          value: element.id,
-        ),
-      );
-    });
-  });
-}
 
 currentDate({String? date, bool dateTime = true, bool dataAtual = false}) {
   List? _listaData = date != null ? date.split("/").toList() : null;
@@ -79,7 +62,6 @@ currentDate({String? date, bool dateTime = true, bool dataAtual = false}) {
 
 List<Widget> actions(String gerenciador, BuildContext context, String tela,
     {Auth? auth, Function? setDistrito, bool? igreja}) {
-  initialize(context);
   return [
     tela != 'home'
         ? Tooltip(
@@ -112,79 +94,7 @@ List<Widget> actions(String gerenciador, BuildContext context, String tela,
                 }),
           )
         : Container(),
-    Tooltip(
-      message: 'Etiqueta',
-      child: IconButton(
-          icon: Icon(Icons.local_offer),
-          onPressed: () {
-            showDialog(
-              context: context,
-              builder: (context) {
-                return AlertDialog(
-                  title: Text(
-                    "Escolha um distrito",
-                    textAlign: TextAlign.center,
-                  ),
-                  content: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      DropdownButtonFormField(
-                        onChanged: (dynamic value) {
-                          distritoEtiqueta = value;
-                        },
-                        onSaved: (dynamic value) {
-                          distritoEtiqueta = value;
-                        },
-                        hint: Text("Distritos"),
-                        items: distritos,
-                        value: distritoEtiqueta,
-                      ),
-                    ],
-                  ),
-                  actions: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Expanded(
-                          flex: 1,
-                          child: Button(
-                            color: Colors.lightGreen,
-                            label: "Gerar",
-                            onPressed: () {
-                              Printing.layoutPdf(
-                                onLayout: (format) {
-                                  return buildPdfEtiqueta(
-                                    distritoEtiqueta,
-                                    currentDate(dataAtual: true).split("/")[2],
-                                  );
-                                },
-                              );
-                              Navigator.of(context).pop();
-                              distritoEtiqueta = "";
-                            },
-                          ),
-                        ),
-                        Expanded(
-                          child: Container(),
-                        ),
-                        Expanded(
-                          flex: 1,
-                          child: Button(
-                            color: Colors.blue,
-                            label: "Cancelar",
-                            onPressed: () {
-                              Navigator.of(context).pop();
-                            },
-                          ),
-                        ),
-                      ],
-                    )
-                  ],
-                );
-              },
-            );
-          }),
-    ),
+    Etiqueta(),
     Tooltip(
       message: 'Conciliação Bancária',
       child: IconButton(
@@ -214,7 +124,10 @@ List<Widget> actions(String gerenciador, BuildContext context, String tela,
           PlatformFile? file;
           showDialog(
             context: context,
-            builder: (context) => buildReconciliacaoDialog(gerenciador: gerenciador, file: file,),
+            builder: (context) => buildReconciliacaoDialog(
+              gerenciador: gerenciador,
+              file: file,
+            ),
           );
         },
       ),
@@ -275,7 +188,7 @@ List<Widget> actions(String gerenciador, BuildContext context, String tela,
       ),
     ),
     Tooltip(
-      message: 'Pesquisa por conta',
+      message: 'Pesquisar Igreja',
       child: IconButton(
           icon: Icon(
             Icons.search,
@@ -286,7 +199,92 @@ List<Widget> actions(String gerenciador, BuildContext context, String tela,
             String conta = "";
             String searched = "espera";
             String igrejaCod = "";
-            bool bancaria = true;
+            int state = 0;
+
+            String currentState(int mode) {
+              String value = "";
+              switch (mode) {
+                case 0:
+                  switch (state) {
+                    case 0:
+                      value = "Conta Bancária";
+                      break;
+                    case 1:
+                      value = "Código Igreja";
+                      break;
+                    case 2:
+                      value = "Nome Igreja";
+                      break;
+                  }
+                  break;
+                case 1:
+                  switch (state) {
+                    case 0:
+                      value = "Conta";
+                      break;
+                    case 1:
+                      value = "Código";
+                      break;
+                    case 2:
+                      value = "Igreja";
+                      break;
+                  }
+                  break;
+                case 1:
+                  switch (state) {
+                    case 0:
+                      value = "Conta Banc.";
+                      break;
+                    case 1:
+                      value = "Cod. Igreja";
+                      break;
+                    case 2:
+                      value = "Nome Igreja";
+                      break;
+                  }
+                  break;
+              }
+              return value;
+            }
+
+            void submit(String value, Function(void Function()) setState) {
+              List<Map<String, String>> jsonList =
+                  json.decode(result.toString());
+              if (jsonList.indexWhere((element) =>
+                      element["conta"]!.split("-")[0] == value && state == 0) !=
+                  -1) {
+                setState(() {
+                  igrejaCod =
+                      "${jsonList[jsonList.indexWhere((element) => element["conta"]!.split("-")[0] == value)]["cod"]} - ${jsonList[jsonList.indexWhere((element) => element["cod"]!.split("-")[0] == value)]["nome"]}";
+                  searched = "achou";
+                });
+              } else if (jsonList.indexWhere(
+                        (element) => element["cod"] == value,
+                      ) !=
+                      -1 &&
+                  state == 1) {
+                setState(() {
+                  igrejaCod =
+                      "${jsonList[jsonList.indexWhere((element) => element["cod"] == value)]["conta"]} - ${jsonList[jsonList.indexWhere((element) => element["cod"] == value)]["nome"]}";
+                  searched = "achou";
+                });
+              } else if (jsonList.indexWhere(
+                        (element) => element["nome"]?.split("/")[0] == value,
+                      ) !=
+                      -1 &&
+                  state == 2) {
+                setState(() {
+                  igrejaCod =
+                      "${jsonList[jsonList.indexWhere((element) => element["nome"]?.split("/")[0] == value)]["cod"]} - ${jsonList[jsonList.indexWhere((element) => element["cod"] == value)]["conta"]}";
+                  searched = "achou";
+                });
+              } else {
+                setState(() {
+                  searched = "erro";
+                });
+              }
+            }
+
             showDialog(
               context: context,
               builder: (context) {
@@ -295,45 +293,16 @@ List<Widget> actions(String gerenciador, BuildContext context, String tela,
                     return AlertDialog(
                       title: Text(
                         searched == "espera"
-                            ? bancaria
-                                ? "Conta Bancária"
-                                : "Código Igreja"
+                            ? currentState(0)
                             : searched == "achou"
                                 ? igrejaCod
-                                : bancaria
-                                    ? "Conta não existente"
-                                    : "Código não existente",
+                                : "${currentState(1)} não existente",
                         textAlign: TextAlign.center,
                       ),
                       content: TextField(
                         focusNode: FocusNode(),
                         onSubmitted: (value) {
-                          List<Map<String, String>> jsonList =
-                              json.decode(result.toString());
-                          if (jsonList.indexWhere((element) =>
-                                  element["conta"]!.split("-")[0] == value &&
-                                  bancaria) !=
-                              -1) {
-                            setState(() {
-                              igrejaCod =
-                                  "${jsonList[jsonList.indexWhere((element) => element["conta"]!.split("-")[0] == value)]["cod"]} - ${jsonList[jsonList.indexWhere((element) => element["conta"]!.split("-")[0] == value)]["nome"]}";
-                              searched = "achou";
-                            });
-                          } else if (jsonList.indexWhere(
-                                    (element) => element["cod"] == value,
-                                  ) !=
-                                  -1 &&
-                              !bancaria) {
-                            setState(() {
-                              igrejaCod =
-                                  "${jsonList[jsonList.indexWhere((element) => element["cod"] == value)]["conta"]} - ${jsonList[jsonList.indexWhere((element) => element["cod"] == value)]["nome"]}";
-                              searched = "achou";
-                            });
-                          } else {
-                            setState(() {
-                              searched = "erro";
-                            });
-                          }
+                          submit(value, setState);
                         },
                         onChanged: (value) {
                           setState(() {
@@ -353,10 +322,14 @@ List<Widget> actions(String gerenciador, BuildContext context, String tela,
                                 onPressed: () {
                                   setState(() {
                                     searched = "espera";
-                                    bancaria = !bancaria;
+                                    if (state != 2) {
+                                      state += 1;
+                                    } else {
+                                      state = 0;
+                                    }
                                   });
                                 },
-                                label: bancaria ? "Conta Banc." : "Cod. Igreja",
+                                label: currentState(1),
                               ),
                             ),
                             Expanded(
@@ -367,33 +340,8 @@ List<Widget> actions(String gerenciador, BuildContext context, String tela,
                               child: Button(
                                 color: Colors.lightGreen,
                                 label: "Pesquisar",
-                                onPressed: () async {
-                                  List<Map<String, String>> jsonList =
-                                      json.decode(result.toString());
-                                  if (jsonList.indexWhere((element) =>
-                                          element["conta"]!.split("-")[0] ==
-                                              conta &&
-                                          bancaria) !=
-                                      -1) {
-                                    setState(() {
-                                      igrejaCod =
-                                          "${jsonList[jsonList.indexWhere((element) => element["conta"]!.split("-")[0] == conta)]["cod"]} - ${jsonList[jsonList.indexWhere((element) => element["conta"]!.split("-")[0] == conta)]["nome"]}";
-                                      searched = "achou";
-                                    });
-                                  } else if (jsonList.indexWhere((element) =>
-                                              element["cod"] == conta) !=
-                                          -1 &&
-                                      !bancaria) {
-                                    setState(() {
-                                      igrejaCod =
-                                          "${jsonList[jsonList.indexWhere((element) => element["cod"] == conta)]["conta"]} - ${jsonList[jsonList.indexWhere((element) => element["cod"] == conta)]["nome"]}";
-                                      searched = "achou";
-                                    });
-                                  } else {
-                                    setState(() {
-                                      searched = "erro";
-                                    });
-                                  }
+                                onPressed: () {
+                                  submit(conta, setState);
                                 },
                               ),
                             ),
@@ -588,80 +536,6 @@ drawer(String gerenciador, BuildContext context, String tela, {Auth? auth}) {
                 : Container()
             : Container(),
         ListTile(
-          title: Text('Etiqueta'),
-          leading: Icon(Icons.local_offer),
-          onTap: () {
-            Navigator.pop(context);
-            showDialog(
-              context: context,
-              builder: (context) {
-                return AlertDialog(
-                  title: Text(
-                    "Escolha um distrito",
-                    textAlign: TextAlign.center,
-                  ),
-                  content: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      DropdownButtonFormField(
-                        onChanged: (dynamic value) {
-                          distritoEtiqueta = value;
-                        },
-                        onSaved: (dynamic value) {
-                          distritoEtiqueta = value;
-                        },
-                        hint: Text("Distritos"),
-                        items: distritos,
-                        value: distritoEtiqueta,
-                      ),
-                    ],
-                  ),
-                  actions: [
-                    Row(
-                      mainAxisSize: MainAxisSize.max,
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Expanded(
-                          flex: 1,
-                          child: Button(
-                            color: Colors.lightGreen,
-                            label: 'Gerar',
-                            onPressed: () {
-                              Printing.layoutPdf(
-                                onLayout: (format) {
-                                  return buildPdfEtiqueta(
-                                    distritoEtiqueta,
-                                    currentDate(dataAtual: true).split("/")[2],
-                                  );
-                                },
-                              );
-                              Navigator.of(context).pop();
-                              distritoEtiqueta = "";
-                            },
-                          ),
-                        ),
-                        Expanded(
-                          child: Container(),
-                        ),
-                        Expanded(
-                          flex: 1,
-                          child: Button(
-                            color: Colors.blue,
-                            label: 'Cancelar',
-                            onPressed: () {
-                              Navigator.of(context).pop();
-                            },
-                          ),
-                        ),
-                      ],
-                    )
-                  ],
-                );
-              },
-            );
-          },
-        ),
-        ListTile(
           title: Text("Conciliação Bancária"),
           leading: Icon(Icons.insert_drive_file_rounded),
           onTap: () async {
@@ -675,7 +549,7 @@ drawer(String gerenciador, BuildContext context, String tela, {Auth? auth}) {
             if (result != null) {
               showDialog(
                 context: context,
-                builder: (context)  => buildConciliacaoDialog(result: result),
+                builder: (context) => buildConciliacaoDialog(result: result),
               );
             }
           },
