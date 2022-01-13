@@ -16,7 +16,7 @@ class CoelbaEmbasa extends StatefulWidget {
 }
 
 class _CoelbaEmbasaState extends State<CoelbaEmbasa> {
-  TextEditingController _controllerPesquisa = TextEditingController();
+  TextEditingController controllerPesquisa = TextEditingController();
   StreamController<QuerySnapshot> _controllerIgreja =
       StreamController.broadcast();
   StreamController<QuerySnapshot> _controllerRank =
@@ -35,7 +35,7 @@ class _CoelbaEmbasaState extends State<CoelbaEmbasa> {
     _controller.dispose();
     _controllerRank.close();
     _controllerIgreja.close();
-    _controllerPesquisa.dispose();
+    controllerPesquisa.dispose();
     super.dispose();
   }
 
@@ -47,8 +47,8 @@ class _CoelbaEmbasaState extends State<CoelbaEmbasa> {
     });
   }
 
-  Stream<QuerySnapshot>? _pegarDados() {
-    int i = int.parse(_controller.text);
+  Stream<QuerySnapshot>? getCod() {
+    int i = int.tryParse(_controller.text) ?? 0;
     Stream<QuerySnapshot> rank = db
         .collection("igrejas")
         .where(_coelba ? "contrato" : "matricula",
@@ -64,7 +64,7 @@ class _CoelbaEmbasaState extends State<CoelbaEmbasa> {
     return null;
   }
 
-  void _getIgreja(String cod) {
+  void getSuggestion(String cod) {
     db
         .collection("igrejas")
         .where("cod", isEqualTo: int.parse(cod))
@@ -78,7 +78,7 @@ class _CoelbaEmbasaState extends State<CoelbaEmbasa> {
     });
   }
 
-  Stream<QuerySnapshot>? _pegarIgreja() {
+  Stream<QuerySnapshot>? getName() {
     Stream<QuerySnapshot> igreja = db
         .collection("igrejas")
         .where('cod', isEqualTo: int.parse(valor))
@@ -125,7 +125,7 @@ class _CoelbaEmbasaState extends State<CoelbaEmbasa> {
                       mostrar = false;
                       mostrar2 = false;
                       _controller.text = "";
-                      _controllerPesquisa.text = "";
+                      controllerPesquisa.text = "";
                     });
                   },
                   child: Column(
@@ -145,7 +145,7 @@ class _CoelbaEmbasaState extends State<CoelbaEmbasa> {
                       mostrar = false;
                       mostrar2 = false;
                       _controller.text = "";
-                      _controllerPesquisa.text = "";
+                      controllerPesquisa.text = "";
                     });
                   },
                   child: Column(
@@ -167,7 +167,7 @@ class _CoelbaEmbasaState extends State<CoelbaEmbasa> {
               children: [
                 Button(
                   onPressed: () {
-                    _pegarDados();
+                    getCod();
                     setState(() {
                       mostrar = true;
                       mostrar2 = false;
@@ -201,7 +201,7 @@ class _CoelbaEmbasaState extends State<CoelbaEmbasa> {
               children: [
                 Button(
                   onPressed: () {
-                    _pegarIgreja();
+                    getName();
                     setState(() {
                       mostrar2 = true;
                       mostrar = false;
@@ -217,7 +217,7 @@ class _CoelbaEmbasaState extends State<CoelbaEmbasa> {
                 Expanded(
                   child: TypeAheadField<String>(
                     textFieldConfiguration: TextFieldConfiguration(
-                      controller: _controllerPesquisa,
+                      controller: controllerPesquisa,
                       textAlign: TextAlign.end,
                       decoration: inputDecoration.copyWith(labelText: "Igreja"),
                     ),
@@ -228,8 +228,8 @@ class _CoelbaEmbasaState extends State<CoelbaEmbasa> {
                           .contains(pattern.toLowerCase()));
                     },
                     onSuggestionSelected: (suggestion) {
-                      _controllerPesquisa.text = suggestion;
-                      _getIgreja(suggestion.split(" ")[0]);
+                      controllerPesquisa.text = suggestion;
+                      getSuggestion(suggestion.split(" ")[0]);
                     },
                     noItemsFoundBuilder: (context) => ListTile(
                       title: Text('Nenhuma igreja encontrada'),
