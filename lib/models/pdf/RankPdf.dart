@@ -146,10 +146,9 @@ Future<Uint8List> buildPdf(
     }
   }
 
-  PdfPageFormat? format;
   doc.addPage(
     pw.Page(
-      pageFormat: format,
+      pageFormat: PdfPageFormat.legal,
       build: (pw.Context context) {
         return pw.Container(
           child: pw.Column(
