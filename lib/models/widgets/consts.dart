@@ -7,8 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:printing/printing.dart';
 import 'package:remessa/functionalities/etiqueta.dart';
-
-import 'package:remessa/models/pdf/EtiquetaPdf.dart';
+import 'package:remessa/functionalities/etiqueta_igreja.dart';
 import 'package:remessa/models/pdf/LicaoPdf.dart';
 import 'package:remessa/models/widgets/Button.dart';
 import 'package:remessa/models/widgets/Reconciliacao.dart';
@@ -95,6 +94,7 @@ List<Widget> actions(String gerenciador, BuildContext context, String tela,
           )
         : Container(),
     Etiqueta(),
+    EtiquetaIgreja(),
     Tooltip(
       message: 'Conciliação Bancária',
       child: IconButton(

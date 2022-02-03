@@ -34,7 +34,7 @@ class _EtiquetaState extends State<Etiqueta> {
   @override
   Widget build(BuildContext context) {
     return Tooltip(
-      message: 'Etiqueta',
+      message: 'Etiqueta Distrito',
       child: IconButton(
           icon: Icon(Icons.local_offer),
           onPressed: () {
@@ -74,7 +74,7 @@ class _EtiquetaState extends State<Etiqueta> {
                             onPressed: () {
                               Printing.layoutPdf(
                                 onLayout: (format) {
-                                  return buildPdfEtiqueta(
+                                  return buildEtiquetaDistrito(
                                     distritoEtiqueta!,
                                     currentDate(dataAtual: true).split("/")[2],
                                   );
