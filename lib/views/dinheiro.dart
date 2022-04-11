@@ -226,7 +226,7 @@ class _DinheiroState extends State<Dinheiro> {
     return Scaffold(
       appBar: AppBar(
         title: Text("Protocolo Caixa"),
-        actions: actions('dinheiro', context, 'coelba'),
+        actions: actions('gerenciador', context, 'dinheiro'),
       ),
       body: Container(
         padding: EdgeInsets.all(10),

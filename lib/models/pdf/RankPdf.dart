@@ -51,7 +51,7 @@ class IgrejaModel {
   }
 }
 
-Future<Uint8List> buildPdf2(List<IgrejaModel> igrejas) async {
+Future<Uint8List> buildRemain(List<IgrejaModel> igrejas) async {
   final pw.Document doc = pw.Document();
   final baseColor = PdfColors.blue;
   const _darkColor = PdfColors.blueGrey800;
@@ -130,7 +130,7 @@ Future<Uint8List> buildPdf2(List<IgrejaModel> igrejas) async {
   return await doc.save();
 }
 
-Future<Uint8List> buildPdf(
+Future<Uint8List> buildRank(
     List<Distrito> distritos, int total, bool simples) async {
   final pw.Document doc = pw.Document();
   final baseColor = PdfColors.blue;

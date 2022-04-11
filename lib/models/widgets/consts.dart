@@ -7,13 +7,13 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:printing/printing.dart';
 import 'package:remessa/functionalities/etiqueta.dart';
-
-import 'package:remessa/models/pdf/EtiquetaPdf.dart';
+import 'package:remessa/functionalities/etiqueta_igreja.dart';
 import 'package:remessa/models/pdf/LicaoPdf.dart';
 import 'package:remessa/models/widgets/Button.dart';
 import 'package:remessa/models/widgets/Reconciliacao.dart';
 import 'package:remessa/views/CoelbaEmbasa.dart';
 import 'package:remessa/views/Home.dart';
+import 'package:remessa/views/LancamentoContabil.dart';
 import 'package:remessa/views/deposito/depositos.dart';
 import 'package:remessa/views/dinheiro.dart';
 import 'package:remessa/views/wrappers/Adicionar.dart';
@@ -95,6 +95,7 @@ List<Widget> actions(String gerenciador, BuildContext context, String tela,
           )
         : Container(),
     Etiqueta(),
+    EtiquetaIgreja(),
     Tooltip(
       message: 'Conciliação Bancária',
       child: IconButton(
@@ -132,6 +133,20 @@ List<Widget> actions(String gerenciador, BuildContext context, String tela,
         },
       ),
     ),
+    tela == 'lancamento'
+        ? Container()
+        : Tooltip(
+            message: "Lançamento Contábil",
+            child: IconButton(
+                icon: Icon(Icons.request_page),
+                onPressed: () {
+                  Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => LancamentoContabil(),
+                      ));
+                }),
+          ),
     Tooltip(
       message: 'Lições',
       child: IconButton(
