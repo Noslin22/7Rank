@@ -13,6 +13,7 @@ import 'package:remessa/models/widgets/Button.dart';
 import 'package:remessa/models/widgets/Reconciliacao.dart';
 import 'package:remessa/views/CoelbaEmbasa.dart';
 import 'package:remessa/views/Home.dart';
+import 'package:remessa/views/LancamentoContabil.dart';
 import 'package:remessa/views/deposito/depositos.dart';
 import 'package:remessa/views/dinheiro.dart';
 import 'package:remessa/views/wrappers/Adicionar.dart';
@@ -132,6 +133,20 @@ List<Widget> actions(String gerenciador, BuildContext context, String tela,
         },
       ),
     ),
+    tela == 'lancamento'
+        ? Container()
+        : Tooltip(
+            message: "Lançamento Contábil",
+            child: IconButton(
+                icon: Icon(Icons.request_page),
+                onPressed: () {
+                  Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => LancamentoContabil(),
+                      ));
+                }),
+          ),
     Tooltip(
       message: 'Lições',
       child: IconButton(
