@@ -319,7 +319,7 @@ class _LancamentoContabilState extends State<LancamentoContabil> {
                                   if (formKey.currentState!.validate()) {
                                     formKey.currentState!.save();
                                     List<String> text = [];
-                                    text.add(entidade);
+                                    text.add("$entidade;;;;;;;");
 
                                     for (var lancamento in lancamentos
                                         .where((element) => element.checked)) {
@@ -338,7 +338,7 @@ class _LancamentoContabilState extends State<LancamentoContabil> {
                                         as html.AnchorElement
                                       ..href = url
                                       ..style.display = 'none'
-                                      ..download = 'Reconciliacao.csv';
+                                      ..download = 'lancamentos.csv';
                                     html.document.body!.children.add(anchor);
                                     anchor.click();
                                     html.document.body!.children.remove(anchor);
