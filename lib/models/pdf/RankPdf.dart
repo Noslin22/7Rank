@@ -146,10 +146,11 @@ Future<Uint8List> buildRank(
     }
   }
 
-  PdfPageFormat? format;
   doc.addPage(
     pw.Page(
-      pageFormat: format,
+      pageFormat: PdfPageFormat(
+          21.0 * PdfPageFormat.cm, 29.7 * PdfPageFormat.cm,
+          marginAll: 1.5 * PdfPageFormat.cm),
       build: (pw.Context context) {
         return pw.Container(
           child: pw.Column(
