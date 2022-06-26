@@ -66,8 +66,15 @@
         var error_div = document.getElementById("error");
 
         if (firebase.auth().currentUser) {
+          var head = document.getElementsByTagName("head")[0];
+          var js = document.createElement("script");
+
+          js.type = "application/javascript";
+
+          js.src = "main.dart.js";
+
+          head.appendChild(js);
           error_div.style.display = "none";
-          app_div.style.display = "block";
           var serviceWorkerVersion = "2148643174";
           var scriptLoaded = false;
           function loadMainDartJs() {
@@ -119,14 +126,6 @@
           } else {
             loadMainDartJs();
           }
-          var head = document.getElementsByTagName("head")[0];
-          var js = document.createElement("script");
-
-          js.type = "application/javascript";
-
-          js.src = "main.dart.js";
-
-          head.appendChild(js);
         } else {
           error_div.style.display = "block";
           app_div.style.display = "none";
