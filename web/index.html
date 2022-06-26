@@ -49,9 +49,13 @@
       <div>
         <p style="color: #000000;">Tente:</p>
         <ul>
-          <li style="color: #000000;">Verificar os cabos de rede, modem e roteador</li>
+          <li style="color: #000000;">
+            Verificar os cabos de rede, modem e roteador
+          </li>
           <li style="color: #000000;">Conectar à rede Wi-Fi novamente</li>
-          <li style="color: #000000;">Executar o Diagnóstico de Rede do Windows</li>
+          <li style="color: #000000;">
+            Executar o Diagnóstico de Rede do Windows
+          </li>
         </ul>
       </div>
       <div style="color: #383535;">ERR_SERVER_DISCONNECTED</div>
@@ -59,69 +63,69 @@
 
     <div>
       <script>
-        
-    var error_div = document.getElementById("error");
-    var app_div = document.getElementById("app");
+        var error_div = document.getElementById("error");
+        var app_div = document.getElementById("app");
 
-    if (firebase.auth().currentUser) {
-      error_div.style.display = "none";
-      app_div.style.display = "block";
-      var serviceWorkerVersion = "2148643174";
-        var scriptLoaded = false;
-        function loadMainDartJs() {
-          if (scriptLoaded) {
-            return;
+        if (firebase.auth().currentUser) {
+          error_div.style.display = "none";
+          app_div.style.display = "block";
+          var serviceWorkerVersion = "2148643174";
+          var scriptLoaded = false;
+          function loadMainDartJs() {
+            if (scriptLoaded) {
+              return;
+            }
+            scriptLoaded = true;
+            var scriptTag = document.createElement("script");
+            scriptTag.src = "main.dart.js";
+            scriptTag.type = "application/javascript";
+            document.body.append(scriptTag);
           }
-          scriptLoaded = true;
-          var scriptTag = document.createElement("script");
-          scriptTag.src = "main.dart.js";
-          scriptTag.type = "application/javascript";
-          document.body.append(scriptTag);
-        }
 
-        if ("serviceWorker" in navigator) {
-          window.addEventListener("load", function () {
-            var serviceWorkerUrl =
-              "flutter_service_worker.js?v=" + serviceWorkerVersion;
-            navigator.serviceWorker.register(serviceWorkerUrl).then((reg) => {
-              function waitForActivation(serviceWorker) {
-                serviceWorker.addEventListener("statechange", () => {
-                  if (serviceWorker.state == "activated") {
-                    console.log("Installed new service worker.");
-                    loadMainDartJs();
-                  }
-                });
-              }
-              if (!reg.active && (reg.installing || reg.waiting)) {
-                waitForActivation(reg.installing ?? reg.waiting);
-              } else if (!reg.active.scriptURL.endsWith(serviceWorkerVersion)) {
-                console.log("New service worker available.");
-                reg.update();
-                waitForActivation(reg.installing);
-              } else {
-                console.log("Loading app from service worker.");
-                loadMainDartJs();
-              }
+          if ("serviceWorker" in navigator) {
+            window.addEventListener("load", function () {
+              var serviceWorkerUrl =
+                "flutter_service_worker.js?v=" + serviceWorkerVersion;
+              navigator.serviceWorker.register(serviceWorkerUrl).then((reg) => {
+                function waitForActivation(serviceWorker) {
+                  serviceWorker.addEventListener("statechange", () => {
+                    if (serviceWorker.state == "activated") {
+                      console.log("Installed new service worker.");
+                      loadMainDartJs();
+                    }
+                  });
+                }
+                if (!reg.active && (reg.installing || reg.waiting)) {
+                  waitForActivation(reg.installing ?? reg.waiting);
+                } else if (
+                  !reg.active.scriptURL.endsWith(serviceWorkerVersion)
+                ) {
+                  console.log("New service worker available.");
+                  reg.update();
+                  waitForActivation(reg.installing);
+                } else {
+                  console.log("Loading app from service worker.");
+                  loadMainDartJs();
+                }
+              });
+              setTimeout(() => {
+                if (!scriptLoaded) {
+                  console.warn(
+                    "Failed to load app from service worker. Falling back to plain <script> tag."
+                  );
+                  loadMainDartJs();
+                }
+              }, 4000);
             });
-            setTimeout(() => {
-              if (!scriptLoaded) {
-                console.warn(
-                  "Failed to load app from service worker. Falling back to plain <script> tag."
-                );
-                loadMainDartJs();
-              }
-            }, 4000);
-          });
+          } else {
+            loadMainDartJs();
+          }
+          document.write("<script src='main.dart.js' type='application/javascript'/>");
         } else {
-          loadMainDartJs();
+          error_div.style.display = "block";
+          app_div.style.display = "none";
         }
-    } else {
-      error_div.style.display = "block";
-      app_div.style.display = "none";
-    }
-        
       </script>
-      <script src="main.dart.js" type="application/javascript" id="app"></script>
     </div>
   </body>
 </html>
