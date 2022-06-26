@@ -1,5 +1,6 @@
 import 'dart:typed_data';
 
+import 'package:intl/intl.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart';
 
@@ -32,11 +33,16 @@ Future<Uint8List> buildPdfDistrito(
   final Document doc = Document();
   final baseColor = PdfColors.blue;
   const _darkColor = PdfColors.blueGrey800;
-
   PdfColor _baseTextColor = PdfColors.white;
+  double total = 0;
   final List<String> headers =
       protocolo ? ['Código', 'Igreja', 'Valor'] : ['Igreja', 'Data'];
-
+  protocolos?.forEach((element) {
+    total += double.parse(element[2]!
+        .replaceAll("R\$", "")
+        .replaceAll(".", "")
+        .replaceAll(",", "."));
+  });
   PdfPageFormat? format;
   doc.addPage(
     MultiPage(
@@ -56,13 +62,11 @@ Future<Uint8List> buildPdfDistrito(
                           style:
                               TextStyle(color: PdfColors.black, fontSize: 14),
                         ),
-                        !protocolo
-                            ? Text(
+                        Text(
                                 data!,
                                 style: TextStyle(
                                     color: PdfColors.black, fontSize: 14),
-                              )
-                            : Container(),
+                              ),
                       ],
                     ),
                   ),
@@ -128,6 +132,20 @@ Future<Uint8List> buildPdfDistrito(
                             ),
                     ),
                   ),
+                  protocolo ? Container(
+                    width: double.infinity,
+                    height: 30,
+                    child: Center(
+                      child: Text(
+                        "Total:  ${_format(total)}",
+                        style: TextStyle(
+                          fontSize: 20,
+                          color: PdfColors.white,
+                        ),
+                      ),
+                    ),
+                    color: PdfColors.blue,
+                  ) : Container()
                 ]),
               ),
             ],
@@ -138,3 +156,8 @@ Future<Uint8List> buildPdfDistrito(
   );
   return await doc.save();
 }
+
+String _format(double dou) {
+    return NumberFormat.currency(locale: 'pt_BR', decimalDigits: 2, name: "R\$")
+        .format(dou);
+  }

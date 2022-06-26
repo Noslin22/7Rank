@@ -40,9 +40,9 @@ class _RankState extends State<Rank> {
 
   pdf({bool rank = true}) {
     return rank
-        ? buildPdf(distritos, _total, _simples)
+        ? buildRank(distritos, _total, _simples)
         : igrejas.isNotEmpty
-            ? buildPdf2(igrejas)
+            ? buildRemain(igrejas)
             : null;
   }
 

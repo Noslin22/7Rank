@@ -9,17 +9,21 @@ const RESOURCES = {
 "assets/assets/Ess_logo.png": "55f698ffb492d0718804fdce7a49c7bc",
 "assets/assets/Iasd.png": "2b48ba3658eb7ec13ddbd1799d9a6380",
 "assets/assets/imagem-error.png": "9f93c0e9a85a61bbeff1bc2f5d01a50d",
-"assets/assets/logo_app.png": "723ab2053e578c8cf693e72459eeab9c",
+"assets/assets/logo_app.png": "46c5f4a4dbd41112158e02fb18c2aa39",
 "assets/FontManifest.json": "7b2a36307916a9721811788013e65289",
 "assets/fonts/MaterialIcons-Regular.otf": "4e6447691c9509f7acdbf8a931a85ca1",
-"assets/NOTICES": "331e7b6a2aa70289182c2ecbbcf446d0",
+"assets/NOTICES": "babec694c4dc9f2b6e520dd953c0a0b0",
+"canvaskit/canvaskit.js": "62b9906717d7215a6ff4cc24efbd1b5c",
+"canvaskit/canvaskit.wasm": "b179ba02b7a9f61ebc108f82c5a1ecdb",
+"canvaskit/profiling/canvaskit.js": "3783918f48ef691e230156c251169480",
+"canvaskit/profiling/canvaskit.wasm": "6d1b0fc1ec88c3110db88caa3393c580",
 "icons/7Rank192.png": "d2f1645ec3f33b9febe9a387484097d3",
 "icons/7Rank512.png": "59922ba70621409a7e789c3767265e3d",
-"index.html": "be86fc706c0909d4f6f6a40b1cf1e691",
-"/": "be86fc706c0909d4f6f6a40b1cf1e691",
-"main.dart.js": "8edb407c677db4d58a087bac78894af8",
+"index.html": "487d8165c5feb432b79f74612a1350ec",
+"/": "487d8165c5feb432b79f74612a1350ec",
+"main.dart.js": "ccdef06d91e5d9912c1c72b984933658",
 "manifest.json": "06d3041dd687eb87a86d50293d9fb4a5",
-"version.json": "4639302361f56de9af8af6013d368ab3"
+"version.json": "ea0efdbbdf81094f9abd73c2dbf002d0"
 };
 
 // The application shell files that are downloaded before a service worker can

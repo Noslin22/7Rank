@@ -9,7 +9,8 @@ import 'package:remessa/models/widgets/consts.dart';
 
 class Dinheiro extends StatefulWidget {
   final SimpleCache<String, List<List<String?>>?> cache;
-  Dinheiro(this.cache);
+  final SimpleCache<String, double> totalCache;
+  Dinheiro(this.cache, this.totalCache);
   @override
   _DinheiroState createState() => _DinheiroState();
 }
@@ -27,6 +28,8 @@ class _DinheiroState extends State<Dinheiro> {
   TextEditingController controller5 = TextEditingController();
   TextEditingController controller2 = TextEditingController();
   TextEditingController controller1 = TextEditingController();
+  TextEditingController controllerRm = TextEditingController();
+  TextEditingController controllerCod = TextEditingController();
   TextEditingController controllerCheque1 = TextEditingController();
   TextEditingController controllerCheque2 = TextEditingController();
   TextEditingController controllerCheque3 = TextEditingController();
@@ -38,6 +41,8 @@ class _DinheiroState extends State<Dinheiro> {
     filter: {"#": RegExp(r'[0-9]')},
   );
   List<List<String?>> protocolo = [];
+  double totalAmostra = 0;
+
   Map<String, String> igrejas = {};
   String total = "R\$ 0,00";
   List<String?> datas = [
@@ -114,6 +119,10 @@ class _DinheiroState extends State<Dinheiro> {
     if (widget.cache.get("protocolo") != null) {
       protocolo = widget.cache.get("protocolo")!;
     }
+    if (widget.totalCache.get("total") != null) {
+      totalAmostra = widget.totalCache.get("total")!;
+    }
+    igrejas["3"] = "ABaC";
   }
 
   _clearForm() {
@@ -135,6 +144,7 @@ class _DinheiroState extends State<Dinheiro> {
     cheque3 = 0.0;
     cheque4 = 0.0;
     cheque5 = 0.0;
+    totalAmostra = 0;
     controller200.text = "";
     controller100.text = "";
     controller050.text = "";
@@ -147,6 +157,8 @@ class _DinheiroState extends State<Dinheiro> {
     controller5.text = "";
     controller2.text = "";
     controller1.text = "";
+    controllerRm.text = "";
+    controllerCod.text = "";
     controllerCheque1.text = "";
     controllerCheque2.text = "";
     controllerCheque3.text = "";
@@ -214,7 +226,7 @@ class _DinheiroState extends State<Dinheiro> {
     return Scaffold(
       appBar: AppBar(
         title: Text("Protocolo Caixa"),
-        actions: actions('dinheiro', context, 'coelba'),
+        actions: actions('gerenciador', context, 'dinheiro'),
       ),
       body: Container(
         padding: EdgeInsets.all(10),
@@ -231,6 +243,7 @@ class _DinheiroState extends State<Dinheiro> {
                           setState(() {
                             _clearForm();
                             cod = value;
+                            controllerCod.text = cod;
                             focus = 1;
                             datas[0] = value;
                             datas[1] = igrejas[value];
@@ -238,6 +251,7 @@ class _DinheiroState extends State<Dinheiro> {
                           myFocusNode = FocusNode();
                           myFocusNode!.requestFocus();
                         },
+                        controller: controllerCod,
                         focusNode: focus == 0 ? myFocusNode : null,
                         textAlign: TextAlign.center,
                         decoration: inputDecoration.copyWith(
@@ -248,7 +262,11 @@ class _DinheiroState extends State<Dinheiro> {
                     SizedBox(
                       width: 30,
                     ),
-                    Text(cod != "" ? igrejas[cod]! : "Nome da Igreja"),
+                    Text(
+                      cod != ""
+                          ? igrejas[cod] ?? "Não existe igreja com este código"
+                          : "Código da igreja",
+                    ),
                     SizedBox(
                       width: 70,
                     ),
@@ -263,6 +281,7 @@ class _DinheiroState extends State<Dinheiro> {
                           myFocusNode = FocusNode();
                           myFocusNode!.requestFocus();
                         },
+                        controller: controllerRm,
                         focusNode: focus == 1 ? myFocusNode : null,
                         textAlign: TextAlign.center,
                         inputFormatters: [formatRm],
@@ -281,6 +300,7 @@ class _DinheiroState extends State<Dinheiro> {
                       protocolo = [];
                     });
                     widget.cache.set("protocolo", protocolo);
+                    widget.totalCache.set("total", 0);
                   },
                   child: Text(
                     "Novo Protocolo",
@@ -760,105 +780,113 @@ class _DinheiroState extends State<Dinheiro> {
                           height: 20,
                         ),
                         Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Expanded(
-                              flex: 1,
-                              child: TextButton(
-                                onPressed: () {
+                            TextButton(
+                              onPressed: () {
+                                if (igrejas[cod] != null) {
+                                  double valor = double.parse(total
+                                      .replaceAll("R\$", "")
+                                      .replaceAll(".", "")
+                                      .replaceAll(",", "."));
                                   setState(() {
                                     protocolo.add([cod, igrejas[cod], total]);
                                     widget.cache.set("protocolo", protocolo);
+                                    totalAmostra += valor;
+
+                                    widget.totalCache
+                                        .set("total", totalAmostra);
                                   });
-                                },
-                                child: Text(
-                                  "Gravar",
-                                  style: TextStyle(color: Colors.white),
+                                } else {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text(
+                                        "Não existe igreja com este código",
+                                      ),
+                                    ),
+                                  );
+                                }
+                              },
+                              child: Text(
+                                "Gravar",
+                                style: TextStyle(color: Colors.white),
+                              ),
+                              style: ButtonStyle(
+                                backgroundColor:
+                                    MaterialStateProperty.resolveWith(
+                                  (states) {
+                                    if (states
+                                        .contains(MaterialState.pressed)) {
+                                      return Colors.deepOrange.withOpacity(0.7);
+                                    }
+                                    return Colors.deepOrange;
+                                  },
                                 ),
-                                style: ButtonStyle(
-                                  backgroundColor:
-                                      MaterialStateProperty.resolveWith(
-                                    (states) {
-                                      if (states
-                                          .contains(MaterialState.pressed)) {
-                                        return Colors.deepOrange
-                                            .withOpacity(0.7);
-                                      }
-                                      return Colors.deepOrange;
-                                    },
-                                  ),
-                                  padding: MaterialStateProperty.all(
-                                    EdgeInsets.all(10),
-                                  ),
+                                padding: MaterialStateProperty.all(
+                                  EdgeInsets.all(10),
                                 ),
                               ),
                             ),
-                            Spacer(),
-                            Expanded(
-                              flex: 1,
-                              child: TextButton(
-                                onPressed: () {
-                                  Printing.layoutPdf(
-                                    name: 'Malote',
-                                    onLayout: (format) {
-                                      return buildPdfMalote(datas);
-                                    },
-                                  );
-                                },
-                                child: Text(
-                                  "Malote",
-                                  style: TextStyle(color: Colors.white),
+                            TextButton(
+                              onPressed: () {
+                                Printing.layoutPdf(
+                                  name: 'Malote',
+                                  onLayout: (format) {
+                                    return buildPdfMalote(datas);
+                                  },
+                                );
+                              },
+                              child: Text(
+                                "Malote",
+                                style: TextStyle(color: Colors.white),
+                              ),
+                              style: ButtonStyle(
+                                backgroundColor:
+                                    MaterialStateProperty.resolveWith(
+                                  (states) {
+                                    if (states
+                                        .contains(MaterialState.pressed)) {
+                                      return Colors.indigo.withOpacity(0.7);
+                                    }
+                                    return Colors.indigo;
+                                  },
                                 ),
-                                style: ButtonStyle(
-                                  backgroundColor:
-                                      MaterialStateProperty.resolveWith(
-                                    (states) {
-                                      if (states
-                                          .contains(MaterialState.pressed)) {
-                                        return Colors.indigo.withOpacity(0.7);
-                                      }
-                                      return Colors.indigo;
-                                    },
-                                  ),
-                                  padding: MaterialStateProperty.all(
-                                    EdgeInsets.all(10),
-                                  ),
+                                padding: MaterialStateProperty.all(
+                                  EdgeInsets.all(10),
                                 ),
                               ),
                             ),
-                            Spacer(),
-                            Expanded(
-                              flex: 1,
-                              child: TextButton(
-                                onPressed: () {
-                                  Printing.layoutPdf(
-                                    name: 'Protocolo Caixa',
-                                    onLayout: (format) {
-                                      return buildPdfDistrito(
-                                        protocolos: protocolo,
-                                        protocolo: true,
-                                      );
-                                    },
-                                  );
-                                },
-                                child: Text(
-                                  "Imprimir",
-                                  style: TextStyle(color: Colors.white),
+                            TextButton(
+                              onPressed: () {
+                                Printing.layoutPdf(
+                                  name: 'Protocolo Caixa',
+                                  onLayout: (format) {
+                                    return buildPdfDistrito(
+                                      protocolos: protocolo,
+                                      protocolo: true,
+                                      data: DateFormat("dd/MM/yyyy")
+                                          .format(DateTime.now()),
+                                    );
+                                  },
+                                );
+                              },
+                              child: Text(
+                                "Imprimir",
+                                style: TextStyle(color: Colors.white),
+                              ),
+                              style: ButtonStyle(
+                                backgroundColor:
+                                    MaterialStateProperty.resolveWith(
+                                  (states) {
+                                    if (states
+                                        .contains(MaterialState.pressed)) {
+                                      return Colors.lightGreen.withOpacity(0.7);
+                                    }
+                                    return Colors.lightGreen;
+                                  },
                                 ),
-                                style: ButtonStyle(
-                                  backgroundColor:
-                                      MaterialStateProperty.resolveWith(
-                                    (states) {
-                                      if (states
-                                          .contains(MaterialState.pressed)) {
-                                        return Colors.lightGreen
-                                            .withOpacity(0.7);
-                                      }
-                                      return Colors.lightGreen;
-                                    },
-                                  ),
-                                  padding: MaterialStateProperty.all(
-                                    EdgeInsets.all(10),
-                                  ),
+                                padding: MaterialStateProperty.all(
+                                  EdgeInsets.all(10),
                                 ),
                               ),
                             ),
@@ -1123,52 +1151,72 @@ class _DinheiroState extends State<Dinheiro> {
                           ),
                         ),
                         Expanded(
-                          child: ListView.builder(
-                            itemCount: protocolo.length,
-                            itemBuilder: (context, index) {
-                              return Container(
-                                decoration: BoxDecoration(
-                                  border: Border(
-                                    bottom: BorderSide(
-                                      color: Colors.black,
+                          child: Column(
+                            children: [
+                              Expanded(
+                                child: ListView.builder(
+                                  itemCount: protocolo.length,
+                                  itemBuilder: (context, index) {
+                                    return Container(
+                                      decoration: BoxDecoration(
+                                        border: Border(
+                                          bottom: BorderSide(
+                                            color: Colors.black,
+                                          ),
+                                        ),
+                                      ),
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceAround,
+                                        children: <Widget>[
+                                          Container(
+                                            padding: EdgeInsets.all(4.0),
+                                            width: 100.0,
+                                            child: Text(
+                                              protocolo[index][0]!,
+                                              style: TextStyle(fontSize: 20),
+                                              textAlign: TextAlign.center,
+                                            ),
+                                          ),
+                                          Container(
+                                            padding: EdgeInsets.all(4.0),
+                                            width: 300.0,
+                                            child: Text(
+                                              protocolo[index][1]!,
+                                              style: TextStyle(fontSize: 16),
+                                              textAlign: TextAlign.center,
+                                            ),
+                                          ),
+                                          Container(
+                                            padding: EdgeInsets.all(4.0),
+                                            width: 150.0,
+                                            child: Text(
+                                              protocolo[index][2]!,
+                                              style: TextStyle(fontSize: 20),
+                                              textAlign: TextAlign.center,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    );
+                                  },
+                                ),
+                              ),
+                              Container(
+                                width: double.infinity,
+                                height: 30,
+                                child: Center(
+                                  child: Text(
+                                    "Total:  ${_format(totalAmostra)}",
+                                    style: TextStyle(
+                                      fontSize: 20,
+                                      color: Colors.white,
                                     ),
                                   ),
                                 ),
-                                child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceAround,
-                                  children: <Widget>[
-                                    Container(
-                                      padding: EdgeInsets.all(4.0),
-                                      width: 100.0,
-                                      child: Text(
-                                        protocolo[index][0]!,
-                                        style: TextStyle(fontSize: 20),
-                                        textAlign: TextAlign.center,
-                                      ),
-                                    ),
-                                    Container(
-                                      padding: EdgeInsets.all(4.0),
-                                      width: 300.0,
-                                      child: Text(
-                                        protocolo[index][1]!,
-                                        style: TextStyle(fontSize: 16),
-                                        textAlign: TextAlign.center,
-                                      ),
-                                    ),
-                                    Container(
-                                      padding: EdgeInsets.all(4.0),
-                                      width: 150.0,
-                                      child: Text(
-                                        protocolo[index][2]!,
-                                        style: TextStyle(fontSize: 20),
-                                        textAlign: TextAlign.center,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              );
-                            },
+                                color: Colors.blue,
+                              )
+                            ],
                           ),
                         ),
                       ],

@@ -1,6 +1,4 @@
 import 'dart:convert';
-import 'dart:io';
-import 'package:collection/collection.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dcache/dcache.dart';
 import 'package:file_picker/file_picker.dart';
@@ -8,27 +6,25 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:printing/printing.dart';
-import 'package:remessa/models/pages/reconciliacao/config_reconciliacao.dart';
-
-import 'package:remessa/models/pdf/EtiquetaPdf.dart';
+import 'package:remessa/functionalities/etiqueta.dart';
+import 'package:remessa/functionalities/etiqueta_igreja.dart';
 import 'package:remessa/models/pdf/LicaoPdf.dart';
 import 'package:remessa/models/widgets/Button.dart';
+import 'package:remessa/models/widgets/Reconciliacao.dart';
 import 'package:remessa/views/CoelbaEmbasa.dart';
 import 'package:remessa/views/Home.dart';
-import 'package:remessa/views/depositos.dart';
+import 'package:remessa/views/LancamentoContabil.dart';
+import 'package:remessa/views/deposito/depositos.dart';
 import 'package:remessa/views/dinheiro.dart';
 import 'package:remessa/views/wrappers/Adicionar.dart';
 import 'package:remessa/views/wrappers/WrappersAutenticate/Login.dart';
 import 'package:remessa/views/wrappers/WrappersAutenticate/Registro.dart';
-import 'package:universal_html/html.dart' as html;
 
 import '../Auth.dart';
 import 'Conciliacao.dart';
 
 final FirebaseFirestore db = FirebaseFirestore.instance;
 
-List<DropdownMenuItem> distritos = [];
-String? distritoEtiqueta;
 final inputDecoration = InputDecoration(
   border: OutlineInputBorder(
     borderSide: BorderSide(color: Colors.blue, width: 3),
@@ -43,21 +39,11 @@ SimpleCache<String, List<List<String?>>?> c2 =
     SimpleCache<String, List<List<String?>>?>(
   storage: InMemoryStorage(3),
 );
+SimpleCache<String, double> c3 = SimpleCache<String, double>(
+  storage: InMemoryStorage(3),
+);
 
 final navigatorKey = GlobalKey<NavigatorState>();
-void initialize(BuildContext context) {
-  db.collection("distritos").get().then((value) {
-    value.docs.forEach((element) {
-      print(element.id);
-      distritos.add(
-        DropdownMenuItem(
-          child: Text(element.id),
-          value: element.id,
-        ),
-      );
-    });
-  });
-}
 
 currentDate({String? date, bool dateTime = true, bool dataAtual = false}) {
   List? _listaData = date != null ? date.split("/").toList() : null;
@@ -76,7 +62,6 @@ currentDate({String? date, bool dateTime = true, bool dataAtual = false}) {
 
 List<Widget> actions(String gerenciador, BuildContext context, String tela,
     {Auth? auth, Function? setDistrito, bool? igreja}) {
-  initialize(context);
   return [
     tela != 'home'
         ? Tooltip(
@@ -109,79 +94,8 @@ List<Widget> actions(String gerenciador, BuildContext context, String tela,
                 }),
           )
         : Container(),
-    Tooltip(
-      message: 'Etiqueta',
-      child: IconButton(
-          icon: Icon(Icons.local_offer),
-          onPressed: () {
-            showDialog(
-              context: context,
-              builder: (context) {
-                return AlertDialog(
-                  title: Text(
-                    "Escolha um distrito",
-                    textAlign: TextAlign.center,
-                  ),
-                  content: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      DropdownButtonFormField(
-                        onChanged: (dynamic value) {
-                          distritoEtiqueta = value;
-                        },
-                        onSaved: (dynamic value) {
-                          distritoEtiqueta = value;
-                        },
-                        hint: Text("Distritos"),
-                        items: distritos,
-                        value: distritoEtiqueta,
-                      ),
-                    ],
-                  ),
-                  actions: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Expanded(
-                          flex: 1,
-                          child: Button(
-                            color: Colors.lightGreen,
-                            label: "Gerar",
-                            onPressed: () {
-                              Printing.layoutPdf(
-                                onLayout: (format) {
-                                  return buildPdfEtiqueta(
-                                    distritoEtiqueta,
-                                    currentDate(dataAtual: true).split("/")[2],
-                                  );
-                                },
-                              );
-                              Navigator.of(context).pop();
-                              distritoEtiqueta = "";
-                            },
-                          ),
-                        ),
-                        Expanded(
-                          child: Container(),
-                        ),
-                        Expanded(
-                          flex: 1,
-                          child: Button(
-                            color: Colors.blue,
-                            label: "Cancelar",
-                            onPressed: () {
-                              Navigator.of(context).pop();
-                            },
-                          ),
-                        ),
-                      ],
-                    )
-                  ],
-                );
-              },
-            );
-          }),
-    ),
+    Etiqueta(),
+    EtiquetaIgreja(),
     Tooltip(
       message: 'Conciliação Bancária',
       child: IconButton(
@@ -195,137 +109,9 @@ List<Widget> actions(String gerenciador, BuildContext context, String tela,
             ],
           );
           if (result != null) {
-            List<PlatformFile> files = result.files;
-            bool poupanca = false;
-            bool acms = true;
-
             showDialog(
               context: context,
-              builder: (context) {
-                return StatefulBuilder(
-                  builder: (context, setState) {
-                    return AlertDialog(
-                      title: Text("Confirme o(s) arquivo(s)"),
-                      content: Text("${files[0].name} e outros"),
-                      actions: [
-                        Row(
-                          children: [
-                            Expanded(
-                              flex: 1,
-                              child: Button(
-                                color: Colors.deepOrange,
-                                onPressed: () {
-                                  setState(() {
-                                    poupanca = !poupanca;
-                                  });
-                                },
-                                label: poupanca ? "Poupança" : "Corrente",
-                              ),
-                            ),
-                            Expanded(
-                              child: Container(),
-                            ),
-                            Expanded(
-                              flex: 1,
-                              child: Button(
-                                color: Colors.orange,
-                                onPressed: () {
-                                  setState(() {
-                                    acms = !acms;
-                                  });
-                                },
-                                label: acms ? "ACMS" : "AASI",
-                              ),
-                            ),
-                            Expanded(
-                              child: Container(),
-                            ),
-                            Expanded(
-                              flex: 1,
-                              child: Button(
-                                color: Colors.lightGreen,
-                                label: "Gerar",
-                                onPressed: () async {
-                                  for (var file in files) {
-                                      List<String> text = acms
-                                          ? [
-                                              "Bank	BankAccountNumber	Date	Description	Value"
-                                            ]
-                                          : [];
-                                      for (var element in organizeFile(file)) {
-                                        if (acms) {
-                                          text.add(
-                                              "237	${element["conta"]}${poupanca ? "1" : ""}	${element["data"]}	${element["lancamento"]} - ${element["doc"]}	${element["valor"]}");
-                                        } else {
-                                          List<String> letters =
-                                              element["valor"]!
-                                                  .split('')
-                                                  .reversed
-                                                  .toList();
-                                          letters.insert(2, ',');
-                                          text.add(
-                                              "${element["data"]};${element["lancamento"]};${element["doc"]};${element["valor"]!.contains('-') ? '' : letters.reversed.join()};${element["valor"]!.contains('-') ? letters.reversed.join().replaceAll("-", '') : ''}");
-                                        }
-                                      }
-                                      if (kIsWeb) {
-                                        var anchor;
-                                        var url;
-                                        // prepare
-                                        final bytes =
-                                            utf8.encode(text.join("\n"));
-                                        final blob = html.Blob([bytes]);
-                                        url = html.Url.createObjectUrlFromBlob(
-                                            blob);
-                                        anchor = html.document
-                                                .createElement('a')
-                                            as html.AnchorElement
-                                          ..href = url
-                                          ..style.display = 'none'
-                                          ..download =
-                                              'Conciliacao.${acms ? 'txt' : 'csv'}';
-                                        html.document.body!.children
-                                            .add(anchor);
-
-                                        // download
-                                        anchor.click();
-
-                                        // cleanup
-                                        html.document.body!.children
-                                            .remove(anchor);
-                                        html.Url.revokeObjectUrl(url);
-                                      } else {
-                                        final file = await File(
-                                                'Conciliacao.${acms ? 'txt' : 'csv'}')
-                                            .writeAsString(
-                                          text.join("\n"),
-                                        );
-                                        await file.open();
-                                      }
-                                    }
-                                    Navigator.of(context).pop();
-                                },
-                              ),
-                            ),
-                            Expanded(
-                              child: Container(),
-                            ),
-                            Expanded(
-                              flex: 1,
-                              child: Button(
-                                color: Colors.blue,
-                                label: "Sair",
-                                onPressed: () {
-                                  Navigator.of(context).pop();
-                                },
-                              ),
-                            ),
-                          ],
-                        )
-                      ],
-                    );
-                  },
-                );
-              },
+              builder: (context) => buildConciliacaoDialog(result: result),
             );
           }
         },
@@ -339,155 +125,28 @@ List<Widget> actions(String gerenciador, BuildContext context, String tela,
           PlatformFile? file;
           showDialog(
             context: context,
-            builder: (context) {
-              List<String> entidades = ["134811", "134893", "134812", "134821"];
-              String entidade = "134811";
-
-              return StatefulBuilder(
-                builder: (context, setState) {
-                  return AlertDialog(
-                    title: Row(
-                      children: [
-                        Text("Reconciliação"),
-                        Expanded(
-                          child: Container(),
-                        ),
-                        DropdownButton<String>(
-                          value: entidade,
-                          onChanged: (value) {
-                            setState(() {
-                              entidade = value!;
-                            });
-                          },
-                          items: List.generate(
-                            4,
-                            (index) => DropdownMenuItem(
-                              child: Text(entidades[index]),
-                              value: entidades[index],
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    content: InkWell(
-                      child: Text(
-                        file != null
-                            ? "${file!.name}"
-                            : "Clique para escolher o arquivo",
-                      ),
-                      onTap: () async {
-                        FilePickerResult? result =
-                            await FilePicker.platform.pickFiles(
-                          type: FileType.custom,
-                          allowedExtensions: [
-                            'csv',
-                          ],
-                        );
-                        if (result != null) {
-                          setState(() {
-                            file = result.files.first;
-                          });
-                        }
-                      },
-                    ),
-                    actions: [
-                      Row(
-                        children: [
-                          Flexible(
-                            child: Button(
-                              color: Colors.orange,
-                              onPressed: () {
-                                Navigator.pop(context);
-                                Navigator.pushReplacement(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) =>
-                                        ConfigReconciliacao(gerenciador),
-                                  ),
-                                );
-                              },
-                              label: "Configurações",
-                            ),
-                          ),
-                          Expanded(
-                            child: Container(),
-                          ),
-                          Flexible(
-                            child: Button(
-                              color: Colors.lightGreen,
-                              label: "Gerar",
-                              onPressed: () async {
-                                List<String> text = [];
-                                text.add(entidade);
-
-                                QuerySnapshot<Map<String, dynamic>> rules =
-                                    await db.collection("contabeis").get();
-                                for (var element in organizeFile(file!)) {
-                                  Configuration rule = Configuration.fromMap(
-                                      rules.docs.firstWhereOrNull(
-                                    (rule) {
-                                      return element["lancamento"]
-                                          .toString()
-                                          .toLowerCase()
-                                          .contains(
-                                            rule["historico"]
-                                                .toString()
-                                                .toLowerCase(),
-                                          );
-                                    },
-                                  ));
-                                  text.add(
-                                      "${rule.contaCred};${rule.subContaCred};${rule.departCred};${rule.fundoCred};${rule.tipoCred};${element["valor"]};${rule.aviso};${element["lancamento"]} - ${element["doc"]} - ${element["data"]}");
-                                  text.add(
-                                      "${rule.contaDep};${rule.subContaDep};${rule.departDep};${rule.fundoDep};${rule.tipoDep};-${element["valor"]};${rule.aviso};${element["lancamento"]} - ${element["doc"]} - ${element["data"]}");
-                                }
-                                var anchor;
-                                var url;
-                                // prepare
-                                final bytes = utf8.encode(text.join("\n"));
-                                final blob = html.Blob([bytes]);
-                                url = html.Url.createObjectUrlFromBlob(blob);
-                                anchor = html.document.createElement('a')
-                                    as html.AnchorElement
-                                  ..href = url
-                                  ..style.display = 'none'
-                                  ..download = 'Reconciliacao.csv';
-                                html.document.body!.children.add(anchor);
-
-                                // download
-                                anchor.click();
-
-                                // cleanup
-                                html.document.body!.children.remove(anchor);
-                                html.Url.revokeObjectUrl(url);
-                                Navigator.of(context).pop();
-                              },
-                            ),
-                          ),
-                          Expanded(
-                            child: Container(),
-                          ),
-                          Expanded(
-                            flex: 1,
-                            child: Button(
-                              color: Colors.blue,
-                              label: "Sair",
-                              onPressed: () {
-                                Navigator.of(context).pop();
-                              },
-                            ),
-                          ),
-                        ],
-                      )
-                    ],
-                  );
-                },
-              );
-            },
+            builder: (context) => buildReconciliacaoDialog(
+              gerenciador: gerenciador,
+              file: file,
+            ),
           );
         },
       ),
     ),
+    tela == 'lancamento'
+        ? Container()
+        : Tooltip(
+            message: "Lançamento Contábil",
+            child: IconButton(
+                icon: Icon(Icons.request_page),
+                onPressed: () {
+                  Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => LancamentoContabil(),
+                      ));
+                }),
+          ),
     Tooltip(
       message: 'Lições',
       child: IconButton(
@@ -544,7 +203,7 @@ List<Widget> actions(String gerenciador, BuildContext context, String tela,
       ),
     ),
     Tooltip(
-      message: 'Pesquisa por conta',
+      message: 'Pesquisar Igreja',
       child: IconButton(
           icon: Icon(
             Icons.search,
@@ -555,7 +214,92 @@ List<Widget> actions(String gerenciador, BuildContext context, String tela,
             String conta = "";
             String searched = "espera";
             String igrejaCod = "";
-            bool bancaria = true;
+            int state = 0;
+
+            String currentState(int mode) {
+              String value = "";
+              switch (mode) {
+                case 0:
+                  switch (state) {
+                    case 0:
+                      value = "Conta Bancária";
+                      break;
+                    case 1:
+                      value = "Código Igreja";
+                      break;
+                    case 2:
+                      value = "Nome Igreja";
+                      break;
+                  }
+                  break;
+                case 1:
+                  switch (state) {
+                    case 0:
+                      value = "Conta";
+                      break;
+                    case 1:
+                      value = "Código";
+                      break;
+                    case 2:
+                      value = "Igreja";
+                      break;
+                  }
+                  break;
+                case 1:
+                  switch (state) {
+                    case 0:
+                      value = "Conta Banc.";
+                      break;
+                    case 1:
+                      value = "Cod. Igreja";
+                      break;
+                    case 2:
+                      value = "Nome Igreja";
+                      break;
+                  }
+                  break;
+              }
+              return value;
+            }
+
+            void submit(String value, Function(void Function()) setState) {
+              List<Map<String, String>> jsonList =
+                  json.decode(result.toString());
+              if (jsonList.indexWhere((element) =>
+                      element["conta"]!.split("-")[0] == value && state == 0) !=
+                  -1) {
+                setState(() {
+                  igrejaCod =
+                      "${jsonList[jsonList.indexWhere((element) => element["conta"]!.split("-")[0] == value)]["cod"]} - ${jsonList[jsonList.indexWhere((element) => element["cod"]!.split("-")[0] == value)]["nome"]}";
+                  searched = "achou";
+                });
+              } else if (jsonList.indexWhere(
+                        (element) => element["cod"] == value,
+                      ) !=
+                      -1 &&
+                  state == 1) {
+                setState(() {
+                  igrejaCod =
+                      "${jsonList[jsonList.indexWhere((element) => element["cod"] == value)]["conta"]} - ${jsonList[jsonList.indexWhere((element) => element["cod"] == value)]["nome"]}";
+                  searched = "achou";
+                });
+              } else if (jsonList.indexWhere(
+                        (element) => element["nome"]?.split("/")[0] == value,
+                      ) !=
+                      -1 &&
+                  state == 2) {
+                setState(() {
+                  igrejaCod =
+                      "${jsonList[jsonList.indexWhere((element) => element["nome"]?.split("/")[0] == value)]["cod"]} - ${jsonList[jsonList.indexWhere((element) => element["cod"] == value)]["conta"]}";
+                  searched = "achou";
+                });
+              } else {
+                setState(() {
+                  searched = "erro";
+                });
+              }
+            }
+
             showDialog(
               context: context,
               builder: (context) {
@@ -564,45 +308,16 @@ List<Widget> actions(String gerenciador, BuildContext context, String tela,
                     return AlertDialog(
                       title: Text(
                         searched == "espera"
-                            ? bancaria
-                                ? "Conta Bancária"
-                                : "Código Igreja"
+                            ? currentState(0)
                             : searched == "achou"
                                 ? igrejaCod
-                                : bancaria
-                                    ? "Conta não existente"
-                                    : "Código não existente",
+                                : "${currentState(1)} não existente",
                         textAlign: TextAlign.center,
                       ),
                       content: TextField(
                         focusNode: FocusNode(),
                         onSubmitted: (value) {
-                          List<Map<String, String>> jsonList =
-                              json.decode(result.toString());
-                          if (jsonList.indexWhere((element) =>
-                                  element["conta"]!.split("-")[0] == value &&
-                                  bancaria) !=
-                              -1) {
-                            setState(() {
-                              igrejaCod =
-                                  "${jsonList[jsonList.indexWhere((element) => element["conta"]!.split("-")[0] == value)]["cod"]} - ${jsonList[jsonList.indexWhere((element) => element["conta"]!.split("-")[0] == value)]["nome"]}";
-                              searched = "achou";
-                            });
-                          } else if (jsonList.indexWhere(
-                                    (element) => element["cod"] == value,
-                                  ) !=
-                                  -1 &&
-                              !bancaria) {
-                            setState(() {
-                              igrejaCod =
-                                  "${jsonList[jsonList.indexWhere((element) => element["cod"] == value)]["conta"]} - ${jsonList[jsonList.indexWhere((element) => element["cod"] == value)]["nome"]}";
-                              searched = "achou";
-                            });
-                          } else {
-                            setState(() {
-                              searched = "erro";
-                            });
-                          }
+                          submit(value, setState);
                         },
                         onChanged: (value) {
                           setState(() {
@@ -622,10 +337,14 @@ List<Widget> actions(String gerenciador, BuildContext context, String tela,
                                 onPressed: () {
                                   setState(() {
                                     searched = "espera";
-                                    bancaria = !bancaria;
+                                    if (state != 2) {
+                                      state += 1;
+                                    } else {
+                                      state = 0;
+                                    }
                                   });
                                 },
-                                label: bancaria ? "Conta Banc." : "Cod. Igreja",
+                                label: currentState(1),
                               ),
                             ),
                             Expanded(
@@ -636,33 +355,8 @@ List<Widget> actions(String gerenciador, BuildContext context, String tela,
                               child: Button(
                                 color: Colors.lightGreen,
                                 label: "Pesquisar",
-                                onPressed: () async {
-                                  List<Map<String, String>> jsonList =
-                                      json.decode(result.toString());
-                                  if (jsonList.indexWhere((element) =>
-                                          element["conta"]!.split("-")[0] ==
-                                              conta &&
-                                          bancaria) !=
-                                      -1) {
-                                    setState(() {
-                                      igrejaCod =
-                                          "${jsonList[jsonList.indexWhere((element) => element["conta"]!.split("-")[0] == conta)]["cod"]} - ${jsonList[jsonList.indexWhere((element) => element["conta"]!.split("-")[0] == conta)]["nome"]}";
-                                      searched = "achou";
-                                    });
-                                  } else if (jsonList.indexWhere((element) =>
-                                              element["cod"] == conta) !=
-                                          -1 &&
-                                      !bancaria) {
-                                    setState(() {
-                                      igrejaCod =
-                                          "${jsonList[jsonList.indexWhere((element) => element["cod"] == conta)]["conta"]} - ${jsonList[jsonList.indexWhere((element) => element["cod"] == conta)]["nome"]}";
-                                      searched = "achou";
-                                    });
-                                  } else {
-                                    setState(() {
-                                      searched = "erro";
-                                    });
-                                  }
+                                onPressed: () {
+                                  submit(conta, setState);
                                 },
                               ),
                             ),
@@ -741,7 +435,7 @@ List<Widget> actions(String gerenciador, BuildContext context, String tela,
                       Navigator.pushReplacement(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => Dinheiro(c2),
+                          builder: (context) => Dinheiro(c2, c3),
                         ),
                       );
                     }),
@@ -857,80 +551,6 @@ drawer(String gerenciador, BuildContext context, String tela, {Auth? auth}) {
                 : Container()
             : Container(),
         ListTile(
-          title: Text('Etiqueta'),
-          leading: Icon(Icons.local_offer),
-          onTap: () {
-            Navigator.pop(context);
-            showDialog(
-              context: context,
-              builder: (context) {
-                return AlertDialog(
-                  title: Text(
-                    "Escolha um distrito",
-                    textAlign: TextAlign.center,
-                  ),
-                  content: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      DropdownButtonFormField(
-                        onChanged: (dynamic value) {
-                          distritoEtiqueta = value;
-                        },
-                        onSaved: (dynamic value) {
-                          distritoEtiqueta = value;
-                        },
-                        hint: Text("Distritos"),
-                        items: distritos,
-                        value: distritoEtiqueta,
-                      ),
-                    ],
-                  ),
-                  actions: [
-                    Row(
-                      mainAxisSize: MainAxisSize.max,
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Expanded(
-                          flex: 1,
-                          child: Button(
-                            color: Colors.lightGreen,
-                            label: 'Gerar',
-                            onPressed: () {
-                              Printing.layoutPdf(
-                                onLayout: (format) {
-                                  return buildPdfEtiqueta(
-                                    distritoEtiqueta,
-                                    currentDate(dataAtual: true).split("/")[2],
-                                  );
-                                },
-                              );
-                              Navigator.of(context).pop();
-                              distritoEtiqueta = "";
-                            },
-                          ),
-                        ),
-                        Expanded(
-                          child: Container(),
-                        ),
-                        Expanded(
-                          flex: 1,
-                          child: Button(
-                            color: Colors.blue,
-                            label: 'Cancelar',
-                            onPressed: () {
-                              Navigator.of(context).pop();
-                            },
-                          ),
-                        ),
-                      ],
-                    )
-                  ],
-                );
-              },
-            );
-          },
-        ),
-        ListTile(
           title: Text("Conciliação Bancária"),
           leading: Icon(Icons.insert_drive_file_rounded),
           onTap: () async {
@@ -942,136 +562,9 @@ drawer(String gerenciador, BuildContext context, String tela, {Auth? auth}) {
               ],
             );
             if (result != null) {
-              List<PlatformFile> files = result.files;
-              bool poupanca = false;
-              bool acms = true;
-
               showDialog(
                 context: context,
-                builder: (context) {
-                  return StatefulBuilder(
-                    builder: (context, setState) {
-                      return AlertDialog(
-                        title: Text("Confirme o(s) arquivo(s)"),
-                        content: Text("${files[0].name} e outros"),
-                        actions: [
-                          Row(
-                            children: [
-                              Expanded(
-                                flex: 1,
-                                child: Button(
-                                  color: Colors.deepOrange,
-                                  onPressed: () {
-                                    setState(() {
-                                      poupanca = !poupanca;
-                                    });
-                                  },
-                                  label: poupanca ? "Poupança" : "Corrente",
-                                ),
-                              ),
-                              Expanded(
-                                child: Container(),
-                              ),
-                              Expanded(
-                                flex: 1,
-                                child: Button(
-                                  color: Colors.orange,
-                                  onPressed: () {
-                                    setState(() {
-                                      acms = !acms;
-                                    });
-                                  },
-                                  label: acms ? "ACMS" : "AASI",
-                                ),
-                              ),
-                              Expanded(
-                                child: Container(),
-                              ),
-                              Expanded(
-                                flex: 1,
-                                child: Button(
-                                  color: Colors.lightGreen,
-                                  label: "Gerar",
-                                  onPressed: () async {
-                                    for (var file in files) {
-                                      List<String> text = acms
-                                          ? [
-                                              "Bank	BankAccountNumber	Date	Description	Value"
-                                            ]
-                                          : [];
-                                      for (var element in organizeFile(file)) {
-                                        if (acms) {
-                                          text.add(
-                                              "237	${element["conta"]}${poupanca ? "1" : ""}	${element["data"]}	${element["lancamento"]} - ${element["doc"]}	${element["valor"]}");
-                                        } else {
-                                          List<String> letters =
-                                              element["valor"]!
-                                                  .split('')
-                                                  .reversed
-                                                  .toList();
-                                          letters.insert(2, ',');
-                                          text.add(
-                                              "${element["data"]};${element["lancamento"]};${element["doc"]};${element["valor"]!.contains('-') ? '' : letters.reversed.join()};${element["valor"]!.contains('-') ? letters.reversed.join().replaceAll("-", '') : ''}");
-                                        }
-                                      }
-                                      if (kIsWeb) {
-                                        var anchor;
-                                        var url;
-                                        // prepare
-                                        final bytes =
-                                            utf8.encode(text.join("\n"));
-                                        final blob = html.Blob([bytes]);
-                                        url = html.Url.createObjectUrlFromBlob(
-                                            blob);
-                                        anchor = html.document
-                                                .createElement('a')
-                                            as html.AnchorElement
-                                          ..href = url
-                                          ..style.display = 'none'
-                                          ..download =
-                                              'Conciliacao.${acms ? 'txt' : 'csv'}';
-                                        html.document.body!.children
-                                            .add(anchor);
-
-                                        // download
-                                        anchor.click();
-
-                                        // cleanup
-                                        html.document.body!.children
-                                            .remove(anchor);
-                                        html.Url.revokeObjectUrl(url);
-                                      } else {
-                                        final file = await File(
-                                                'Conciliacao.${acms ? 'txt' : 'csv'}')
-                                            .writeAsString(
-                                          text.join("\n"),
-                                        );
-                                        await file.open();
-                                      }
-                                    }
-                                    Navigator.of(context).pop();
-                                  },
-                                ),
-                              ),
-                              Expanded(
-                                child: Container(),
-                              ),
-                              Expanded(
-                                  flex: 1,
-                                  child: Button(
-                                    color: Colors.blue,
-                                    label: "Sair",
-                                    onPressed: () {
-                                      Navigator.of(context).pop();
-                                    },
-                                  )),
-                            ],
-                          )
-                        ],
-                      );
-                    },
-                  );
-                },
+                builder: (context) => buildConciliacaoDialog(result: result),
               );
             }
           },
