@@ -64,7 +64,6 @@
     <div>
       <script>
         var error_div = document.getElementById("error");
-        var app_div = document.getElementById("app");
 
         if (firebase.auth().currentUser) {
           error_div.style.display = "none";
@@ -120,7 +119,14 @@
           } else {
             loadMainDartJs();
           }
-          document.write("<script src='main.dart.js' type='application/javascript'/>");
+          var head = document.getElementsByTagName("head")[0];
+          var js = document.createElement("script");
+
+          js.type = "application/javascript";
+
+          js.src = "main.dart.js";
+
+          head.appendChild(js);
         } else {
           error_div.style.display = "block";
           app_div.style.display = "none";
