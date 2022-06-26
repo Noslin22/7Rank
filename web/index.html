@@ -42,36 +42,31 @@
     };
     firebase.initializeApp(firebaseConfig);
     firebase.analytics();
+  </script>
+  <body>
+    <div id="error" style="display: block;">
+      <h1 style="color: #000000;">Servidor Desconectado</h1>
+      <div>
+        <p style="color: #000000;">Tente:</p>
+        <ul>
+          <li style="color: #000000;">Verificar os cabos de rede, modem e roteador</li>
+          <li style="color: #000000;">Conectar à rede Wi-Fi novamente</li>
+          <li style="color: #000000;">Executar o Diagnóstico de Rede do Windows</li>
+        </ul>
+      </div>
+      <div style="color: #383535;">ERR_SERVER_DISCONNECTED</div>
+    </div>
 
+    <div>
+      <script>
+        
     var error_div = document.getElementById("error");
     var app_div = document.getElementById("app");
-
 
     if (firebase.auth().currentUser) {
       error_div.style.display = "none";
       app_div.style.display = "block";
-    } else {
-      error_div.style.display = "block";
-      app_div.style.display = "none";
-    }
-  </script>
-  <body>
-    <div id="error" style="display: block;">
-      <h1>Servidor Desconectado</h1>
-      <div>
-        <p>Tente:</p>
-        <ul>
-          <li>Verificar os cabos de rede, modem e roteador</li>
-          <li>Conectar à rede Wi-Fi novamente</li>
-          <li>Executar o Diagnóstico de Rede do Windows</li>
-        </ul>
-      </div>
-      <div>ERR_SERVER_DISCONNECTED</div>
-    </div>
-
-    <div id="app" style="display: none;">
-      <script>
-        var serviceWorkerVersion = "2148643174";
+      var serviceWorkerVersion = "2148643174";
         var scriptLoaded = false;
         function loadMainDartJs() {
           if (scriptLoaded) {
@@ -120,8 +115,13 @@
         } else {
           loadMainDartJs();
         }
+    } else {
+      error_div.style.display = "block";
+      app_div.style.display = "none";
+    }
+        
       </script>
-      <script src="main.dart.js" type="application/javascript"></script>
+      <script src="main.dart.js" type="application/javascript" id="app"></script>
     </div>
   </body>
 </html>
