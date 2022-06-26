@@ -43,7 +43,7 @@
     firebase.initializeApp(firebaseConfig);
     firebase.analytics();
 
-    document.addEventListener("load", function () {
+    
       var error_div = document.getElementById("error");
 
       if (firebase.auth().currentUser) {
@@ -106,7 +106,6 @@
           loadMainDartJs();
         }
       }
-    });
   </script>
   <body>
     <div id="error" style="display: block;">
