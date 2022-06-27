@@ -42,12 +42,9 @@
     firebase.initializeApp(firebaseConfig);
     firebase.analytics();
 
-    var error_div = document.getElementById("error");
     document.addEventListener("DOMContentLoaded", function (event) {
-      console.log("3 seg");
       firebase.auth().onAuthStateChanged(function (user) {
         if (user) {
-          console.log("logado");
           var head = document.getElementsByTagName("head")[0];
           var script = document.createElement("script");
 
@@ -55,7 +52,6 @@
           script.setAttribute("src", "main.dart.js");
 
           head.appendChild(script);
-          error_div.style.display = "none";
           var serviceWorkerVersion = "2148643174";
           var scriptLoaded = false;
           function loadMainDartJs() {
@@ -107,14 +103,15 @@
           } else {
             loadMainDartJs();
           }
-        } else {
-          console.log("Não logado");
+        }
+        else{
+          document.getElementById("error").setAttribute("style", "display: block;");
         }
       });
     });
   </script>
   <body>
-    <div id="error" style="display: block;">
+    <div id="error" style="display: none;">
       <h1 style="color: #000000;">Servidor Desconectado</h1>
       <div>
         <p style="color: #000000;">Tente:</p>
