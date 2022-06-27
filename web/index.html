@@ -43,8 +43,8 @@
     firebase.analytics();
 
     var error_div = document.getElementById("error");
-    setTimeout(function () {console.log("3 seg");
-
+    document.addEventListener("DOMContentLoaded", function (event) {
+      console.log("3 seg");
       if (firebase.auth().currentUser) {
         console.log("logado");
         var head = document.getElementsByTagName("head")[0];
@@ -105,7 +105,7 @@
           loadMainDartJs();
         }
       }
-    }, 3000);
+    });
   </script>
   <body>
     <div id="error" style="display: block;">
