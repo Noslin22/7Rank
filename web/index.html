@@ -45,14 +45,14 @@
 
     var error_div = document.getElementById("error");
 
+    console.log("logado");
     if (firebase.auth().currentUser) {
       console.log("logado");
       var head = document.getElementsByTagName("head")[0];
-      var js = document.createElement("script");
+      var script = document.createElement("script");
 
-      js.type = "application/javascript";
-
-      js.src = "main.dart.js";
+      script.setAttribute("type", "text/javascript");
+      script.setAttribute("src", "main.dart.js");
 
       head.appendChild(js);
       error_div.style.display = "none";
