@@ -20,6 +20,7 @@ class _LancamentoContabilState extends State<LancamentoContabil> {
   FilePickerResult? file;
 
   List<String> entidades = ["134811", "134893", "134812", "134821"];
+  final controller = TextEditingController();
   List<Lancamento> lancamentos = [];
   String entidade = "134811";
 
@@ -81,6 +82,15 @@ class _LancamentoContabilState extends State<LancamentoContabil> {
   }
 
   @override
+  void initState() {
+    super.initState();
+    if (preferences!.getStringList("entidades") != null) {
+      entidades = preferences!.getStringList("entidades")!;
+      entidade = entidades[0];
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     double width = MediaQuery.of(context).size.width;
     bool mobile = width <= 750;
@@ -118,9 +128,81 @@ class _LancamentoContabilState extends State<LancamentoContabil> {
                     });
                   },
                   items: List.generate(
-                    4,
+                    entidades.length,
                     (index) => DropdownMenuItem(
-                      child: Text(entidades[index]),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(entidades[index]),
+                          SizedBox(
+                            width: 12,
+                          ),
+                          IconButton(
+                            onPressed: () {
+                              showDialog(
+                                context: context,
+                                builder: (context) => AlertDialog(
+                                  title: Text("Gerenciar Entidade"),
+                                  content: TextField(
+                                    controller: controller
+                                      ..text = entidades[index],
+                                    decoration: inputDecoration.copyWith(
+                                      hintText: "Digite a entidade",
+                                    ),
+                                  ),
+                                  actions: [
+                                    Row(
+                                      children: [
+                                        ElevatedButton(
+                                          style: ElevatedButton.styleFrom(
+                                              primary: Colors.red),
+                                          onPressed: () {
+                                            entidades.removeAt(index);
+                                            preferences!.setStringList(
+                                                "entidades", entidades);
+                                            Navigator.pop(context);
+                                          },
+                                          child: Row(
+                                            children: [
+                                              Text("Excluir"),
+                                              Icon(Icons.delete),
+                                            ],
+                                          ),
+                                        ),
+                                        SizedBox(
+                                          width: 8,
+                                        ),
+                                        ElevatedButton(
+                                          style: ElevatedButton.styleFrom(
+                                              primary: Colors.green),
+                                          onPressed: () {
+                                            entidades[entidades.indexOf(
+                                                    entidades[index])] =
+                                                controller.text;
+                                            preferences!.setStringList(
+                                                "entidades", entidades);
+                                            Navigator.pop(context);
+                                          },
+                                          child: Row(
+                                            children: [
+                                              Text("Salvar"),
+                                              Icon(Icons.check),
+                                            ],
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                              );
+                            },
+                            icon: Icon(
+                              Icons.edit,
+                              color: Colors.amber,
+                            ),
+                          ),
+                        ],
+                      ),
                       value: entidades[index],
                     ),
                   ),

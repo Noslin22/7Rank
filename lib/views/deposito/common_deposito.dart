@@ -49,9 +49,10 @@ List<String> depositos = [];
 
 List<Uint8List> data = [];
 List<String> amostra = [];
+List<String> contas = ["123", "132", "213", "231", "312", "Recibo Caixa"];
 
 FocusNode? myFocusNode;
-String conta = "128076-7";
+String conta = "";
 
 String cod = "";
 int focus = 0;

@@ -16,24 +16,27 @@ import 'package:universal_html/html.dart' as html;
 import 'common_deposito.dart';
 
 class Deposito extends StatefulWidget {
-  final SimpleCache<String, List<String>?> cache;
-  Deposito(this.cache);
+  Deposito();
   @override
   _DepositoState createState() => _DepositoState();
 }
 
 class _DepositoState extends State<Deposito> {
-  _pegarDados() {
+  void _pegarDados() {
     db.collection("igrejas").orderBy('nome').get().then((value) {
       value.docs.forEach((doc) {
         igrejas[doc["cod"].toString()] = doc['nome'].toString();
       });
     });
-    if (widget.cache.get("depositos") != null) {
-      depositos = widget.cache.get("depositos")!;
+    if (c1.get("depositos") != null) {
+      depositos = c1.get("depositos")!;
     }
-    if (widget.cache.get("amostra") != null) {
-      amostra = widget.cache.get("amostra")!;
+    if (c1.get("amostra") != null) {
+      amostra = c1.get("amostra")!;
+    }
+
+    if (preferences!.getStringList("contas") != null) {
+        contas = preferences!.getStringList("contas")!;
     }
   }
 
@@ -105,6 +108,8 @@ class _DepositoState extends State<Deposito> {
                 children: [
                   RadioGroupDeposito(
                       groupValue: conta,
+                      preferences: preferences,
+                      values: contas,
                       onChange: (String? text) {
                         setState(() {
                           conta = text!;
@@ -215,8 +220,8 @@ class _DepositoState extends State<Deposito> {
                         curve: Curves.easeOut,
                         duration: const Duration(milliseconds: 300),
                       );
-                      widget.cache.set("depositos", depositos);
-                      widget.cache.set("amostra", amostra);
+                      c1.set("depositos", depositos);
+                      c1.set("amostra", amostra);
                       setState(() {
                         depositos.insert(
                             0,
@@ -257,12 +262,12 @@ class _DepositoState extends State<Deposito> {
                                   focus = 0;
                                 });
                               }
-                              if(data != []){
+                              if (data != []) {
                                 Printing.layoutPdf(
-                                onLayout: (format) {
-                                  return buildPdfDeposito(data);
-                                },
-                              );
+                                  onLayout: (format) {
+                                    return buildPdfDeposito(data);
+                                  },
+                                );
                               }
                             }),
                       ),
@@ -274,8 +279,8 @@ class _DepositoState extends State<Deposito> {
                             color: Colors.lightGreen,
                             label: "Novo",
                             onPressed: () {
-                              widget.cache.get("depositos")!.clear();
-                              widget.cache.get("amostra")!.clear();
+                              c1.get("depositos")!.clear();
+                              c1.get("amostra")!.clear();
                               setState(() {
                                 depositos = [];
                                 amostra = [];
@@ -286,8 +291,8 @@ class _DepositoState extends State<Deposito> {
                                 controllerDc.text = '';
                                 focus = 0;
                               });
-                              widget.cache.set("depositos", depositos);
-                              widget.cache.set("amostra", amostra);
+                              c1.set("depositos", depositos);
+                              c1.set("amostra", amostra);
                             }),
                       ),
                     ],
@@ -399,7 +404,7 @@ class _DepositoState extends State<Deposito> {
                                 final pageImage = await page.render(
                                     width: page.width,
                                     height: page.height,
-                                    format: PdfPageFormat.JPEG);
+                                    format: PdfPageImageFormat.jpeg);
                                 datas.add(pageImage!.bytes);
                                 await page.close();
                               } else {

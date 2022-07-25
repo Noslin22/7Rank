@@ -19,11 +19,14 @@ import 'package:remessa/views/dinheiro.dart';
 import 'package:remessa/views/wrappers/Adicionar.dart';
 import 'package:remessa/views/wrappers/WrappersAutenticate/Login.dart';
 import 'package:remessa/views/wrappers/WrappersAutenticate/Registro.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../Auth.dart';
 import 'Conciliacao.dart';
 
 final FirebaseFirestore db = FirebaseFirestore.instance;
+
+  late final SharedPreferences? preferences;
 
 final inputDecoration = InputDecoration(
   border: OutlineInputBorder(
@@ -419,7 +422,7 @@ List<Widget> actions(String gerenciador, BuildContext context, String tela,
                   Navigator.pushReplacement(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => Deposito(c1),
+                      builder: (context) => Deposito(),
                     ),
                   );
                 }),
