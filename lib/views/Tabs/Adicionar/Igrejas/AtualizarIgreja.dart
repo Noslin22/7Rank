@@ -117,6 +117,9 @@ class _AtualizarIgrejaState extends State<AtualizarIgreja> {
                         setState(() => nome = newValue);
                       },
                       decoration: inputDecoration.copyWith(labelText: "Nome"),
+                      validator: (value) {
+                        return value == null || value == "" || value == " " ? "Preencha o nome" : null;
+                      },
                     ),
                     SizedBox(
                       height: 14,
@@ -157,6 +160,10 @@ class _AtualizarIgrejaState extends State<AtualizarIgreja> {
                               },
                               items: distritos,
                               value: distrito,
+                              
+                              validator: (value) {
+                                return value == null || value == "" || value == " " ? "Escolha um distrito" : null;
+                              },
                             );
                           }
                           return Container();
@@ -171,6 +178,10 @@ class _AtualizarIgrejaState extends State<AtualizarIgreja> {
                       },
                       decoration:
                           inputDecoration.copyWith(labelText: "Contrato"),
+                      
+                      validator: (value) {
+                        return value == " " ? "Preencha o contrato" : null;
+                      },
                     ),
                     SizedBox(
                       height: 14,
@@ -182,6 +193,9 @@ class _AtualizarIgrejaState extends State<AtualizarIgreja> {
                       },
                       decoration:
                           inputDecoration.copyWith(labelText: "Matricula"),
+                      validator: (value) {
+                        return value == " " ? "Preencha a matricula" : null;
+                      },
                     ),
                     SizedBox(
                       height: 14,
