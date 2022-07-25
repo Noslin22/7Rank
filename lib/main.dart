@@ -6,10 +6,17 @@ import 'package:provider/provider.dart';
 import 'package:remessa/models/Auth.dart';
 import 'package:remessa/models/widgets/consts.dart';
 import 'package:remessa/views/wrappers/Wrapper.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+import 'firebase_options.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp();
+
+  preferences = await SharedPreferences.getInstance();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
   runApp(MyApp());
 }
 

@@ -30,6 +30,13 @@
             {
               "client_id": "776069113661-orkfirnf2o7cthfd713s1jije6dde60g.apps.googleusercontent.com",
               "client_type": 3
+            },
+            {
+              "client_id": "776069113661-0b131df3q4n5bs024oinhcbkqsuuqja7.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "remessa.example.com"
+              }
             }
           ]
         }
