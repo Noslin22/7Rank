@@ -128,7 +128,7 @@ class _AtualizarIgrejaState extends State<AtualizarIgreja> {
                         stream: _controllerDistritos.stream,
                         builder: (context, snapshot) {
                           if (snapshot.hasData) {
-                            List<DropdownMenuItem> distritos = [
+                            List<DropdownMenuItem<String>> distritos = [
                               DropdownMenuItem(
                                 child: Text(
                                   "Distrito",
@@ -147,7 +147,7 @@ class _AtualizarIgrejaState extends State<AtualizarIgreja> {
                                 ),
                               );
                             }
-                            return DropdownButtonFormField(
+                            return DropdownButtonFormField<String>(
                               decoration: inputDecoration,
                               onChanged: (dynamic value) {
                                 setState(() {
